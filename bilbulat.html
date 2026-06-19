@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematika Kelas 7: Bilangan Bulat</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #1e293b;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg: #f1f5f9;
+            --success: #22c55e;
+            --error: #ef4444;
+            --white: #ffffff;
+            --gray-light: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Lato', sans-serif;
+            color: var(--primary);
+            padding: 20px; /* Jarak aman agar tidak menempel saat di-scroll */
+            overflow: auto; /* MEMPERBAIKI: Mengizinkan halaman utama di-scroll jika layar kecil */
+        }
+
+        /* Kontainer Slide 16:9 Tetap Standard Presentasi */
+        .presentation-container {
+            position: relative;
+            width: 1200px;
+            height: 675px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Mencegah kontainer menciut merusak rasio */
+        }
+
+        /* Dekorasi Geometris Latar Belakang */
+        .presentation-container::before {
+            content: ''; position: absolute; top: -100px; right: -100px;
+            width: 350px; height: 350px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); z-index: 0;
+        }
+        .presentation-container::after {
+            content: ''; position: absolute; bottom: -80px; left: -80px;
+            width: 300px; height: 300px; background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%); z-index: 0;
+        }
+        .presentation-container > * { position: relative; z-index: 1; }
+
+        /* Pengaturan Tampilan Slide */
+        .slide {
+            display: none;
+            width: 100%;
+            height: calc(100% - 70px);
+            padding: 40px 60px;
+            overflow-y: auto; /* MEMPERBAIKI: Mengizinkan konten di dalam slide di-scroll jika penuh */
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-cover {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Komponen Tipografi */
+        h1 { font-family: 'Poppins', sans-serif; font-size: 56px; font-weight: 700; line-height: 1.2; margin-bottom: 15px; }
+        .slide-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            border-left: 8px solid var(--secondary);
+            padding-left: 15px;
+            width: 100%;
+        }
+        h3 { font-family: 'Poppins', sans-serif; font-size: 22px; color: var(--secondary); margin-bottom: 12px; }
+        p { font-size: 18px; color: #475569; line-height: 1.6; }
+
+        /* Tata Letak Konten */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; }
+        
+        .grid-scroll-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            overflow-y: auto; /* MEMPERBAIKI: Memastikan daftar soal 1-10 bisa di-scroll dengan mulus */
+            max-height: 380px;
+            padding-right: 10px;
+        }
+
+        .card {
+            background: var(--gray-light);
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+
+        /* Baris Formula Operasi Singkat */
+        .inline-op-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .inline-op-row span { font-size: 18px; font-weight: 700; }
+
+        /* Form Input Jawab & Verifikasi */
+        .input-field {
+            padding: 8px 12px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 2px solid #cbd5e1;
+            width: 110px;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-field:focus { border-color: var(--secondary); }
+        .input-field.correct { background-color: #dcfd8b !important; border-color: #4ade80 !important; color: #166534; }
+        .input-field.incorrect { background-color: #fca5a5 !important; border-color: #f87171 !important; color: #991b1b; }
+
+        .btn-check {
+            background-color: var(--secondary);
+            color: white; border: none; padding: 8px 16px; border-radius: 8px;
+            cursor: pointer; font-weight: 700; font-size: 15px; transition: background 0.2s;
+        }
+        .btn-check:hover { background-color: #2563eb; }
+        .btn-action {
+            background-color: var(--accent); color: var(--primary);
+            border: none; padding: 8px 16px; border-radius: 8px;
+            cursor: pointer; font-weight: 700; font-size: 15px; margin-left: 8px;
+        }
+        .btn-action:hover { opacity: 0.9; }
+
+        /* Komponen Mesin Timer Kecepatan */
+        .timer-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            align-self: flex-start;
+        }
+        .timer-clock { font-family: 'Poppins', sans-serif; font-size: 28px; font-weight: 700; color: var(--accent); min-width: 100px; text-align: center; }
+        .timer-ctrl-btn {
+            background: #334155; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;
+        }
+        .timer-ctrl-btn:hover { background: #475569; }
+
+        /* Kotak Pembahasan Cerita */
+        .solution-box {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fef3c7;
+            border-left: 5px solid var(--accent);
+            border-radius: 6px;
+            font-size: 16px;
+            color: #78350f;
+        }
+
+        /* Navigasi Control Bar Bawah */
+        .presentation-footer {
+            height: 70px;
+            background: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            margin-top: auto;
+        }
+        .nav-btn {
+            background: #334155; color: white; border: none; padding: 10px 22px; border-radius: 8px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; font-size: 16px;
+        }
+        .nav-btn:hover:not(:disabled) { background: var(--secondary); }
+        .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        
+        .dots-group { display: flex; gap: 8px; }
+        .dot { width: 10px; height: 10px; background: #475569; border-radius: 50%; }
+        .dot.active { background: var(--secondary); transform: scale(1.3); }
+
+        ul.rule-list { list-style: none; margin-top: 10px; }
+        ul.rule-list li { margin-bottom: 12px; font-size: 17px; position: relative; padding-left: 25px; }
+        ul.rule-list li::before { content: "•"; color: var(--secondary); font-size: 24px; position: absolute; left: 5px; top: -4px; }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+        
+        <div class="slide slide-cover active" id="slide-1">
+            <h1 style="color: white;">Petualangan Matematika:<br>Soal Cerita Bilangan Bulat</h1>
+            <p style="font-size: 24px; color: #cbd5e1; margin-top: 10px;">Aplikasi Penalaran Logis Kontekstual — Kelas 7 SMP</p>
+            <div style="margin-top: 40px;"><i class="fa-solid fa-calculator" style="font-size: 100px; color: var(--secondary);"></i></div>
+        </div>
+
+        <div class="slide" id="slide-2">
+            <div class="slide-title">Yuk Ingat! Aturan Operasi Bilangan Bulat</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3><i class="fa-solid fa-plus-minus"></i> Penjumlahan & Pengurangan</h3>
+                    <ul class="rule-list">
+                        <li><strong>Jika Tanda SAMA (+ dengan + ATAU - dengan -):</strong><br>Angka saling dijumlahkan berakumulasi bertambah besar. Hasil akhir mengikuti tanda asal bawaan soal.</li>
+                        <li><strong>Jika Tanda BERBEDA (+ dengan -):</strong><br>Angka saling dikurangkan (Nilai Besar dikurangi Kecil). Tanda hasil akhir mutlak mengikuti tanda milik angka yang bernilai lebih besar.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><i class="fa-solid fa-xmark"></i> Perkalian & Pembagian</h3>
+                    <ul class="rule-list">
+                        <li><strong>Jika Tanda SAMA (+ &times; + atau - &times; -):</strong><br>Hasil akhir pengerjaan perhitungan otomatis bernilai <strong>Positif (+)</strong>.</li>
+                        <li><strong>Jika Tanda BERBEDA (+ &times; - atau - &times; +):</strong><br>Hasil akhir pengerjaan perhitungan otomatis bernilai <strong>Negatif (-)</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-3">
+            <div class="slide-title">Uji Kecepatan Operasi Hitung Dasar</div>
+            <div class="grid-scroll-container" id="box-ops-cepat">
+                </div>
+        </div>
+
+        <div class="slide" id="slide-4">
+            <div class="slide-title">TENTUKAN NILAI X!</div>
+            <div class="grid-scroll-container" id="box-ops-plsv">
+                </div>
+        </div>
+
+        <div id="dynamic-stories-insertion"></div>
+
+        <div class="slide" id="slide-16">
+            <div class="slide-title">Kesimpulan & Refleksi Hari Ini</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3><i class="fa-solid fa-lightbulb"></i> Intisari Pembelajaran</h3>
+                    <p>Menerjemahkan soal cerita ke dalam kalimat matematika membutuhkan ketelitian membaca kata kunci:</p>
+                    <p style="margin-top: 10px; font-size:16px;">
+                        • <em>"Di bawah permukaan laut", "Turun", "Rugi", "Mundur"</em> &rarr; Representasi bilangan <strong>Negatif (-)</strong>.<br>
+                        • <em>"Diatas permukaan", "Naik", "Untung", "Maju"</em> &rarr; Representasi bilangan <strong>Positif (+)</strong>.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3><i class="fa-solid fa-comments"></i> Ruang Refleksi Siswa</h3>
+                    <p>Coba renungkan secara mandiri:</p>
+                    <p style="margin-top: 10px; font-size:16px;">Apakah kamu sudah merasa mantap membedakan kapan tanda minus berubah menjadi operasi penjumlahan saat tanda bertemu berturut-turut?</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-17">
+            <div class="slide-title">Materi Pembelajaran Selanjutnya!</div>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex-grow:1; text-align:center;">
+                <div style="background:#e0f2fe; padding:30px 50px; border-radius:20px; border:2px dashed var(--secondary);">
+                    <h2 style="font-family:'Poppins'; font-size:40px; color:var(--secondary); margin-bottom:10px;">Pecahan, Desimal, & Persen</h2>
+                    <p style="font-size:20px;">Mengeksplorasi nilai bilangan di antara satuan bulat utuh.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide slide-cover" id="slide-18">
+            <h1 style="color: var(--accent); font-size:64px;">TERIMA KASIH! ✨</h1>
+            <p style="font-size: 24px; color:#cbd5e1;">Hebat! Kamu telah menyelesaikan misi matematika hari ini.</p>
+            <div style="margin-top:30px;"><i class="fa-solid fa-star" style="font-size:80px; color:var(--accent);"></i></div>
+        </div>
+
+        <div class="presentation-footer">
+            <button class="nav-btn" id="prev-btn" onclick="moveSlide(-1)" disabled><i class="fa-solid fa-chevron-left"></i> Kembali</button>
+            <div class="dots-group" id="dots-indicator-box"></div>
+            <button class="nav-btn" id="next-btn" onclick="moveSlide(1)">Lanjut <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+    </div>
+
+    <script>
+        const totalSlidesCount = 18;
+        let slideIndexAktif = 1;
+
+        const bankHitungCepat = [
+            { t: "-25 + 37", a: 12 }, { t: "-42 - 18", a: -60 }, { t: "54 + (-70)", a: -16 },
+            { t: "-30 - (-45)", a: 15 }, { t: "12 &times; (-6)", a: -72 }, { t: "-8 &times; (-9)", a: 72 },
+            { t: "-120 &divide; 5", a: -24 }, { t: "-96 &divide; (-8)", a: 12 }, { t: "-15 + (-28)", a: -43 },
+            { t: "105 - 150", a: -45 }
+        ];
+
+        const bankPLSV = [
+            { t: "35 + x = 12", a: -23 }, { t: "x - 50 = -85", a: -35 }, { t: "-64 + x = -20", a: 44 },
+            { t: "x + (-75) = 15", a: 90 }, { t: "4x = -112", a: -28 }, { t: "-6x = 150", a: -25 },
+            { t: "x &divide; (-7) = 14", a: -98 }, { t: "2x + 40 = -10", a: -25 }, { t: "-100 - x = 25", a: -125 },
+            { t: "x - (-48) = 13", a: -35 }
+        ];
+
+        const bankSoalCerita = [
+            { q: "Seekor lumba-lumba mula-mula berenang pada kedalaman 12 meter di bawah permukaan laut. Lumba-lumba itu kemudian melompat ke atas setinggi 20 meter dari posisi semula. Berapa meter ketinggian yang dicapai lumba-lumba di atas permukaan laut sekarang?", a: 8, p: "Posisi awal di bawah laut = -12. Melompat naik berarti ditambah (+ 20). Kalimat Matematika: -12 + 20 = 8 meter di atas permukaan laut." },
+            { q: "Suhu udara di kota London pada malam hari mencapai -4°C. Ketika siang hari, suhu udara mengalami kenaikan sebesar 15°C. Berapa derajat Celsius suhu udara di kota tersebut pada siang hari?", a: 11, p: "Suhu awal = -4. Mengalami kenaikan berarti ditambah (+ 15). Kalimat Matematika: -4 + 15 = 11°C." },
+            { q: "Seorang pedagang buah mengalami kerugian sebesar Rp45.000 pada hari pertama. Pada hari kedua, ia berhasil mendapatkan keuntungan sebesar Rp75.000. Secara keseluruhan selama dua hari, apakah pedagang mendapat untung atau rugi, dan berapakah jumlahnya? (Tuliskan jawaban dalam angka saja tanpa Rp)", a: 30000, p: "Rugi ditulis negatif = -45.000. Untung ditulis positif = +75.000. Kalimat Matematika: -45.000 + 75.000 = +30.000 (Untung 30.000)." },
+            { q: "Sebuah helikopter terbang pada ketinggian 250 meter di atas permukaan laut. Tepat di bawah helikopter tersebut, terdapat kapal selam yang menyelam pada kedalaman 120 meter di bawah permukaan laut. Berapa meter jarak vertikal total antara helikopter dan kapal selam tersebut?", a: 370, p: "Helikopter = +250. Kapal selam = -120. Jarak ditentukan dengan pengurangan (Besar - Kecil). Kalimat Matematika: 250 - (-120) = 250 + 120 = 370 meter." },
+            { q: "Dalam suatu kompetisi matematika, penilaian diatur dengan aturan: jawaban benar mendapat nilai 4, jawaban salah mendapat nilai -2, dan soal tidak dijawab bernilai -1. Dari 40 soal yang diberikan, Andi menjawab benar 28 soal dan salah 7 soal (sisanya tidak dijawab). Berapakah total skor yang diperoleh Andi?", a: 93, p: "Sisa tidak dijawab = 40 - 28 - 7 = 5 soal. Skor Benar = 28 &times; 4 = 112. Skor Salah = 7 &times; (-2) = -14. Skor Kosong = 5 &times; (-1) = -5. Total Nilai = 112 + (-14) + (-5) = 93." },
+            { q: "Sebuah lift berada di lantai 12 sebuah gedung bertingkat. Lift tersebut bergerak turun sebanyak 9 lantai, kemudian bergerak naik lagi sebanyak 5 lantai. Di lantai berapakah posisi lift tersebut berada sekarang?", a: 8, p: "Posisi awal = 12. Turun berarti dikurang (- 9). Naik berarti ditambah (+ 5). Kalimat Matematika: 12 - 9 + 5 = 8." },
+            { q: "Suhu di dalam ruang pembekuan (freezer) mula-mula adalah 2°C. Setelah mesin dinyalakan, suhu ruang tersebut menurun secara konstan sebesar 3°C setiap 5 menit. Berapakah suhu di dalam ruangan tersebut setelah mesin beroperasi selama 25 menit?", a: -13, p: "Banyak tahapan penurunan = 25 menit &divide; 5 menit = 5 kali penurunan. Total penurunan suhu = 5 &times; 3°C = 15°C. Suhu akhir = 2 - 15 = -13°C." },
+            { q: "Sebuah kapal selam berada pada posisi kedalaman 240 meter di bawah laut. Kapal selam tersebut memancarkan sonar dan mendeteksi rintangan karang, sehingga bergerak naik sejauh 90 meter. Berapakah posisi kedalaman kapal selam dari permukaan laut sekarang? (Tuliskan dalam representasi angka negatif)", a: -150, p: "Posisi awal di bawah laut = -240. Bergerak naik berarti ditambah (+ 90). Kalimat Matematika: -240 + 90 = -150 meter." },
+            { q: "Ibu membeli 6 kotak pulpen untuk persediaan toko kelontongnya. Setiap kotak berisi 12 batang pulpen. Ternyata, ditemukan ada 8 pulpen yang rusak dan tidak bisa nyata dijual. Jika sisa pulpen yang bagus dibagikan sama banyak kepada 8 anak didiknya, berapakah jumlah pulpen yang diterima masing-masing anak?", a: 8, p: "Total pulpen mula-mula = 6 &times; 12 = 72 pulpen. Pulpen bagus = 72 - 8 = 64 pulpen. Dibagi kepada 8 anak = 64 &divide; 8 = 8 pulpen per anak." },
+            { q: "Sebuah perusahaan start-up logistik mengalami kerugian keuangan yang konstan sebesar Rp3.500.000 setiap bulannya. Berapakah akumulasi total kerugian keuangan perusahaan tersebut selama periode setengah tahun? (Setengah tahun = 6 bulan. Tuliskan jawaban angka menggunakan lambang negatif awal)", a: -21000000, p: "Rugi bulanan bernilai negatif = -3.500.000. Waktu setengah tahun = 6 bulan. Kalimat Matematika: 6 &times; (-3.500.000) = -21.000.000." },
+            { q: "Suhu sepotong daging beku saat dikeluarkan dari mesin pendingin adalah -15°C. Daging tersebut dipanaskan di atas kompor sehingga suhunya mengalami kenaikan rata-rata sebesar 4°C setiap 3 menit. Berapakah suhu daging beku tersebut setelah dipanaskan selama 15 menit?", a: 5, p: "Banyak siklus kenaikan = 15 menit &divide; 3 menit = 5 kali. Total penambahan suhu = 5 &times; 4°C = 20°C. Suhu pengerjaan akhir = -15 + 20 = 5°C." }
+        ];
+
+        let stateTimerObjek = {};
+
+        window.onload = function() {
+            renderDaftarCepat();
+            renderDaftarPLSV();
+            renderHalamanSoalCerita();
+            createNavigasiDots();
+        };
+
+        function renderDaftarCepat() {
+            const container = document.getElementById('box-ops-cepat');
+            bankHitungCepat.forEach((item, index) => {
+                container.innerHTML += `
+                    <div class="inline-op-row">
+                        <span>${index + 1}. &nbsp; ${item.t} &nbsp; = </span>
+                        <div>
+                            <input type="number" class="input-field" id="fast-${index}">
+                            <button class="btn-check" onclick="verifyAnsDirect('fast-${index}', ${item.a})">Cek</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderDaftarPLSV() {
+            const container = document.getElementById('box-ops-plsv');
+            bankPLSV.forEach((item, index) => {
+                container.innerHTML += `
+                    <div class="inline-op-row">
+                        <span>${index + 1}. &nbsp; ${item.t} &nbsp; , &nbsp; <var>x</var> = </span>
+                        <div>
+                            <input type="number" class="input-field" id="plsv-${index}">
+                            <button class="btn-check" onclick="verifyAnsDirect('plsv-${index}', ${item.a})">Cek</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderHalamanSoalCerita() {
+            const targetInsertion = document.getElementById('dynamic-stories-insertion');
+            bankSoalCerita.forEach((item, idx) => {
+                const nomorSlide = 5 + idx;
+                targetInsertion.innerHTML += `
+                    <div class="slide" id="slide-${nomorSlide}">
+                        <div class="slide-title">Soal Cerita Tantangan #${idx + 1}</div>
+                        <div class="content-area">
+                            <div class="timer-dashboard">
+                                <i class="fa-solid fa-stopwatch" style="font-size:20px;"></i>
+                                <span class="timer-clock" id="clock-display-${idx}">0.0s</span>
+                                <button class="timer-ctrl-btn" onclick="triggerMulaiTimer(${idx})">START</button>
+                                <button class="timer-ctrl-btn" onclick="triggerStopTimer(${idx})">STOP</button>
+                            </div>
+                            <div class="card" style="background:white;">
+                                <p style="font-size: 22px; font-weight:600; color:var(--primary); margin-bottom: 25px;">${item.q}</p>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <input type="number" class="input-field" style="width:220px;" id="story-input-${idx}" placeholder="Ketik jawaban angka...">
+                                    <button class="btn-check" style="padding:10px 20px;" onclick="verifyAnsStory(${idx}, ${item.a})">Cek Jawaban</button>
+                                    <button class="btn-action" style="padding:10px 20px;" onclick="togglePembahasan(${idx})">Lihat Pembahasan</button>
+                                </div>
+                                <div id="story-feedback-${idx}" style="margin-top:15px; font-weight:700; font-size:16px;"></div>
+                                <div class="solution-box" id="solution-box-${idx}">${item.p}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function createNavigasiDots() {
+            const box = document.getElementById('dots-indicator-box');
+            box.innerHTML = '';
+            for(let i = 1; i <= totalSlidesCount; i++) {
+                let dot = document.createElement('div');
+                dot.className = `dot ${i === 1 ? 'active' : ''}`;
+                box.appendChild(dot);
+            }
+        }
+
+        function syncDotsState() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if(index + 1 === slideIndexAktif) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        }
+
+        function moveSlide(direction) {
+            document.getElementById(`slide-${slideIndexAktif}`).classList.remove('active');
+            slideIndexAktif += direction;
+            if(slideIndexAktif < 1) slideIndexAktif = 1;
+            if(slideIndexAktif > totalSlidesCount) slideIndexAktif = totalSlidesCount;
+
+            document.getElementById(`slide-${slideIndexAktif}`).classList.add('active');
+            
+            document.getElementById('prev-btn').disabled = (slideIndexAktif === 1);
+            document.getElementById('next-btn').disabled = (slideIndexAktif === totalSlidesCount);
+            
+            syncDotsState();
+        }
+
+        function playSoundFeedback(isSuccess) {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                const ctx = new AudioContextClass();
+                
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (isSuccess) {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(); osc.stop(ctx.currentTime + 0.3);
+                } else {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(180, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                    osc.start(); osc.stop(ctx.currentTime + 0.25);
+                }
+            } catch (e) { console.log('AudioContext blocked.'); }
+        }
+
+        function speakVoiceCountdown(callback) {
+            if ('speechSynthesis' in window) {
+                const kataBicara = new SpeechSynthesisUtterance("Are You Ready? 3 2 1");
+                kataBicara.lang = 'en-US';
+                kataBicara.rate = 1.0;
+                kataBicara.onend = callback;
+                window.speechSynthesis.speak(kataBicara);
+            } else {
+                callback();
+            }
+        }
+
+        function verifyAnsDirect(inputId, correctAns) {
+            const inputNode = document.getElementById(inputId);
+            if(parseInt(inputNode.value) === correctAns) {
+                inputNode.className = "input-field correct";
+                playSoundFeedback(true);
+            } else {
+                inputNode.className = "input-field incorrect";
+                playSoundFeedback(false);
+            }
+        }
+
+        function triggerMulaiTimer(idx) {
+            if(stateTimerObjek[idx] && stateTimerObjek[idx].running) return;
+
+            speakVoiceCountdown(() => {
+                if(!stateTimerObjek[idx]) {
+                    stateTimerObjek[idx] = { hitungan: 0.0, running: false, intervalId: null };
+                }
+                
+                stateTimerObjek[idx].running = true;
+                stateTimerObjek[idx].intervalId = setInterval(() => {
+                    stateTimerObjek[idx].hitungan += 0.1;
+                    document.getElementById(`clock-display-${idx}`).innerText = stateTimerObjek[idx].hitungan.toFixed(1) + "s";
+                }, 100);
+            });
+        }
+
+        function triggerStopTimer(idx) {
+            if(stateTimerObjek[idx] && stateTimerObjek[idx].running) {
+                clearInterval(stateTimerObjek[idx].intervalId);
+                stateTimerObjek[idx].running = false;
+            }
+        }
+
+        function verifyAnsStory(idx, correctAns) {
+            const inputNode = document.getElementById(`story-input-${idx}`);
+            const feedbackNode = document.getElementById(`story-feedback-${idx}`);
+            
+            if(parseInt(inputNode.value) === correctAns) {
+                inputNode.className = "input-field correct";
+                triggerStopTimer(idx);
+                playSoundFeedback(true);
+                
+                let waktuSimulasi = stateTimerObjek[idx] ? stateTimerObjek[idx].hitungan.toFixed(1) : "0.0";
+                feedbackNode.innerHTML = `<span style="color:var(--success);"><i class="fa-solid fa-circle-check"></i> Luar Biasa Benar! Kecepatan pengerjaanmu adalah ${waktuSimulasi} detik.</span>`;
+            } else {
+                inputNode.className = "input-field incorrect";
+                playSoundFeedback(false);
+                feedbackNode.innerHTML = `<span style="color:var(--error);"><i class="fa-solid fa-circle-xmark"></i> Jawaban kurang tepat, coba periksa kembali hitunganmu!</span>`;
+            }
+        }
+
+        function togglePembahasan(idx) {
+            const box = document.getElementById(`solution-box-${idx}`);
+            box.style.display = (box.style.display === "block") ? "none" : "block";
+        }
+    </script>
+</body>
+</html>
