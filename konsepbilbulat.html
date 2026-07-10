@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Bilangan Bulat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #c7d2fe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 15px;
+            color: #334155;
+            overflow: hidden;
+        }
+        h1, h2, h3, .font-kids { font-family: 'Baloo 2', cursive; }
+        
+        .slide { display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .slide.active { display: flex; }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .btn-action { transition: all 0.2s; box-shadow: 0 4px 0px rgba(0,0,0,0.15); cursor: pointer; }
+        .btn-action:hover:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0px rgba(0,0,0,0.15); }
+        .btn-action:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: translateY(4px); box-shadow: none; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .tab-btn { transition: all 0.2s; border-bottom: 4px solid transparent; }
+        .tab-btn.active { background-color: #4f46e5; color: white; border-color: #3730a3; box-shadow: inset 0 3px 6px rgba(0,0,0,0.2); }
+
+        .input-correct { border-color: #22c55e !important; background-color: #dcfce7 !important; color: #166534 !important; }
+        .input-wrong { border-color: #ef4444 !important; background-color: #fee2e2 !important; color: #991b1b !important; }
+
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-6xl h-[94vh] min-h-[650px] bg-white rounded-[30px] shadow-2xl flex flex-col overflow-hidden border-[6px] border-indigo-200 relative">
+        
+        <!-- HEADER NAV -->
+        <div class="bg-indigo-600 px-6 py-3 flex justify-between items-center z-10 shrink-0 text-white">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-plus-minus text-2xl bg-white/20 p-2 rounded-xl"></i>
+                <h1 class="font-kids text-2xl tracking-wide hidden sm:block">Dunia Bilangan Bulat</h1>
+            </div>
+            
+            <div id="student-badges" class="hidden items-center gap-4">
+                <span class="bg-sky-500 px-4 py-1 rounded-full font-bold text-sm shadow-sm border border-sky-400"><i class="fa-solid fa-user"></i> <span id="s1-display">S1</span></span>
+                <span class="bg-rose-500 px-4 py-1 rounded-full font-bold text-sm shadow-sm border border-rose-400"><i class="fa-solid fa-user"></i> <span id="s2-display">S2</span></span>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="navSlide(-1)" class="w-8 h-8 rounded-lg bg-indigo-500 hover:bg-indigo-400 flex items-center justify-center transition" id="btn-prev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                <span id="slide-indicator" class="flex items-center font-bold text-indigo-200 text-sm px-2">1/6</span>
+                <button onclick="navSlide(1)" class="w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-400 flex items-center justify-center transition text-amber-900" id="btn-next" disabled><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="flex-grow overflow-hidden relative bg-slate-50 flex flex-col">
+            
+            <!-- SLIDE 1: COVER -->
+            <div id="slide-1" class="slide active flex-col justify-center items-center h-full p-8 text-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative">
+                <h1 class="font-kids text-5xl md:text-7xl font-extrabold text-indigo-900 mb-2 drop-shadow-sm">Eksplorasi <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-indigo-500">Bilangan Bulat</span></h1>
+                <p class="text-indigo-600 text-xl font-bold mb-8">Memahami Angka Negatif & Positif</p>
+                
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-indigo-100 w-full max-w-lg z-10 space-y-6">
+                    <h2 class="font-kids text-2xl font-bold text-indigo-500">Siapa Namamu?</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-left text-xs font-bold text-sky-500 uppercase tracking-widest mb-1">Siswa 1</label>
+                            <input type="text" id="input-s1" placeholder="Nama..." class="w-full bg-sky-50 border-2 border-sky-200 rounded-xl px-4 py-3 outline-none focus:border-sky-500 font-bold text-center text-sky-700">
+                        </div>
+                        <div>
+                            <label class="block text-left text-xs font-bold text-rose-500 uppercase tracking-widest mb-1">Siswa 2</label>
+                            <input type="text" id="input-s2" placeholder="Nama..." class="w-full bg-rose-50 border-2 border-rose-200 rounded-xl px-4 py-3 outline-none focus:border-rose-500 font-bold text-center text-rose-700">
+                        </div>
+                    </div>
+                    <button onclick="startApp()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-kids text-2xl font-bold py-3 rounded-2xl btn-action mt-4 border-b-4 border-indigo-800">Mulai Belajar <i class="fa-solid fa-rocket ml-2"></i></button>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: TUJUAN -->
+            <div id="slide-2" class="slide flex-col justify-center items-center h-full p-8 text-center bg-indigo-50/50">
+                <h2 class="font-kids text-4xl font-bold text-indigo-700 mb-6"><i class="fa-solid fa-bullseye"></i> Tujuan Pembelajaran</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl w-full text-left">
+                    <div class="bg-white p-6 rounded-2xl border-l-4 border-sky-400 shadow-sm flex items-start gap-4">
+                        <div class="w-12 h-12 bg-sky-100 text-sky-500 rounded-full flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-info"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-700 mb-1">Memahami Konsep</h3>
+                            <p class="text-slate-500 text-sm">Mengetahui apa itu bilangan bulat negatif, nol, dan positif serta penerapannya di dunia nyata.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border-l-4 border-emerald-400 shadow-sm flex items-start gap-4">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-700 mb-1">Garis Bilangan</h3>
+                            <p class="text-slate-500 text-sm">Mampu menggunakan garis bilangan untuk membaca arah dan nilai suatu bilangan.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border-l-4 border-amber-400 shadow-sm flex items-start gap-4">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-calculator"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-700 mb-1">Operasi Hitung</h3>
+                            <p class="text-slate-500 text-sm">Melakukan penjumlahan, pengurangan, perkalian, dan pembagian bilangan bulat.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border-l-4 border-rose-400 shadow-sm flex items-start gap-4">
+                        <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-brain"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-700 mb-1">Penyelesaian Masalah</h3>
+                            <p class="text-slate-500 text-sm">Mengerjakan soal cerita kontekstual dan mencari nilai X yang belum diketahui.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: KEHIDUPAN SEHARI HARI -->
+            <div id="slide-3" class="slide flex-col justify-center items-center h-full p-8 text-center bg-sky-50">
+                <h2 class="font-kids text-4xl font-bold text-sky-600 mb-8"><i class="fa-solid fa-earth-asia"></i> Bilangan Bulat di Sekitar Kita</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
+                    <div class="bg-white p-6 rounded-3xl shadow-md border-4 border-sky-200">
+                        <i class="fa-solid fa-temperature-half text-5xl text-rose-500 mb-4"></i>
+                        <h3 class="font-bold text-xl text-slate-700 mb-2">Suhu (Termometer)</h3>
+                        <p class="text-slate-600 text-sm">Suhu di bawah nol derajat es ditulis dengan angka negatif. Contoh: Suhu di kutub mencapai <span class="font-bold text-rose-600">-10°C</span>.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-md border-4 border-sky-200">
+                        <i class="fa-solid fa-water text-5xl text-blue-500 mb-4"></i>
+                        <h3 class="font-bold text-xl text-slate-700 mb-2">Permukaan Laut</h3>
+                        <p class="text-slate-600 text-sm">Kapal selam yang menyelam di bawah laut dinyatakan dengan negatif. Contoh: Kapal selam berada di kedalaman <span class="font-bold text-blue-600">-50 m</span>.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-md border-4 border-sky-200">
+                        <i class="fa-solid fa-building text-5xl text-slate-600 mb-4"></i>
+                        <h3 class="font-bold text-xl text-slate-700 mb-2">Lantai Gedung</h3>
+                        <p class="text-slate-600 text-sm">Lantai bawah tanah (basement) sering ditulis dengan angka negatif. Contoh: Parkiran mobil ada di lantai <span class="font-bold text-slate-800">-2</span>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: MATERI -->
+            <div id="slide-4" class="slide flex-col h-full flex-grow">
+                <!-- Tab Buttons -->
+                <div class="bg-white px-4 py-3 border-b border-slate-200 shrink-0 flex gap-2 overflow-x-auto custom-scroll">
+                    <button onclick="switchMateri('definisi')" id="mat-btn-definisi" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm shrink-0 transition">1. Definisi & Anggota</button>
+                    <button onclick="switchMateri('garis')" id="mat-btn-garis" class="px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-bold text-sm shrink-0 transition">2. Garis Bilangan</button>
+                    <button onclick="switchMateri('operasi')" id="mat-btn-operasi" class="px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-bold text-sm shrink-0 transition">3. Operasi Hitung</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="flex-grow overflow-y-auto custom-scroll p-6 bg-slate-50 relative">
+                    
+                    <!-- Definisi -->
+                    <div id="mat-definisi" class="block max-w-4xl mx-auto space-y-6">
+                        <h3 class="text-2xl font-bold text-indigo-700 border-b-2 border-indigo-200 pb-2">Apa itu Bilangan Bulat?</h3>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-lg text-slate-700 mb-4">Bilangan bulat adalah kumpulan bilangan yang terdiri dari:</p>
+                            <ul class="space-y-3 font-semibold text-slate-600">
+                                <li class="flex items-center gap-3"><span class="w-4 h-4 rounded-full bg-emerald-400"></span> <b>Bilangan Bulat Positif:</b> {1, 2, 3, 4, 5, ...}</li>
+                                <li class="flex items-center gap-3"><span class="w-4 h-4 rounded-full bg-slate-400"></span> <b>Nol:</b> {0}</li>
+                                <li class="flex items-center gap-3"><span class="w-4 h-4 rounded-full bg-rose-400"></span> <b>Bilangan Bulat Negatif:</b> {..., -4, -3, -2, -1}</li>
+                            </ul>
+                            <div class="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-sm text-indigo-800 font-bold">
+                                💡 Ingat! Bilangan bulat TIDAK mencakup pecahan atau desimal (seperti 1/2 atau 0.5).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Garis Bilangan -->
+                    <div id="mat-garis" class="hidden flex-col h-full max-w-5xl mx-auto">
+                        <h3 class="text-2xl font-bold text-indigo-700 border-b-2 border-indigo-200 pb-2 mb-4 shrink-0">Garis Bilangan Interaktif</h3>
+                        <p class="text-slate-600 mb-6 shrink-0">Semakin ke kanan, nilai semakin besar. Semakin ke kiri, nilai semakin kecil.</p>
+                        
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center shrink-0 mb-6 w-full overflow-x-auto">
+                            <!-- CANVAS for Number Line -->
+                            <canvas id="number-line" width="900" height="200" class="max-w-full"></canvas>
+                        </div>
+
+                        <div class="bg-slate-100 p-6 rounded-2xl border border-slate-200 shrink-0">
+                            <h4 class="font-bold text-slate-700 mb-4">Simulasi Operasi Penjumlahan/Pengurangan</h4>
+                            <div class="flex flex-wrap gap-4 items-center justify-center">
+                                <div class="flex flex-col">
+                                    <label class="text-xs font-bold text-slate-500 mb-1">Angka Awal</label>
+                                    <input type="number" id="nl-start" value="0" min="-20" max="20" class="w-20 px-3 py-2 border-2 border-slate-300 rounded-xl text-center font-bold outline-none">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-xs font-bold text-slate-500 mb-1">Operasi</label>
+                                    <select id="nl-op" class="px-3 py-2 border-2 border-slate-300 rounded-xl text-center font-bold outline-none bg-white">
+                                        <option value="+">Ditambah (+)</option>
+                                        <option value="-">Dikurang (-)</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-xs font-bold text-slate-500 mb-1">Angka Kedua</label>
+                                    <input type="number" id="nl-step" value="5" min="-20" max="20" class="w-20 px-3 py-2 border-2 border-slate-300 rounded-xl text-center font-bold outline-none">
+                                </div>
+                                <div class="flex flex-col justify-end">
+                                    <button onclick="simulateNumberLine()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl btn-action h-10 mt-5">Jalankan Simulasi</button>
+                                </div>
+                            </div>
+                            <div id="nl-feedback" class="mt-4 text-center font-bold text-lg h-6 text-indigo-700"></div>
+                        </div>
+                    </div>
+
+                    <!-- Operasi Hitung -->
+                    <div id="mat-operasi" class="hidden max-w-5xl mx-auto space-y-6">
+                        <h3 class="text-2xl font-bold text-indigo-700 border-b-2 border-indigo-200 pb-2">Aturan Operasi Hitung</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Penjumlahan & Pengurangan -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <h4 class="font-bold text-lg text-emerald-600 mb-3"><i class="fa-solid fa-plus-minus"></i> Tambah & Kurang</h4>
+                                <ul class="space-y-3 text-sm text-slate-700">
+                                    <li>• Jika tanda SAMA, angkanya dijumlahkan. Tanda hasil mengikuti soal.<br><span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-emerald-700">-3 - 5 = -8</span></li>
+                                    <li>• Jika tanda BEDA, cari selisih angkanya. Tanda hasil ikuti angka yang lebih besar.<br><span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-emerald-700">-10 + 4 = -6</span></li>
+                                    <li>• Mengurangi bilangan negatif sama dengan menambah.<br><span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-emerald-700">5 - (-3) = 5 + 3 = 8</span></li>
+                                </ul>
+                            </div>
+                            <!-- Perkalian & Pembagian -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <h4 class="font-bold text-lg text-rose-600 mb-3"><i class="fa-solid fa-xmark"></i> <i class="fa-solid fa-divide"></i> Kali & Bagi</h4>
+                                <ul class="space-y-3 text-sm text-slate-700">
+                                    <li>• <b>Positif</b> ×/÷ <b>Positif</b> = <b>Positif</b><br><span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-rose-700">4 × 3 = 12</span></li>
+                                    <li>• <b>Negatif</b> ×/÷ <b>Negatif</b> = <b>Positif</b><br><span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-rose-700">-6 ÷ -2 = 3</span></li>
+                                    <li>• <b>Tanda BEDA</b> (Positif & Negatif) = <b>Negatif</b><br><span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-rose-700">-5 × 4 = -20</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SLIDE 5: LATIHAN SOAL -->
+            <div id="slide-5" class="slide flex-col h-full flex-grow">
+                <!-- Tab Buttons -->
+                <div class="bg-white px-4 py-3 border-b border-slate-200 shrink-0 flex gap-2 overflow-x-auto custom-scroll">
+                    <button onclick="switchLatihan('ops')" id="lat-btn-ops" class="px-5 py-2.5 bg-amber-500 text-white rounded-xl font-bold text-sm shrink-0 transition shadow-inner">1. Operasi Hitung (50 Soal)</button>
+                    <button onclick="switchLatihan('cerita')" id="lat-btn-cerita" class="px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-bold text-sm shrink-0 transition">2. Soal Cerita (20 Soal)</button>
+                    <button onclick="switchLatihan('plsv')" id="lat-btn-plsv" class="px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-bold text-sm shrink-0 transition">3. Menentukan Nilai X (50 Soal)</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="flex-grow overflow-hidden relative bg-slate-50 p-6 flex flex-col">
+                    
+                    <!-- Latihan Operasi Hitung (50) -->
+                    <div id="lat-ops" class="flex-grow flex flex-col items-center justify-center max-w-3xl mx-auto w-full">
+                        <div class="w-full flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-slate-700">Tantangan Operasi Hitung</h3>
+                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-bold text-sm">Soal <span id="lat-ops-idx">1</span> / 50</span>
+                        </div>
+                        
+                        <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 w-full flex flex-col items-center">
+                            <div class="text-6xl font-black text-slate-800 mb-8 font-mono tracking-wider text-center" id="lat-ops-q">
+                                -5 + 8
+                            </div>
+                            
+                            <input type="number" id="lat-ops-ans" placeholder="Jawaban..." class="w-full max-w-xs bg-slate-50 border-4 border-slate-200 rounded-2xl px-6 py-4 text-center text-3xl font-bold outline-none focus:border-amber-400 mb-6 transition-colors">
+                            
+                            <div class="flex gap-3 w-full max-w-xs">
+                                <button onclick="checkLatOps()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl btn-action text-lg">Cek <i class="fa-solid fa-check"></i></button>
+                                <button onclick="nextLatOps()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl btn-action text-lg">Ganti <i class="fa-solid fa-forward"></i></button>
+                            </div>
+                            <div id="lat-ops-fb" class="mt-4 font-bold text-lg h-6"></div>
+                        </div>
+                    </div>
+
+                    <!-- Latihan Soal Cerita (20) -->
+                    <div id="lat-cerita" class="hidden flex-grow flex-col items-center justify-center max-w-4xl mx-auto w-full">
+                        <div class="w-full flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-slate-700">Tantangan Soal Cerita</h3>
+                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold text-sm">Soal <span id="lat-cerita-idx">1</span> / 20</span>
+                        </div>
+                        
+                        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 w-full flex flex-col h-[400px]">
+                            <p id="lat-cerita-q" class="text-xl text-slate-700 font-semibold leading-relaxed flex-grow">
+                                Memuat soal cerita...
+                            </p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-4 items-center mt-4">
+                                <input type="number" id="lat-cerita-ans" placeholder="Jawaban (Angka)..." class="w-full sm:w-1/2 bg-slate-50 border-4 border-slate-200 rounded-xl px-4 py-3 text-center text-xl font-bold outline-none focus:border-emerald-400 transition-colors">
+                                <div class="flex gap-2 w-full sm:w-1/2">
+                                    <button onclick="checkLatCerita()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl btn-action text-sm">Cek <i class="fa-solid fa-check"></i></button>
+                                    <button onclick="showDiscCerita()" class="flex-1 bg-amber-400 hover:bg-amber-500 text-amber-900 font-bold py-3 rounded-xl btn-action text-sm"><i class="fa-solid fa-lightbulb"></i> Bahas</button>
+                                    <button onclick="nextLatCerita()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl btn-action text-sm">Ganti</button>
+                                </div>
+                            </div>
+                            <div id="lat-cerita-fb" class="mt-3 font-bold text-base h-6 text-center"></div>
+                            <div id="lat-cerita-disc" class="hidden mt-3 bg-amber-50 p-3 rounded-xl border border-amber-200 text-sm font-semibold text-slate-700"></div>
+                        </div>
+                    </div>
+
+                    <!-- Latihan Nilai X (50) -->
+                    <div id="lat-plsv" class="hidden flex-grow flex-col items-center justify-center max-w-4xl mx-auto w-full">
+                        <div class="w-full flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-slate-700">Tantangan Aljabar (Mencari nilai X)</h3>
+                            <span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full font-bold text-sm">Soal <span id="lat-plsv-idx">1</span> / 50</span>
+                        </div>
+                        
+                        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 w-full flex flex-col items-center h-[400px]">
+                            
+                            <div class="text-5xl font-black text-slate-800 mb-2 font-mono tracking-widest text-center mt-4" id="lat-plsv-q">
+                                2x + 5 = 15
+                            </div>
+                            <div class="text-lg font-bold text-rose-500 mb-8 font-mono text-center">
+                                x = ?
+                            </div>
+                            
+                            <div class="flex flex-col sm:flex-row gap-4 items-center w-full justify-center mt-auto">
+                                <input type="number" id="lat-plsv-ans" placeholder="Nilai X..." class="w-full sm:w-48 bg-slate-50 border-4 border-slate-200 rounded-xl px-4 py-3 text-center text-2xl font-bold outline-none focus:border-rose-400 transition-colors">
+                                <div class="flex gap-2 w-full sm:w-auto">
+                                    <button onclick="checkLatPlsv()" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-4 rounded-xl btn-action text-sm">Cek</button>
+                                    <button onclick="showCluePlsv()" class="flex-1 bg-sky-400 hover:bg-sky-500 text-sky-900 font-bold py-3 px-4 rounded-xl btn-action text-sm"><i class="fa-solid fa-key"></i> Clue</button>
+                                    <button onclick="showDiscPlsv()" class="flex-1 bg-amber-400 hover:bg-amber-500 text-amber-900 font-bold py-3 px-4 rounded-xl btn-action text-sm"><i class="fa-solid fa-lightbulb"></i> Bahas</button>
+                                    <button onclick="nextLatPlsv()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-4 rounded-xl btn-action text-sm">Ganti</button>
+                                </div>
+                            </div>
+                            <div id="lat-plsv-fb" class="mt-3 font-bold text-base h-6 text-center"></div>
+                            <div id="lat-plsv-disc" class="hidden w-full mt-3 bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 font-mono text-center leading-relaxed"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SLIDE 6: KESIMPULAN -->
+            <div id="slide-6" class="slide flex-col justify-center items-center h-full p-8 text-center bg-indigo-600 text-white rounded-[24px]">
+                <div class="text-7xl mb-6 text-amber-300 drop-shadow-md"><i class="fa-solid fa-award"></i></div>
+                <h1 class="font-kids text-5xl md:text-6xl font-extrabold mb-6 tracking-widest drop-shadow-md">LUAR BIASA!</h1>
+                
+                <div class="bg-white/10 p-8 rounded-3xl border-2 border-white/20 text-left max-w-2xl shadow-xl w-full mb-8">
+                    <h3 class="font-kids text-3xl font-bold mb-4 text-amber-300 border-b-2 border-white/20 pb-2">Kesimpulan Penting:</h3>
+                    <ul class="space-y-4 font-semibold text-indigo-50 text-lg">
+                        <li class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span>Garis bilangan membantu kita melihat nilai angka. Semakin ke kanan semakin besar.</span></li>
+                        <li class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span>Mengurangi bilangan negatif sama dengan menambah (+).</span></li>
+                        <li class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span>Kali dan Bagi: Tanda SAMA hasil POSITIF, Tanda BEDA hasil NEGATIF.</span></li>
+                    </ul>
+                </div>
+                
+                <h2 class="font-kids text-4xl font-bold mt-4 text-sky-300 drop-shadow-lg">THANK YOU FOR TODAY!</h2>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. STATE VARIABLES ---
+        let currentSlide = 1;
+        const totalSlides = 6;
+        let student1 = "S1";
+        let student2 = "S2";
+
+        // --- 2. DATA GENERATORS ---
+        
+        // A. 50 Soal Operasi Hitung
+        const opsData = [];
+        for(let i=0; i<50; i++) {
+            // Generate random operators and numbers
+            let type = Math.floor(Math.random() * 4); // 0:+, 1:-, 2:*, 3:/
+            let a = Math.floor(Math.random() * 41) - 20; // -20 to 20
+            let b = Math.floor(Math.random() * 41) - 20;
+            if(b === 0 && type === 3) b = 1; // Prevent div by zero
+            
+            let qStr = "", ans = 0;
+            if(type === 0) {
+                ans = a + b;
+                qStr = `${a} + ${b < 0 ? '('+b+')' : b}`;
+            } else if (type === 1) {
+                ans = a - b;
+                qStr = `${a} - ${b < 0 ? '('+b+')' : b}`;
+            } else if (type === 2) {
+                // Keep mult numbers smaller to avoid huge results
+                a = Math.floor(Math.random() * 21) - 10;
+                b = Math.floor(Math.random() * 21) - 10;
+                ans = a * b;
+                qStr = `${a} × ${b < 0 ? '('+b+')' : b}`;
+            } else if (type === 3) {
+                // Ensure clean division
+                b = Math.floor(Math.random() * 15) - 7;
+                if(b === 0) b = 2;
+                ans = Math.floor(Math.random() * 15) - 7;
+                a = ans * b;
+                qStr = `${a} ÷ ${b < 0 ? '('+b+')' : b}`;
+            }
+            opsData.push({ q: qStr, a: ans });
+        }
+        let opsIdx = 0;
+
+        // B. 20 Soal Cerita (Hardcoded for quality)
+        const ceritaData = [
+            { q: "Suhu di dalam kulkas adalah -5°C. Saat listrik mati, suhunya naik 8°C. Berapakah suhu kulkas sekarang?", a: 3, exp: "-5 + 8 = 3°C" },
+            { q: "Sebuah kapal selam berada di kedalaman 15 meter di bawah permukaan laut. Kemudian kapal selam tersebut naik 5 meter. Berapa meter posisi kapal selam sekarang dari permukaan laut? (Tulis menggunakan angka negatif jika di bawah laut)", a: -10, exp: "Di bawah laut = -15. Naik = +5. Jadi, -15 + 5 = -10 m." },
+            { q: "Suhu di kota A adalah -2°C, sedangkan suhu di kota B adalah 10°C. Berapakah selisih suhu kedua kota tersebut?", a: 12, exp: "Selisih = Nilai Besar - Nilai Kecil = 10 - (-2) = 10 + 2 = 12°C." },
+            { q: "Budi memiliki hutang sebesar Rp 10.000. Hari ini ia membayar hutangnya sebesar Rp 6.000. Berapa rupiah hutang Budi sekarang? (Tulis dalam angka negatif)", a: -4000, exp: "Hutang = -10000. Dibayar = +6000. Sisa = -10000 + 6000 = -4000." },
+            { q: "Seekor ikan berenang pada kedalaman 3 meter di bawah permukaan laut. Seekor burung terbang pada ketinggian 4 meter di atas permukaan laut tepat di atas ikan tersebut. Berapa meter jarak antara burung dan ikan?", a: 7, exp: "Burung (4) - Ikan (-3) = 4 - (-3) = 7 meter." },
+            { q: "Suhu awal sebuah ruangan adalah 25°C. Ruangan tersebut dihidupkan AC sehingga suhunya turun 2°C setiap jam. Berapakah suhu ruangan tersebut setelah 4 jam?", a: 17, exp: "Turun tiap jam = 2°C. Total turun = 2 x 4 = 8°C. Suhu akhir = 25 - 8 = 17°C." },
+            { q: "Dalam sebuah ujian, jawaban benar diberi skor 4, salah diberi skor -1, dan tidak dijawab 0. Dari 10 soal, Rina menjawab 8 benar dan 2 salah. Berapa total skor Rina?", a: 30, exp: "Skor benar = 8 x 4 = 32. Skor salah = 2 x (-1) = -2. Total = 32 + (-2) = 30." },
+            { q: "Seseorang berada di lantai 5 sebuah gedung. Ia turun menggunakan lift sebanyak 7 lantai menuju tempat parkir. Berada di lantai berapakah ia sekarang?", a: -2, exp: "Lantai 5 - 7 = -2 (Lantai basement 2)." },
+            { q: "Suhu es batu saat dikeluarkan dari freezer adalah -8°C. Setelah didiamkan, suhunya naik sebesar 12°C. Berapakah suhu es tersebut sekarang?", a: 4, exp: "-8 + 12 = 4°C." },
+            { q: "Dina meminjam uang 50 ribu rupiah kepada temannya. Besoknya, ia meminjam lagi 20 ribu rupiah. Berapa ribu rupiah total pinjaman Dina? (Gunakan angka negatif)", a: -70, exp: "Pinjam awal (-50) ditambah pinjam lagi (-20) = -70." },
+            { q: "Pesawat terbang di ketinggian 2000 m di atas laut. Kapal selam berada 200 m di bawah laut. Berapa meter jarak vertikal keduanya?", a: 2200, exp: "2000 - (-200) = 2200 m." },
+            { q: "Budi naik lift dari lantai 1. Ia naik 5 lantai untuk mengambil barang, lalu turun 3 lantai untuk menemui temannya. Di lantai berapa Budi sekarang?", a: 3, exp: "Awal: 1. Naik: +5 (jadi 6). Turun: -3. Posisi akhir: 6 - 3 = 3." },
+            { q: "Pada pagi hari, suhu di Puncak adalah -4°C. Pada siang hari, suhunya menjadi 5°C. Berapakah besar kenaikan suhu dari pagi ke siang hari?", a: 9, exp: "Kenaikan = Suhu Siang - Suhu Pagi = 5 - (-4) = 5 + 4 = 9°C." },
+            { q: "Tim bola bermain 5 kali. Menang 3 kali (skor 3) dan kalah 2 kali (skor -2). Berapa total skor yang didapat?", a: 5, exp: "Menang: 3 x 3 = 9. Kalah: 2 x (-2) = -4. Total: 9 + (-4) = 5." },
+            { q: "Suhu daging di dalam freezer adalah -10°C. Daging tersebut direbus sehingga suhunya naik 40°C. Berapa derajat Celcius suhu daging sekarang?", a: 30, exp: "-10 + 40 = 30°C." },
+            { q: "Sebuah helikopter berada di ketinggian 500 meter. Ia turun sejauh 150 meter untuk memotret, lalu naik lagi 50 meter. Di ketinggian berapa meter helikopter itu sekarang?", a: 400, exp: "500 - 150 + 50 = 400 meter." },
+            { q: "Suhu di dalam kulkas adalah -3°C, sedangkan suhu di luar kulkas adalah 28°C. Berapa derajat perbedaan suhu tersebut?", a: 31, exp: "Perbedaan = 28 - (-3) = 28 + 3 = 31°C." },
+            { q: "Amir berdiri di titik 0. Ia melangkah ke kanan 4 langkah, lalu melangkah ke kiri 7 langkah. Berada di titik manakah Amir sekarang?", a: -3, exp: "Kanan (+4), Kiri (-7). Total = 0 + 4 - 7 = -3." },
+            { q: "Saldo awal Andi adalah Rp 100.000. Ia membeli buku seharga Rp 120.000 menggunakan sistem paylater (ngutang). Berapa saldo Andi sekarang? (Gunakan angka negatif)", a: -20000, exp: "100000 - 120000 = -20000." },
+            { q: "Suhu udara di puncak gunung adalah -6°C. Suhu di kaki gunung adalah 15°C. Berapakah selisih suhu di kedua tempat tersebut?", a: 21, exp: "15 - (-6) = 15 + 6 = 21°C." }
+        ];
+        let ceritaIdx = 0;
+
+        // C. 50 Soal PLSV (Nilai X)
+        const plsvData = [];
+        for(let i=0; i<50; i++) {
+            let type = Math.floor(Math.random() * 4); // 0: x+a=b, 1: a+x=b, 2: x-a=b, 3: ax=b
+            let a = Math.floor(Math.random() * 21) - 10;
+            if(a===0) a=2;
+            let ans = Math.floor(Math.random() * 21) - 10;
+            let b, qStr, exp;
+
+            if(type === 0) {
+                b = ans + a;
+                qStr = `x ${a >= 0 ? '+' : '-'} ${Math.abs(a)} = ${b}`;
+                exp = `x = ${b} ${a >= 0 ? '-' : '+'} ${Math.abs(a)}<br>x = ${ans}`;
+            } else if (type === 1) {
+                b = a + ans;
+                qStr = `${a} + x = ${b}`;
+                exp = `x = ${b} - (${a})<br>x = ${ans}`;
+            } else if (type === 2) {
+                b = ans - a;
+                qStr = `x - ${a < 0 ? '('+a+')' : a} = ${b}`;
+                exp = `x = ${b} + (${a})<br>x = ${ans}`;
+            } else {
+                b = a * ans;
+                qStr = `${a}x = ${b}`;
+                exp = `x = ${b} ÷ ${a}<br>x = ${ans}`;
+            }
+            plsvData.push({ q: qStr, a: ans, exp: exp });
+        }
+        let plsvIdx = 0;
+
+        // --- 3. INIT & NAV ---
+        function startApp() {
+            const s1 = document.getElementById('input-s1').value.trim();
+            const s2 = document.getElementById('input-s2').value.trim();
+            if(!s1 || !s2) return alert("Masukkan nama kalian berdua!");
+            
+            student1 = s1; student2 = s2;
+            document.getElementById('s1-display').innerText = student1;
+            document.getElementById('s2-display').innerText = student2;
+            document.getElementById('student-badges').classList.remove('hidden');
+            document.getElementById('student-badges').classList.add('flex');
+            
+            document.getElementById('btn-prev').disabled = false;
+            document.getElementById('btn-next').disabled = false;
+            
+            // Initialization
+            drawStaticNumberLine();
+            loadLatOps();
+            loadLatCerita();
+            loadLatPlsv();
+
+            navSlide(1);
+        }
+
+        function navSlide(step) {
+            let next = currentSlide + step;
+            if(next < 1 || next > 6) return;
+            
+            document.querySelectorAll('.slide').forEach(e => e.classList.remove('active'));
+            document.getElementById('slide-'+next).classList.add('active');
+            currentSlide = next;
+            
+            document.getElementById('slide-indicator').innerText = `${next}/6`;
+            document.getElementById('btn-prev').disabled = (next === 1);
+            document.getElementById('btn-next').disabled = (next === 6);
+        }
+
+        // --- 4. SLIDE 4: MATERI TABS & NUMBER LINE ---
+        function switchMateri(tab) {
+            ['definisi', 'garis', 'operasi'].forEach(t => {
+                document.getElementById('mat-' + t).classList.add('hidden');
+                document.getElementById('mat-' + t).classList.remove('flex', 'block');
+                document.getElementById('mat-btn-' + t).classList.remove('bg-indigo-600', 'text-white');
+                document.getElementById('mat-btn-' + t).classList.add('bg-slate-100', 'text-slate-600');
+            });
+            
+            let btn = document.getElementById('mat-btn-' + tab);
+            btn.classList.add('bg-indigo-600', 'text-white');
+            btn.classList.remove('bg-slate-100', 'text-slate-600');
+            
+            let content = document.getElementById('mat-' + tab);
+            content.classList.remove('hidden');
+            if(tab === 'garis') content.classList.add('flex');
+            else content.classList.add('block');
+        }
+
+        function drawStaticNumberLine() {
+            const canvas = document.getElementById('number-line');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+
+            const cx = 50, cy = 100, width = 800; // Total length
+            const ticks = 40; // -20 to 20
+            const spacing = width / ticks;
+
+            // Main Line
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + width, cy);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#475569';
+            ctx.stroke();
+
+            // Arrows at ends
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx+10, cy-10); ctx.lineTo(cx+10, cy+10); ctx.fillStyle = '#475569'; ctx.fill();
+            ctx.beginPath(); ctx.moveTo(cx+width, cy); ctx.lineTo(cx+width-10, cy-10); ctx.lineTo(cx+width-10, cy+10); ctx.fillStyle = '#475569'; ctx.fill();
+
+            // Ticks & Numbers
+            ctx.font = 'bold 12px Nunito';
+            ctx.textAlign = 'center';
+            for(let i=0; i<=ticks; i++) {
+                let x = cx + (i * spacing);
+                let num = i - 20;
+
+                ctx.beginPath();
+                ctx.moveTo(x, cy - 5);
+                ctx.lineTo(x, cy + 5);
+                ctx.lineWidth = num === 0 ? 3 : 2;
+                ctx.strokeStyle = num === 0 ? '#ef4444' : '#475569';
+                ctx.stroke();
+
+                ctx.fillStyle = num === 0 ? '#ef4444' : '#64748b';
+                // Only show even numbers to prevent crowding, except 0
+                if(num % 2 === 0 || num === 0) {
+                    ctx.fillText(num, x, cy + 25);
+                }
+            }
+        }
+
+        function simulateNumberLine() {
+            drawStaticNumberLine(); // reset
+            const startVal = parseInt(document.getElementById('nl-start').value);
+            const op = document.getElementById('nl-op').value;
+            const stepVal = parseInt(document.getElementById('nl-step').value);
+            
+            let result = op === '+' ? startVal + stepVal : startVal - stepVal;
+            
+            const canvas = document.getElementById('number-line');
+            const ctx = canvas.getContext('2d');
+            const cx = 50, cy = 100, width = 800, spacing = width / 40;
+
+            const startX = cx + ((startVal + 20) * spacing);
+            const endX = cx + ((result + 20) * spacing);
+
+            // Draw Point at Start
+            ctx.beginPath();
+            ctx.arc(startX, cy, 6, 0, 2*Math.PI);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fill();
+
+            // Draw Curve Arrow
+            if(startX !== endX) {
+                ctx.beginPath();
+                ctx.moveTo(startX, cy - 10);
+                // Control point for curve
+                let cpX = (startX + endX) / 2;
+                let cpY = cy - 60 - Math.abs(endX - startX)*0.1; // adjust height
+                ctx.quadraticCurveTo(cpX, cpY, endX, cy - 10);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#6366f1';
+                ctx.stroke();
+
+                // Arrow Head
+                let dir = endX > startX ? 1 : -1;
+                ctx.beginPath();
+                ctx.moveTo(endX, cy - 10);
+                ctx.lineTo(endX - dir*10, cy - 20);
+                ctx.lineTo(endX - dir*10, cy);
+                ctx.fillStyle = '#6366f1';
+                ctx.fill();
+            }
+
+            // Draw Point at End
+            ctx.beginPath();
+            ctx.arc(endX, cy, 6, 0, 2*Math.PI);
+            ctx.fillStyle = '#10b981';
+            ctx.fill();
+
+            // Feedback text
+            let text = `${startVal} ${op} ${stepVal < 0 ? '('+stepVal+')' : stepVal} = ${result}`;
+            let moveDir = endX > startX ? 'Kanan' : (endX < startX ? 'Kiri' : 'Tetap');
+            document.getElementById('nl-feedback').innerHTML = `${text} <span class="text-sm font-normal text-slate-500 ml-2">(Bergerak ke ${moveDir})</span>`;
+        }
+
+        // --- 5. SLIDE 5: LATIHAN TABS ---
+        function switchLatihan(tab) {
+            ['ops', 'cerita', 'plsv'].forEach(t => {
+                document.getElementById('lat-' + t).classList.add('hidden');
+                document.getElementById('lat-' + t).classList.remove('flex');
+                document.getElementById('lat-btn-' + t).classList.remove('bg-amber-500', 'text-white', 'shadow-inner');
+                document.getElementById('lat-btn-' + t).classList.add('bg-slate-100', 'text-slate-600');
+            });
+            
+            let btn = document.getElementById('lat-btn-' + tab);
+            btn.classList.add('bg-amber-500', 'text-white', 'shadow-inner');
+            btn.classList.remove('bg-slate-100', 'text-slate-600');
+            
+            document.getElementById('lat-' + tab).classList.remove('hidden');
+            document.getElementById('lat-' + tab).classList.add('flex');
+        }
+
+        // 5A. Latihan Operasi Hitung (50)
+        function loadLatOps() {
+            document.getElementById('lat-ops-idx').innerText = opsIdx + 1;
+            document.getElementById('lat-ops-q').innerText = opsData[opsIdx].q;
+            document.getElementById('lat-ops-ans').value = '';
+            document.getElementById('lat-ops-ans').className = "w-full max-w-xs bg-slate-50 border-4 border-slate-200 rounded-2xl px-6 py-4 text-center text-3xl font-bold outline-none focus:border-amber-400 mb-6 transition-colors";
+            document.getElementById('lat-ops-fb').innerText = '';
+        }
+
+        function checkLatOps() {
+            const inp = document.getElementById('lat-ops-ans');
+            const val = parseInt(inp.value);
+            const fb = document.getElementById('lat-ops-fb');
+            
+            if(val === opsData[opsIdx].a) {
+                inp.classList.add('input-correct'); inp.classList.remove('input-wrong', 'border-slate-200');
+                fb.innerHTML = `<span class="text-emerald-500"><i class="fa-solid fa-check"></i> Jawaban Tepat!</span>`;
+            } else {
+                inp.classList.add('input-wrong'); inp.classList.remove('input-correct', 'border-slate-200');
+                fb.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-xmark"></i> Salah, ayo hitung lagi!</span>`;
+            }
+        }
+
+        function nextLatOps() {
+            opsIdx = (opsIdx + 1) % 50;
+            loadLatOps();
+        }
+
+        // 5B. Latihan Soal Cerita (20)
+        function loadLatCerita() {
+            document.getElementById('lat-cerita-idx').innerText = ceritaIdx + 1;
+            document.getElementById('lat-cerita-q').innerText = ceritaData[ceritaIdx].q;
+            document.getElementById('lat-cerita-ans').value = '';
+            document.getElementById('lat-cerita-ans').className = "w-full sm:w-1/2 bg-slate-50 border-4 border-slate-200 rounded-xl px-4 py-3 text-center text-xl font-bold outline-none focus:border-emerald-400 transition-colors";
+            document.getElementById('lat-cerita-fb').innerText = '';
+            document.getElementById('lat-cerita-disc').classList.add('hidden');
+        }
+
+        function checkLatCerita() {
+            const inp = document.getElementById('lat-cerita-ans');
+            const val = parseInt(inp.value);
+            const fb = document.getElementById('lat-cerita-fb');
+            
+            if(val === ceritaData[ceritaIdx].a) {
+                inp.classList.add('input-correct'); inp.classList.remove('input-wrong', 'border-slate-200');
+                fb.innerHTML = `<span class="text-emerald-500"><i class="fa-solid fa-check"></i> Benar!</span>`;
+            } else {
+                inp.classList.add('input-wrong'); inp.classList.remove('input-correct', 'border-slate-200');
+                fb.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-xmark"></i> Salah!</span>`;
+            }
+        }
+
+        function showDiscCerita() {
+            const disc = document.getElementById('lat-cerita-disc');
+            disc.innerHTML = "<b>Pembahasan:</b> " + ceritaData[ceritaIdx].exp;
+            disc.classList.remove('hidden');
+        }
+
+        function nextLatCerita() {
+            ceritaIdx = (ceritaIdx + 1) % 20;
+            loadLatCerita();
+        }
+
+        // 5C. Latihan Nilai X (PLSV) (50)
+        function loadLatPlsv() {
+            document.getElementById('lat-plsv-idx').innerText = plsvIdx + 1;
+            document.getElementById('lat-plsv-q').innerText = plsvData[plsvIdx].q;
+            document.getElementById('lat-plsv-ans').value = '';
+            document.getElementById('lat-plsv-ans').className = "w-full sm:w-48 bg-slate-50 border-4 border-slate-200 rounded-xl px-4 py-3 text-center text-2xl font-bold outline-none focus:border-rose-400 transition-colors";
+            document.getElementById('lat-plsv-fb').innerText = '';
+            document.getElementById('lat-plsv-disc').classList.add('hidden');
+        }
+
+        function checkLatPlsv() {
+            const inp = document.getElementById('lat-plsv-ans');
+            const val = parseInt(inp.value);
+            const fb = document.getElementById('lat-plsv-fb');
+            
+            if(val === plsvData[plsvIdx].a) {
+                inp.classList.add('input-correct'); inp.classList.remove('input-wrong', 'border-slate-200');
+                fb.innerHTML = `<span class="text-emerald-500"><i class="fa-solid fa-check"></i> X ditemukan!</span>`;
+            } else {
+                inp.classList.add('input-wrong'); inp.classList.remove('input-correct', 'border-slate-200');
+                fb.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-xmark"></i> Nilai X salah!</span>`;
+            }
+        }
+
+        function showCluePlsv() {
+            alert("CLUE:\n1. Pindah Ruas: Jika angka positif (+) pindah melewati '=' maka menjadi negatif (-). Begitu sebaliknya.\n2. Perkalian: '2x' artinya '2 dikali x'. Jika 2 pindah ruas, maka menjadi pembagian (÷).");
+        }
+
+        function showDiscPlsv() {
+            const disc = document.getElementById('lat-plsv-disc');
+            disc.innerHTML = plsvData[plsvIdx].exp;
+            disc.classList.remove('hidden');
+        }
+
+        function nextLatPlsv() {
+            plsvIdx = (plsvIdx + 1) % 50;
+            loadLatPlsv();
+        }
+
+    </script>
+</body>
+</html>
