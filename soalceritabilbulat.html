@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petualangan Bilangan Bulat — Latihan Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0a08;
+  --bg-2: #14100c;
+  --surface: #1a1410;
+  --surface-2: #221a14;
+  --surface-3: #2b2118;
+  --border: rgba(245, 220, 180, 0.08);
+  --border-strong: rgba(245, 220, 180, 0.2);
+  --text: #f5ead8;
+  --text-dim: #a89888;
+  --text-mute: #6b5d52;
+  --amber: #f59e0b;
+  --amber-bright: #fbbf24;
+  --amber-soft: rgba(245, 158, 11, 0.12);
+  --coral: #ef4444;
+  --coral-soft: rgba(239, 68, 68, 0.12);
+  --mint: #10b981;
+  --mint-soft: rgba(16, 185, 129, 0.12);
+  --rose: #f43f5e;
+  --gold: #fbbf24;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body {
+  background: 
+    radial-gradient(ellipse at 15% 0%, rgba(245, 158, 11, 0.06), transparent 50%),
+    radial-gradient(ellipse at 85% 100%, rgba(239, 68, 68, 0.04), transparent 50%),
+    var(--bg);
+}
+
+/* ===== TOPBAR ===== */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: rgba(13, 10, 8, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 24px; z-index: 100; gap: 20px;
+}
+
+.progress-track {
+  flex: 0 0 180px; height: 4px;
+  background: var(--surface-2); border-radius: 2px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), var(--amber-bright));
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.slide-label { font-size: 13px; color: var(--text-dim); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+.slide-label strong { color: var(--text); font-weight: 700; }
+
+.players { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.player-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 100px;
+  font-size: 13px; font-weight: 600;
+}
+.player-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+.player-dot.p2 { background: var(--rose); }
+.player-chip.empty { opacity: 0.4; font-style: italic; }
+
+/* ===== BOTTOMBAR ===== */
+.bottombar {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
+  background: rgba(13, 10, 8, 0.88);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; z-index: 100;
+}
+
+.nav-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 22px; background: var(--surface-2);
+  border: 1px solid var(--border-strong); color: var(--text);
+  border-radius: 100px; font-family: inherit; font-size: 14px;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.nav-btn:hover:not(:disabled) {
+  background: var(--surface-3); border-color: var(--amber); transform: translateY(-1px);
+}
+.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.nav-btn.primary {
+  background: linear-gradient(135deg, var(--amber), var(--amber-bright));
+  border-color: var(--amber-bright); color: var(--bg);
+}
+.nav-btn.primary:hover { box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
+
+.slide-dots { display: flex; gap: 8px; align-items: center; }
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--surface-3); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s;
+}
+.dot.active { background: var(--amber); border-color: var(--amber); width: 24px; border-radius: 4px; }
+.dot:hover { background: var(--surface-3); }
+.dot:hover.active { background: var(--amber); }
+
+/* ===== SLIDES ===== */
+.slides-container {
+  margin-top: 56px; margin-bottom: 64px;
+  height: calc(100vh - 120px); overflow-y: auto; overflow-x: hidden;
+  position: relative;
+}
+.slides-container::-webkit-scrollbar { width: 8px; }
+.slides-container::-webkit-scrollbar-track { background: var(--bg-2); }
+.slides-container::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+.slides-container::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+.slide {
+  display: none; min-height: 100%; padding: 48px 56px;
+  animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide.active { display: block; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== COVER SLIDE ===== */
+#slide1 {
+  display: none; min-height: 100%; padding: 0;
+  position: relative; overflow: hidden;
+}
+#slide1.active { display: flex; align-items: center; justify-content: center; }
+
+.cover-bg {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.float-int {
+  position: absolute; font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; opacity: 0.08; user-select: none;
+  animation: floatDrift 25s infinite linear;
+}
+@keyframes floatDrift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(40px, -30px) rotate(180deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+
+.cover-grid {
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px;
+  max-width: 1280px; width: 100%; padding: 60px; position: relative; z-index: 2;
+}
+
+.cover-left { display: flex; flex-direction: column; justify-content: center; }
+.cover-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: 4px; color: var(--amber); font-weight: 700;
+  margin-bottom: 20px; text-transform: uppercase;
+}
+.cover-eyebrow::before {
+  content: ''; display: inline-block; width: 32px; height: 2px;
+  background: var(--amber); margin-right: 12px; vertical-align: middle;
+}
+
+.cover-title {
+  font-family: 'Fraunces', serif; font-weight: 900;
+  font-size: clamp(48px, 6.5vw, 96px); line-height: 0.95;
+  margin-bottom: 24px; letter-spacing: -2px;
+}
+.cover-title .accent {
+  font-style: italic; font-weight: 700;
+  background: linear-gradient(135deg, var(--amber), var(--coral));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cover-subtitle {
+  font-size: 18px; color: var(--text-dim); max-width: 480px;
+  margin-bottom: 40px; line-height: 1.6;
+}
+
+.number-line {
+  display: flex; align-items: center; gap: 0; margin-top: 32px;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+}
+.nl-tick {
+  flex: 1; height: 32px; position: relative;
+  border-left: 1px solid var(--border);
+}
+.nl-tick::after {
+  content: attr(data-val); position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%); margin-top: 6px; color: var(--text-mute);
+}
+.nl-tick.zero { border-left-color: var(--amber); }
+.nl-tick.zero::after { color: var(--amber); font-weight: 700; }
+.nl-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--surface-3); }
+
+.cover-right {
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.name-panel {
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border-strong); border-radius: 24px;
+  padding: 40px; position: relative; overflow: hidden;
+}
+.name-panel::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--amber), var(--rose), var(--amber));
+}
+
+.name-panel-title {
+  font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700;
+  margin-bottom: 8px;
+}
+.name-panel-sub {
+  color: var(--text-dim); font-size: 14px; margin-bottom: 28px;
+}
+
+.name-field { margin-bottom: 20px; }
+.name-label {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 600; color: var(--text-dim);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+}
+.name-label .dot-tag {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--amber);
+}
+.name-field.p2 .dot-tag { background: var(--rose); }
+
+.name-input {
+  width: 100%; padding: 16px 20px;
+  background: var(--bg); border: 1px solid var(--border-strong);
+  border-radius: 12px; color: var(--text);
+  font-family: inherit; font-size: 18px; font-weight: 600;
+  transition: all 0.2s;
+}
+.name-input:focus {
+  outline: none; border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-soft);
+}
+.name-input::placeholder { color: var(--text-mute); font-weight: 400; }
+
+.start-btn {
+  width: 100%; margin-top: 12px;
+  padding: 18px 28px;
+  background: linear-gradient(135deg, var(--amber), var(--amber-bright));
+  border: none; border-radius: 12px;
+  color: var(--bg); font-family: inherit; font-size: 16px;
+  font-weight: 800; letter-spacing: 0.5px; cursor: pointer;
+  transition: all 0.3s; position: relative; overflow: hidden;
+}
+.start-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: translateX(-100%); transition: transform 0.6s;
+}
+.start-btn:hover:not(:disabled)::after { transform: translateX(100%); }
+.start-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.4);
+}
+.start-btn:disabled {
+  background: var(--surface-3); color: var(--text-mute);
+  cursor: not-allowed;
+}
+
+/* ===== SLIDE 2: TUJUAN ===== */
+.slide-header { margin-bottom: 40px; max-width: 900px; }
+.slide-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: 3px; color: var(--amber); font-weight: 700;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.slide-title {
+  font-family: 'Fraunces', serif; font-weight: 900;
+  font-size: clamp(36px, 4.5vw, 56px); line-height: 1.05;
+  letter-spacing: -1px; margin-bottom: 16px;
+}
+.slide-title .accent {
+  font-style: italic; color: var(--amber);
+}
+.slide-desc {
+  font-size: 17px; color: var(--text-dim); max-width: 700px; line-height: 1.6;
+}
+
+.objectives-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px; max-width: 1200px;
+}
+.obj-card {
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 28px; position: relative; overflow: hidden;
+  transition: all 0.3s;
+}
+.obj-card:hover {
+  transform: translateY(-4px); border-color: var(--border-strong);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+.obj-card::before {
+  content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+  background: var(--amber);
+}
+.obj-card:nth-child(2)::before { background: var(--rose); }
+.obj-card:nth-child(3)::before { background: var(--mint); }
+.obj-card:nth-child(4)::before { background: var(--coral); }
+.obj-card:nth-child(5)::before { background: var(--gold); }
+
+.obj-num {
+  font-family: 'Fraunces', serif; font-size: 56px; font-weight: 900;
+  color: var(--surface-3); line-height: 1; margin-bottom: 12px;
+}
+.obj-title {
+  font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700;
+  margin-bottom: 10px;
+}
+.obj-desc { color: var(--text-dim); font-size: 15px; line-height: 1.5; }
+
+/* ===== PRACTICE SLIDES (3, 4, 5, 6) ===== */
+.practice-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px; margin-bottom: 32px; flex-wrap: wrap;
+}
+.level-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.level-badge.easy { background: var(--mint-soft); color: var(--mint); border: 1px solid rgba(16, 185, 129, 0.3); }
+.level-badge.medium { background: var(--amber-soft); color: var(--amber-bright); border: 1px solid rgba(245, 158, 11, 0.3); }
+.level-badge.hots { background: var(--coral-soft); color: var(--coral); border: 1px solid rgba(239, 68, 68, 0.3); }
+.level-badge.warmup { background: rgba(244, 63, 94, 0.12); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.3); }
+
+.score-panel {
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border-strong); border-radius: 16px;
+  padding: 18px 24px; display: flex; align-items: center; gap: 24px;
+  min-width: 320px;
+}
+.score-item { display: flex; flex-direction: column; gap: 4px; }
+.score-label {
+  font-size: 11px; color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 1px; font-weight: 600;
+}
+.score-value {
+  font-family: 'JetBrains Mono', monospace; font-size: 24px;
+  font-weight: 700; color: var(--text);
+}
+.score-value.correct { color: var(--mint); }
+.score-value.wrong { color: var(--coral); }
+
+.action-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 32px; flex-wrap: wrap;
+}
+.action-btn {
+  padding: 12px 22px; border-radius: 100px;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; border: 1px solid;
+}
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--amber), var(--amber-bright));
+  border-color: var(--amber-bright); color: var(--bg);
+}
+.action-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4); }
+.action-btn.secondary {
+  background: var(--surface-2); border-color: var(--border-strong); color: var(--text);
+}
+.action-btn.secondary:hover { background: var(--surface-3); border-color: var(--amber); }
+
+.questions-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: 1fr;
+}
+.questions-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 900px) {
+  .questions-grid.cols-2 { grid-template-columns: 1fr; }
+}
+
+.q-card {
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 22px; transition: all 0.3s; position: relative;
+}
+.q-card.correct { border-color: var(--mint); background: linear-gradient(180deg, rgba(16, 185, 129, 0.06), var(--surface-2)); }
+.q-card.wrong { border-color: var(--coral); background: linear-gradient(180deg, rgba(239, 68, 68, 0.06), var(--surface-2)); }
+
+.q-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.q-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  font-weight: 700; color: var(--amber); letter-spacing: 1px;
+  background: var(--amber-soft); padding: 4px 10px; border-radius: 6px;
+}
+.q-card.correct .q-num { color: var(--mint); background: var(--mint-soft); }
+.q-card.wrong .q-num { color: var(--coral); background: var(--coral-soft); }
+
+.q-status {
+  font-size: 18px; opacity: 0; transition: opacity 0.3s;
+}
+.q-card.correct .q-status, .q-card.wrong .q-status { opacity: 1; }
+
+.q-text {
+  font-size: 15px; line-height: 1.55; margin-bottom: 16px; color: var(--text);
+}
+.q-text strong { color: var(--amber-bright); }
+
+/* Pemanasan style */
+.q-calc {
+  font-family: 'JetBrains Mono', monospace; font-size: 32px;
+  font-weight: 700; text-align: center; padding: 16px;
+  background: var(--bg); border-radius: 12px; margin-bottom: 14px;
+  border: 1px solid var(--border); letter-spacing: 1px;
+}
+.q-calc .equals { color: var(--text-mute); }
+.q-input-wrap { display: flex; gap: 8px; }
+.q-input {
+  flex: 1; padding: 12px 16px; background: var(--bg);
+  border: 1px solid var(--border-strong); border-radius: 10px;
+  color: var(--text); font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; font-weight: 700; text-align: center;
+  transition: all 0.2s;
+}
+.q-input:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); }
+.q-card.correct .q-input { border-color: var(--mint); background: var(--mint-soft); color: var(--mint); }
+.q-card.wrong .q-input { border-color: var(--coral); background: var(--coral-soft); color: var(--coral); }
+
+/* MC Options */
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+.q-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 10px;
+  cursor: pointer; transition: all 0.2s; text-align: left;
+  font-family: inherit; font-size: 14px; color: var(--text);
+}
+.q-option:hover { border-color: var(--amber); background: var(--surface-3); }
+.q-option.selected {
+  background: var(--amber-soft); border-color: var(--amber);
+}
+.q-option .opt-letter {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--surface-3); color: var(--text-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-weight: 700;
+  font-size: 13px; flex-shrink: 0; transition: all 0.2s;
+}
+.q-option.selected .opt-letter { background: var(--amber); color: var(--bg); }
+.q-option.correct-answer {
+  background: var(--mint-soft); border-color: var(--mint);
+}
+.q-option.correct-answer .opt-letter { background: var(--mint); color: var(--bg); }
+.q-option.wrong-answer {
+  background: var(--coral-soft); border-color: var(--coral);
+}
+.q-option.wrong-answer .opt-letter { background: var(--coral); color: var(--bg); }
+.q-option.disabled { cursor: default; }
+.q-option.disabled:hover { background: var(--bg); }
+
+.q-explanation {
+  margin-top: 14px; padding: 14px 16px;
+  background: linear-gradient(135deg, var(--amber-soft), transparent);
+  border-left: 3px solid var(--amber); border-radius: 8px;
+  font-size: 13px; line-height: 1.5; color: var(--text-dim);
+  display: none;
+}
+.q-card.show-explanation .q-explanation { display: block; animation: slideIn 0.4s; }
+.q-explanation strong { color: var(--amber-bright); }
+
+/* ===== SLIDE 7: KESIMPULAN ===== */
+.kesimpulan-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+  max-width: 1200px; margin-bottom: 40px;
+}
+@media (max-width: 900px) { .kesimpulan-grid { grid-template-columns: 1fr; } }
+
+.kesimpulan-section {
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border-strong); border-radius: 20px;
+  padding: 32px;
+}
+.kesimpulan-section h3 {
+  font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+}
+.kesimpulan-section h3::before {
+  content: ''; width: 6px; height: 32px;
+  background: var(--amber); border-radius: 3px;
+}
+
+.summary-list { list-style: none; }
+.summary-list li {
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+  display: flex; gap: 12px; align-items: flex-start;
+  font-size: 15px; line-height: 1.5;
+}
+.summary-list li:last-child { border-bottom: none; }
+.summary-list li::before {
+  content: '▸'; color: var(--amber); font-weight: 700; flex-shrink: 0;
+}
+.summary-list strong { color: var(--amber-bright); }
+
+.tips-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.tip-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+}
+.tip-icon {
+  font-family: 'JetBrains Mono', monospace; font-size: 22px;
+  font-weight: 700; color: var(--amber); margin-bottom: 8px;
+}
+.tip-title {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 6px;
+}
+.tip-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+.reflection-box {
+  background: linear-gradient(135deg, var(--amber-soft), var(--coral-soft));
+  border: 1px solid var(--border-strong); border-radius: 20px;
+  padding: 32px; margin-bottom: 32px; max-width: 800px;
+}
+.reflection-box h3 {
+  font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700;
+  margin-bottom: 12px;
+}
+.reflection-box p { color: var(--text-dim); margin-bottom: 16px; }
+.reflection-input {
+  width: 100%; min-height: 80px; padding: 14px 16px;
+  background: var(--bg); border: 1px solid var(--border-strong);
+  border-radius: 12px; color: var(--text); font-family: inherit;
+  font-size: 14px; resize: vertical; transition: all 0.2s;
+}
+.reflection-input:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); }
+
+.thank-you {
+  text-align: center; padding: 48px 32px; max-width: 900px; margin: 0 auto;
+}
+.thank-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: 4px; color: var(--amber); font-weight: 700;
+  margin-bottom: 16px; text-transform: uppercase;
+}
+.thank-title {
+  font-family: 'Fraunces', serif; font-size: clamp(40px, 5vw, 64px);
+  font-weight: 900; line-height: 1.05; margin-bottom: 20px;
+  letter-spacing: -1.5px;
+}
+.thank-title .accent {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--amber), var(--coral));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.thank-message {
+  font-size: 18px; color: var(--text-dim); max-width: 600px;
+  margin: 0 auto 32px; line-height: 1.6;
+}
+
+.final-score {
+  display: flex; gap: 24px; justify-content: center; margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.fs-card {
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 16px; padding: 20px 28px; min-width: 160px;
+}
+.fs-label {
+  font-size: 11px; color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 6px;
+}
+.fs-value {
+  font-family: 'JetBrains Mono', monospace; font-size: 32px;
+  font-weight: 700; color: var(--amber);
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; top: 80px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--border-strong); border-radius: 100px;
+  padding: 14px 28px; font-size: 14px; font-weight: 600;
+  color: var(--text); z-index: 1000; opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--mint); color: var(--mint); }
+.toast.error { border-color: var(--coral); color: var(--coral); }
+
+/* ===== CONFETTI ===== */
+.confetti {
+  position: fixed; width: 10px; height: 10px;
+  pointer-events: none; z-index: 9999;
+  animation: confettiFall 3s linear forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-100px) rotate(0); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .topbar { padding: 0 16px; gap: 12px; }
+  .progress-track { flex: 0 0 100px; }
+  .players { gap: 6px; }
+  .player-chip { padding: 4px 10px; font-size: 11px; }
+  .slide { padding: 32px 24px; }
+  .cover-grid { grid-template-columns: 1fr; gap: 32px; padding: 32px 24px; }
+  .kesimpulan-grid { grid-template-columns: 1fr; }
+  .tips-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== ENTRY ANIMATIONS ===== */
+.obj-card { animation: cardEnter 0.5s backwards; }
+.obj-card:nth-child(1) { animation-delay: 0.1s; }
+.obj-card:nth-child(2) { animation-delay: 0.2s; }
+.obj-card:nth-child(3) { animation-delay: 0.3s; }
+.obj-card:nth-child(4) { animation-delay: 0.4s; }
+.obj-card:nth-child(5) { animation-delay: 0.5s; }
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.q-card { animation: cardEnter 0.4s backwards; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width: 14.3%"></div></div>
+  <div class="slide-label">Slide <strong id="slideNum">1</strong> / 7 — <span id="slideName">Cover</span></div>
+  <div class="players">
+    <div class="player-chip empty" id="player1Chip">
+      <span class="player-dot"></span>
+      <span id="player1Name">Pemain 1</span>
+    </div>
+    <div class="player-chip empty" id="player2Chip">
+      <span class="player-dot p2"></span>
+      <span id="player2Name">Pemain 2</span>
+    </div>
+  </div>
+</div>
+
+<div class="slides-container" id="slidesContainer">
+
+  <!-- SLIDE 1: COVER -->
+  <section class="slide active" id="slide1">
+    <div class="cover-bg" id="coverBg"></div>
+    <div class="cover-grid">
+      <div class="cover-left">
+        <div class="cover-eyebrow">Latihan Interaktif Berdua</div>
+        <h1 class="cover-title">
+          Petualangan<br>
+          <span class="accent">Bilangan Bulat</span>
+        </h1>
+        <p class="cover-subtitle">
+          Selami dunia angka positif dan negatif. Kerjakan 85 soal seru bersama temanmu, dari pemanasan hingga tantangan HOTS yang mengasah pikiran.
+        </p>
+        <div class="number-line" id="numberLine"></div>
+      </div>
+      <div class="cover-right">
+        <div class="name-panel">
+          <h2 class="name-panel-title">Daftar Dulu, Yuk!</h2>
+          <p class="name-panel-sub">Masukkan nama kedua pemain untuk memulai petualangan.</p>
+          <div class="name-field">
+            <label class="name-label" for="player1">
+              <span class="dot-tag"></span> Pemain 1
+            </label>
+            <input type="text" class="name-input" id="player1" placeholder="Tulis namamu di sini..." maxlength="20">
+          </div>
+          <div class="name-field p2">
+            <label class="name-label" for="player2">
+              <span class="dot-tag"></span> Pemain 2
+            </label>
+            <input type="text" class="name-input" id="player2" placeholder="Tulis namamu di sini..." maxlength="20">
+          </div>
+          <button class="start-btn" id="startBtn" disabled onclick="startAdventure()">Mulai Petualangan →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: TUJUAN -->
+  <section class="slide" id="slide2">
+    <div class="slide-header">
+      <div class="slide-eyebrow">Misi Pembelajaran</div>
+      <h2 class="slide-title">Apa yang Akan Kita <span class="accent">Kuasai</span> Hari Ini?</h2>
+      <p class="slide-desc">Lima tujuan utama yang akan membawa kalian menjadi ahli bilangan bulat. Setiap tujuan dilatih melalui soal-soal yang dirancang khusus.</p>
+    </div>
+    <div class="objectives-grid">
+      <div class="obj-card">
+        <div class="obj-num">01</div>
+        <h3 class="obj-title">Memahami Konsep</h3>
+        <p class="obj-desc">Mengenal bilangan bulat positif, negatif, dan nol serta posisinya pada garis bilangan.</p>
+      </div>
+      <div class="obj-card">
+        <div class="obj-num">02</div>
+        <h3 class="obj-title">Operasi Dasar</h3>
+        <p class="obj-desc">Melakukan penjumlahan, pengurangan, perkalian, dan pembagian bilangan bulat dengan tepat.</p>
+      </div>
+      <div class="obj-card">
+        <div class="obj-num">03</div>
+        <h3 class="obj-title">Soal Cerita</h3>
+        <p class="obj-desc">Menerjemahkan situasi kehidupan sehari-hari menjadi kalimat matematika dan menyelesaikannya.</p>
+      </div>
+      <div class="obj-card">
+        <div class="obj-num">04</div>
+        <h3 class="obj-title">Berpikir Kritis</h3>
+        <p class="obj-desc">Menyelesaikan soal HOTS yang membutuhkan analisis multi-langkah dan strategi penyelesaian.</p>
+      </div>
+      <div class="obj-card">
+        <div class="obj-num">05</div>
+        <h3 class="obj-title">Bekerja Sama</h3>
+        <p class="obj-desc">Berdiskusi dan saling membantu dengan teman untuk menemukan jawaban yang benar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: PEMANASAN -->
+  <section class="slide" id="slide3">
+    <div class="practice-header">
+      <div>
+        <div class="level-badge warmup">⚡ Pemanasan</div>
+        <h2 class="slide-title">10 Soal <span class="accent">Operasi Hitung</span></h2>
+        <p class="slide-desc">Kerjakan operasi hitung bilangan bulat berikut. Tulis jawaban di kolom yang tersedia, lalu tekan "Cek Jawaban".</p>
+      </div>
+      <div class="score-panel" id="scorePemanasan">
+        <div class="score-item"><div class="score-label">Benar</div><div class="score-value correct" id="pemanasanCorrect">0</div></div>
+        <div class="score-item"><div class="score-label">Salah</div><div class="score-value wrong" id="pemanasanWrong">0</div></div>
+        <div class="score-item"><div class="score-label">Skor</div><div class="score-value" id="pemanasanScore">0/10</div></div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="action-btn primary" onclick="checkAnswers('pemanasan')">Cek Jawaban</button>
+      <button class="action-btn secondary" onclick="resetAnswers('pemanasan')">Reset</button>
+    </div>
+    <div class="questions-grid cols-2" id="pemanasanGrid"></div>
+  </section>
+
+  <!-- SLIDE 4: SOAL MUDAH -->
+  <section class="slide" id="slide4">
+    <div class="practice-header">
+      <div>
+        <div class="level-badge easy">★ Level 1 — Mudah</div>
+        <h2 class="slide-title">25 Soal Cerita <span class="accent">Bilangan Bulat</span></h2>
+        <p class="slide-desc">Soal-soal sederhana tentang situasi sehari-hari yang melibatkan bilangan bulat. Pilih jawaban yang tepat!</p>
+      </div>
+      <div class="score-panel">
+        <div class="score-item"><div class="score-label">Benar</div><div class="score-value correct" id="mudahCorrect">0</div></div>
+        <div class="score-item"><div class="score-label">Salah</div><div class="score-value wrong" id="mudahWrong">0</div></div>
+        <div class="score-item"><div class="score-label">Skor</div><div class="score-value" id="mudahScore">0/25</div></div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="action-btn primary" onclick="checkAnswers('mudah')">Cek Jawaban</button>
+      <button class="action-btn secondary" onclick="toggleAllExplanations('mudah')">Tampilkan Semua Pembahasan</button>
+      <button class="action-btn secondary" onclick="resetAnswers('mudah')">Reset</button>
+    </div>
+    <div class="questions-grid cols-2" id="mudahGrid"></div>
+  </section>
+
+  <!-- SLIDE 5: SOAL SEDANG -->
+  <section class="slide" id="slide5">
+    <div class="practice-header">
+      <div>
+        <div class="level-badge medium">★★ Level 2 — Sedang</div>
+        <h2 class="slide-title">25 Soal Cerita <span class="accent">Multi-Langkah</span></h2>
+        <p class="slide-desc">Soal yang membutuhkan beberapa langkah perhitungan. Baca dengan teliti, pikirkan strateginya!</p>
+      </div>
+      <div class="score-panel">
+        <div class="score-item"><div class="score-label">Benar</div><div class="score-value correct" id="sedangCorrect">0</div></div>
+        <div class="score-item"><div class="score-label">Salah</div><div class="score-value wrong" id="sedangWrong">0</div></div>
+        <div class="score-item"><div class="score-label">Skor</div><div class="score-value" id="sedangScore">0/25</div></div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="action-btn primary" onclick="checkAnswers('sedang')">Cek Jawaban</button>
+      <button class="action-btn secondary" onclick="toggleAllExplanations('sedang')">Tampilkan Semua Pembahasan</button>
+      <button class="action-btn secondary" onclick="resetAnswers('sedang')">Reset</button>
+    </div>
+    <div class="questions-grid cols-2" id="sedangGrid"></div>
+  </section>
+
+  <!-- SLIDE 6: SOAL HOTS -->
+  <section class="slide" id="slide6">
+    <div class="practice-header">
+      <div>
+        <div class="level-badge hots">★★★ Level 3 — HOTS</div>
+        <h2 class="slide-title">25 Soal <span class="accent">HOTS</span> Berpikir Tingkat Tinggi</h2>
+        <p class="slide-desc">Soal Higher Order Thinking Skills yang menuntut analisis, evaluasi, dan strategi penyelesaian kreatif.</p>
+      </div>
+      <div class="score-panel">
+        <div class="score-item"><div class="score-label">Benar</div><div class="score-value correct" id="hotsCorrect">0</div></div>
+        <div class="score-item"><div class="score-label">Salah</div><div class="score-value wrong" id="hotsWrong">0</div></div>
+        <div class="score-item"><div class="score-label">Skor</div><div class="score-value" id="hotsScore">0/25</div></div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="action-btn primary" onclick="checkAnswers('hots')">Cek Jawaban</button>
+      <button class="action-btn secondary" onclick="toggleAllExplanations('hots')">Tampilkan Semua Pembahasan</button>
+      <button class="action-btn secondary" onclick="resetAnswers('hots')">Reset</button>
+    </div>
+    <div class="questions-grid cols-2" id="hotsGrid"></div>
+  </section>
+
+  <!-- SLIDE 7: KESIMPULAN -->
+  <section class="slide" id="slide7">
+    <div class="slide-header">
+      <div class="slide-eyebrow">Penutup</div>
+      <h2 class="slide-title">Sampai Jumpa, Para <span class="accent">Juara Bilangan</span>!</h2>
+    </div>
+
+    <div class="kesimpulan-grid">
+      <div class="kesimpulan-section">
+        <h3>Kesimpulan</h3>
+        <ul class="summary-list">
+          <li><span><strong>Bilangan bulat</strong> terdiri dari bilangan positif, nol, dan bilangan negatif.</span></li>
+          <li><span>Positif × Positif = <strong>Positif</strong>, Negatif × Negatif = <strong>Positif</strong></span></li>
+          <li><span>Positif × Negatif = <strong>Negatif</strong>, tanda berbeda hasilnya negatif.</span></li>
+          <li><span>Pengurangan = penjumlahan dengan <strong>lawan</strong>nya: a − b = a + (−b)</span></li>
+          <li><span>Pada <strong>soal cerita</strong>, identifikasi kata kunci: naik/untung/tambah = positif, turun/rugi/hilang = negatif.</span></li>
+          <li><span>Untuk soal HOTS, gambar <strong>garis bilangan</strong> atau buat tabel untuk memvisualkan masalah.</span></li>
+        </ul>
+      </div>
+      <div class="kesimpulan-section">
+        <h3>Tips & Trik</h3>
+        <div class="tips-grid">
+          <div class="tip-card">
+            <div class="tip-icon">01</div>
+            <div class="tip-title">Garis Bilangan</div>
+            <div class="tip-desc">Selalu gambar garis bilangan untuk soal suhu, posisi, atau level. Visualisasi membantu!</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon">02</div>
+            <div class="tip-title">Tanda Sama/Tidak</div>
+            <div class="tip-desc">Perkalian dua bilangan bertanda sama = positif. Bertanda beda = negatif. Ingat: "sama-sama positif"!</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon">03</div>
+            <div class="tip-title">Hutang = Negatif</div>
+            <div class="tip-desc">Dalam soal cerita, hutang/rugi/kalah/kerugian selalu bernilai negatif. Untung/labamenang = positif.</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon">04</div>
+            <div class="tip-title">Selisih Suhu</div>
+            <div class="tip-desc">Selisih = suhu tertinggi − suhu terendah. Jika terendah negatif, jadi penjumlahan!</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon">05</div>
+            <div class="tip-title">Urutan Operasi</div>
+            <div class="tip-desc">Kurung dulu, lalu perkalian/pembagian, terakhir penjumlahan/pengurangan.</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon">06</div>
+            <div class="tip-title">Cek Wajar</div>
+            <div class="tip-desc">Setelah dapat jawaban, tanya: "Apakah masuk akal?" Suhu tidak mungkin -500°C di pantai!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reflection-box">
+      <h3>Refleksi Pembelajaran</h3>
+      <p>Ceritakan pengalamanmu belajar hari ini. Apa yang paling menantang? Apa yang sudah kamu pahami?</p>
+      <textarea class="reflection-input" id="reflectionInput" placeholder="Tulis refleksi kalian di sini..."></textarea>
+    </div>
+
+    <div class="thank-you">
+      <div class="thank-eyebrow">Terima Kasih</div>
+      <h2 class="thank-title">Kerja Bagus, <span class="accent" id="thankNames">Pemain</span>!</h2>
+      <p class="thank-message">Hari ini kalian telah menaklukkan 85 soal bilangan bulat. Teruslah berlatih, karena setiap ahli pernah menjadi pemula yang tidak menyerah. Sampai jumpa di petualangan matematika berikutnya!</p>
+      
+      <div class="final-score">
+        <div class="fs-card">
+          <div class="fs-label">Pemanasan</div>
+          <div class="fs-value" id="finalPemanasan">0/10</div>
+        </div>
+        <div class="fs-card">
+          <div class="fs-label">Mudah</div>
+          <div class="fs-value" id="finalMudah">0/25</div>
+        </div>
+        <div class="fs-card">
+          <div class="fs-label">Sedang</div>
+          <div class="fs-value" id="finalSedang">0/25</div>
+        </div>
+        <div class="fs-card">
+          <div class="fs-label">HOTS</div>
+          <div class="fs-value" id="finalHots">0/25</div>
+        </div>
+        <div class="fs-card">
+          <div class="fs-label">Total</div>
+          <div class="fs-value" id="finalTotal">0/85</div>
+        </div>
+      </div>
+
+      <button class="action-btn primary" onclick="restart()">Ulangi Petualangan dari Awal</button>
+    </div>
+  </section>
+
+</div>
+
+<div class="bottombar">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()">‹ Sebelumnya</button>
+  <div class="slide-dots" id="slideDots"></div>
+  <button class="nav-btn primary" id="nextBtn" onclick="nextSlide()">Selanjutnya ›</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA SOAL =====
+const dataPemanasan = [
+  { soal: "−7 + 5", jawaban: "−2" },
+  { soal: "−12 + (−8)", jawaban: "−20" },
+  { soal: "15 − 23", jawaban: "−8" },
+  { soal: "−9 × 4", jawaban: "−36" },
+  { soal: "−6 × (−7)", jawaban: "42" },
+  { soal: "24 ÷ (−6)", jawaban: "−4" },
+  { soal: "−50 ÷ (−10)", jawaban: "5" },
+  { soal: "−3 + 18 − 11", jawaban: "4" },
+  { soal: "−4 × (−3) + (−6)", jawaban: "6" },
+  { soal: "(−2)³", jawaban: "−8" }
+];
+
+const dataMudah = [
+  { soal: "Suhu udara pagi hari −3°C. Siang hari suhunya naik 5°C. Berapa suhu siang hari?", pilihan: ["2°C", "−2°C", "8°C", "−8°C"], jawaban: 0, pembahasan: "Suhu naik = penjumlahan: −3 + 5 = 2°C. Karena 5 > 3, hasilnya positif." },
+  { soal: "Andi berhutang Rp 50.000. Ia membayar Rp 30.000. Berapa sisa hutang Andi?", pilihan: ["+Rp 20.000", "−Rp 20.000", "+Rp 80.000", "−Rp 80.000"], jawaban: 1, pembahasan: "Hutang = negatif. −50.000 + 30.000 = −20.000 (masih berhutang Rp 20.000)." },
+  { soal: "Suhu dalam freezer −10°C. Suhu turun 5°C lagi. Berapa suhu sekarang?", pilihan: ["−5°C", "5°C", "−15°C", "15°C"], jawaban: 2, pembahasan: "Turun = pengurangan: −10 − 5 = −15°C. Negatif bertambah negatif = lebih negatif." },
+  { soal: "Seorang pedagang rugi Rp 25.000, lalu keesokan harinya untung Rp 40.000. Berapa hasil akhirnya?", pilihan: ["+Rp 15.000", "−Rp 15.000", "+Rp 65.000", "−Rp 65.000"], jawaban: 0, pembahasan: "Rugi = negatif, untung = positif: −25.000 + 40.000 = +15.000 (akhirnya untung)." },
+  { soal: "Sebuah lift berada di lantai 7, lalu turun 9 lantai. Di lantai berapa lift sekarang?", pilihan: ["Lantai 2", "Lantai 16", "Lantai −2", "Lantai 3"], jawaban: 2, pembahasan: "7 − 9 = −2. Artinya lift berada di basement 2 (lantai bawah tanah 2)." },
+  { soal: "Saldo tabungan Rina −Rp 15.000. Ia menabung Rp 50.000. Berapa saldo sekarang?", pilihan: ["−Rp 65.000", "+Rp 35.000", "+Rp 65.000", "−Rp 35.000"], jawaban: 1, pembahasan: "−15.000 + 50.000 = +35.000. Saldo akhirnya positif Rp 35.000." },
+  { soal: "Suhu freezer −18°C. Listrik mati sehingga suhu naik 4°C. Berapa suhu sekarang?", pilihan: ["−22°C", "−14°C", "14°C", "22°C"], jawaban: 1, pembahasan: "Naik = penjumlahan: −18 + 4 = −14°C. Masih dingin, tapi tidak sedingin semula." },
+  { soal: "Skor permainan Doni −5 poin. Ia menang 8 poin. Berapa skor Doni sekarang?", pilihan: ["−13", "13", "3", "−3"], jawaban: 2, pembahasan: "−5 + 8 = 3. Karena 8 > 5, hasilnya positif 3 poin." },
+  { soal: "Pos tentara berada di ketinggian 200 m. Pasukan turun 350 m. Berapa posisi pasukan sekarang?", pilihan: ["−150 m", "+150 m", "+550 m", "−550 m"], jawaban: 0, pembahasan: "200 − 350 = −150 m. Pasukan berada 150 m di bawah permukaan." },
+  { soal: "Kapal selam berada di kedalaman −50 m, lalu naik 30 m. Berapa posisi kapal selam sekarang?", pilihan: ["−80 m", "+20 m", "−20 m", "+80 m"], jawaban: 2, pembahasan: "Naik = penjumlahan: −50 + 30 = −20 m. Kapal masih di bawah permukaan." },
+  { soal: "Suhu malam hari −2°C. Pagi hari suhu turun 7°C. Berapa suhu pagi hari?", pilihan: ["5°C", "−5°C", "9°C", "−9°C"], jawaban: 3, pembahasan: "−2 − 7 = −9°C. Turun berarti mengurangi, jadi lebih dingin lagi." },
+  { soal: "Budi berhutang pada 2 orang: Rp 15.000 dan Rp 25.000. Berapa total hutang Budi?", pilihan: ["+Rp 40.000", "−Rp 40.000", "+Rp 10.000", "−Rp 10.000"], jawaban: 1, pembahasan: "Hutang = negatif. −15.000 + (−25.000) = −40.000. Total hutang Rp 40.000." },
+  { soal: "Seorang pedagang rugi Rp 12.000 hari Senin, rugi Rp 8.000 hari Selasa. Berapa total kerugian?", pilihan: ["−Rp 4.000", "+Rp 20.000", "−Rp 20.000", "+Rp 4.000"], jawaban: 2, pembahasan: "−12.000 + (−8.000) = −20.000. Total rugi Rp 20.000." },
+  { soal: "Termometer menunjuk −5°C. Suhu naik 12°C. Berapa suhu akhirnya?", pilihan: ["7°C", "−7°C", "17°C", "−17°C"], jawaban: 0, pembahasan: "−5 + 12 = 7°C. 12 > 5, hasilnya positif." },
+  { soal: "Tabungan Siti −Rp 35.000. Ibunya memberi Rp 50.000. Berapa saldo Siti?", pilihan: ["−Rp 85.000", "+Rp 15.000", "+Rp 85.000", "−Rp 15.000"], jawaban: 1, pembahasan: "−35.000 + 50.000 = +15.000. Saldi akhir positif Rp 15.000." },
+  { soal: "Seorang anak berada di lantai 4 gedung. Ia turun 10 lantai. Di lantai berapa ia sekarang?", pilihan: ["Lantai 6", "Lantai 14", "Lantai −6", "Lantai 7"], jawaban: 2, pembahasan: "4 − 10 = −6. Ia berada di basement 6." },
+  { soal: "Suhu ruangan −3°C. AC diatur lebih dingin 5°C. Berapa suhu sekarang?", pilihan: ["2°C", "−2°C", "8°C", "−8°C"], jawaban: 3, pembahasan: "Lebih dingin = suhu turun: −3 − 5 = −8°C." },
+  { soal: "Kapal selam di kedalaman −75 m. Ia naik 50 m. Berapa posisi sekarang?", pilihan: ["−125 m", "−25 m", "+25 m", "+125 m"], jawaban: 1, pembahasan: "−75 + 50 = −25 m. Masih di bawah permukaan, tapi lebih dangkal." },
+  { soal: "Skor game Andi −10. Di level berikutnya ia dapat 25 poin. Berapa total skor Andi?", pilihan: ["−35", "+35", "+15", "−15"], jawaban: 2, pembahasan: "−10 + 25 = +15. Andi akhirnya unggul 15 poin." },
+  { soal: "Andi kalah 8 kelereng, lalu menang 12 kelereng. Berapa selisih kelereng Andi sekarang?", pilihan: ["+4", "−4", "+20", "−20"], jawaban: 0, pembahasan: "−8 + 12 = +4. Andi sekarang punya 4 kelereng lebih banyak." },
+  { soal: "Saldo ATM Budi −Rp 25.000. Ia menerima transfer Rp 75.000. Berapa saldo akhirnya?", pilihan: ["−Rp 100.000", "+Rp 50.000", "+Rp 100.000", "−Rp 50.000"], jawaban: 1, pembahasan: "−25.000 + 75.000 = +50.000. Saldo akhir Rp 50.000." },
+  { soal: "Seseorang berdiri di lantai 0. Ia naik 5 lantai, lalu turun 8 lantai. Di lantai berapa ia sekarang?", pilihan: ["Lantai 3", "Lantai 13", "Lantai −3", "Lantai 8"], jawaban: 2, pembahasan: "0 + 5 − 8 = −3. Ia berada di basement 3." },
+  { soal: "Suhu pagi 4°C. Malam turun 11°C. Berapa suhu malam?", pilihan: ["15°C", "−7°C", "7°C", "−15°C"], jawaban: 1, pembahasan: "4 − 11 = −7°C. Di bawah nol, suhu malam sangat dingin." },
+  { soal: "Pengendara sepeda berada di km 0. Ia mundur 7 km, lalu maju 3 km. Berapa posisi akhirnya?", pilihan: ["+10 km", "−4 km", "+4 km", "−10 km"], jawaban: 1, pembahasan: "0 − 7 + 3 = −4 km. Mundur = negatif, maju = positif." },
+  { soal: "Tabungan Rina −Rp 20.000, lalu ia nabung Rp 30.000, kemudian mengambil Rp 10.000. Berapa saldo akhir?", pilihan: ["+Rp 20.000", "−Rp 20.000", "0", "+Rp 60.000"], jawaban: 0, pembahasan: "−20.000 + 30.000 − 10.000 = 0. Wait, itu = 0. Mari cek: −20.000 + 30.000 = 10.000, lalu 10.000 − 10.000 = 0." }
+];
+// Fix last question
+dataMudah[24].pilihan = ["0", "+Rp 20.000", "−Rp 60.000", "+Rp 60.000"];
+dataMudah[24].jawaban = 0;
+dataMudah[24].pembahasan = "−20.000 + 30.000 − 10.000 = 0. Saldo akhir Rina tepat nol (pas-pasan).";
+
+const dataSedang = [
+  { soal: "Suhu pagi −4°C. Siang naik 9°C. Malam turun 6°C. Berapa suhu malam?", pilihan: ["−1°C", "1°C", "−11°C", "11°C"], jawaban: 0, pembahasan: "−4 + 9 − 6 = −1°C. Hitung bertahap: −4+9=5, lalu 5−6=−1." },
+  { soal: "Modal awal −Rp 50.000 (rugi). Lalu untung Rp 80.000, kemudian rugi Rp 20.000. Berapa hasil akhir?", pilihan: ["+Rp 10.000", "−Rp 10.000", "+Rp 50.000", "−Rp 50.000"], jawaban: 0, pembahasan: "−50.000 + 80.000 − 20.000 = +10.000. Akhirnya untung tipis." },
+  { soal: "Lift di lantai 5. Naik 3 lantai, turun 12 lantai. Di lantai berapa sekarang?", pilihan: ["Lantai 4", "Lantai −4", "Lantai 10", "Lantai 0"], jawaban: 1, pembahasan: "5 + 3 − 12 = −4. Lift berada di basement 4." },
+  { soal: "Kapal selam di kedalaman −60 m. Naik 25 m, lalu turun 40 m. Berapa posisi akhir?", pilihan: ["−75 m", "−25 m", "−95 m", "+5 m"], jawaban: 0, pembahasan: "−60 + 25 − 40 = −75 m. Lebih dalam dari posisi awal." },
+  { soal: "Skor Doni −15. Ia menang 8 poin, menang 12 poin, kalah 5 poin. Berapa skor akhir?", pilihan: ["0", "−10", "+10", "−40"], jawaban: 0, pembahasan: "−15 + 8 + 12 − 5 = 0. Tepat di titik nol, seimbang." },
+  { soal: "Suhu −8°C. Setiap jam naik 3°C selama 4 jam. Berapa suhu akhir?", pilihan: ["4°C", "−4°C", "12°C", "−20°C"], jawaban: 0, pembahasan: "Naik 3°C × 4 jam = +12°C. −8 + 12 = 4°C." },
+  { soal: "Tabungan Andi −Rp 35.000. Ia nabung Rp 12.500 setiap minggu selama 4 minggu. Berapa saldo akhir?", pilihan: ["+Rp 15.000", "−Rp 15.000", "+Rp 50.000", "0"], jawaban: 0, pembahasan: "12.500 × 4 = 50.000. −35.000 + 50.000 = +15.000." },
+  { soal: "Berapa hasil dari −2 × 5 + 3 − 4?", pilihan: ["−11", "−1", "11", "−14"], jawaban: 0, pembahasan: "Kali dulu: −2 × 5 = −10. Lalu −10 + 3 − 4 = −11." },
+  { soal: "Berapa hasil dari (−6) × (−3) + (−4)?", pilihan: ["22", "14", "−22", "−14"], jawaban: 1, pembahasan: "(−6)×(−3) = 18 (negatif×negatif=positif). 18 + (−4) = 14." },
+  { soal: "Berapa hasil dari −48 ÷ 6 + (−2)?", pilihan: ["−10", "10", "−6", "6"], jawaban: 0, pembahasan: "−48 ÷ 6 = −8. −8 + (−2) = −10." },
+  { soal: "Hutang Rp 200.000. Cicilan Rp 25.000/bulan selama 3 bulan. Berapa sisa hutang?", pilihan: ["−Rp 75.000", "−Rp 125.000", "+Rp 125.000", "−Rp 275.000"], jawaban: 1, pembahasan: "Hutang awal −200.000. Cicilan 3×25.000 = 75.000 (mengurangi hutang). −200.000 + 75.000 = −125.000. Masih hutang Rp 125.000." },
+  { soal: "Suhu tertinggi 5°C, suhu terendah −7°C. Berapa selisih suhunya?", pilihan: ["2°C", "12°C", "−12°C", "−2°C"], jawaban: 1, pembahasan: "Selisih = tertinggi − terendah = 5 − (−7) = 5 + 7 = 12°C." },
+  { soal: "Tiga anak: A punya −15 kelereng, B −8, C +12. Berapa total kelereng mereka?", pilihan: ["−11", "+11", "−35", "+35"], jawaban: 0, pembahasan: "−15 + (−8) + 12 = −23 + 12 = −11. Total mereka kehilangan 11 kelereng." },
+  { soal: "Pesawat di ketinggian 9.000 m. Turun 12.000 m. Berapa posisi pesawat?", pilihan: ["+3.000 m", "−3.000 m", "+21.000 m", "−21.000 m"], jawaban: 1, pembahasan: "9.000 − 12.000 = −3.000 m. Pesawat 3.000 m di bawah permukaan (mis. dalam jurang)." },
+  { soal: "Empat orang masing-masing berhutang Rp 12.500. Berapa total hutang mereka?", pilihan: ["−Rp 50.000", "+Rp 50.000", "−Rp 12.500", "−Rp 25.000"], jawaban: 0, pembahasan: "−12.500 × 4 = −50.000. Total hutang mereka Rp 50.000." },
+  { soal: "Tabungan −Rp 75.000. Ibu memberi Rp 100.000, ayah memberi Rp 50.000. Berapa saldo akhir?", pilihan: ["+Rp 75.000", "−Rp 75.000", "+Rp 125.000", "+Rp 25.000"], jawaban: 0, pembahasan: "−75.000 + 100.000 + 50.000 = +75.000." },
+  { soal: "Berapa hasil (−3)² × 4 − 5?", pilihan: ["31", "−31", "−17", "17"], jawaban: 0, pembahasan: "(−3)² = 9. 9 × 4 = 36. 36 − 5 = 31." },
+  { soal: "Suhu −12°C. Setiap jam naik 4°C selama 5 jam. Berapa suhu akhir?", pilihan: ["8°C", "−8°C", "20°C", "−32°C"], jawaban: 0, pembahasan: "4 × 5 = 20. −12 + 20 = 8°C." },
+  { soal: "Skor game −25. Naik level dapat +40, kalah dari boss −15. Berapa skor akhir?", pilihan: ["0", "−10", "+10", "−80"], jawaban: 0, pembahasan: "−25 + 40 − 15 = 0. Tepat di titik awal." },
+  { soal: "Mobil dari km 0, maju 15 km, mundur 8 km, maju 12 km. Posisi akhir?", pilihan: ["+19 km", "−19 km", "+35 km", "+5 km"], jawaban: 0, pembahasan: "0 + 15 − 8 + 12 = +19 km." },
+  { soal: "Berapa hasil −100 + 50 × (−2)?", pilihan: ["−200", "0", "−300", "+200"], jawaban: 0, pembahasan: "Kali dulu: 50 × (−2) = −100. −100 + (−100) = −200." },
+  { soal: "Suhu 4 kota: −5°C, 2°C, −8°C, 7°C. Berapa total suhu keempat kota?", pilihan: ["−4°C", "+4°C", "−22°C", "+22°C"], jawaban: 0, pembahasan: "−5 + 2 + (−8) + 7 = −4°C. Total suhu −4°C." },
+  { soal: "Modal −Rp 120.000. Untung 3 hari @ Rp 15.000, rugi 2 hari @ Rp 8.000. Berapa modal akhir?", pilihan: ["−Rp 91.000", "+Rp 91.000", "−Rp 49.000", "+Rp 29.000"], jawaban: 0, pembahasan: "Untung: 15.000 × 3 = 45.000. Rugi: 8.000 × 2 = 16.000. −120.000 + 45.000 − 16.000 = −91.000." },
+  { soal: "Dari lantai 0: naik 7, turun 11, naik 4, turun 6. Lantai berapa sekarang?", pilihan: ["−6", "+6", "0", "−2"], jawaban: 0, pembahasan: "0 + 7 − 11 + 4 − 6 = −6. Berada di basement 6." },
+  { soal: "Berapa hasil −2 × (−3) × 4 ÷ (−6)?", pilihan: ["−4", "+4", "−24", "+24"], jawaban: 0, pembahasan: "−2 × (−3) = 6. 6 × 4 = 24. 24 ÷ (−6) = −4." }
+];
+
+const dataHots = [
+  { soal: "Suhu pukul 06.00 adalah −5°C. Suhu naik 2°C setiap jam. Pukul berapa suhu mencapai 7°C?", pilihan: ["Pukul 11.00", "Pukul 12.00", "Pukul 13.00", "Pukul 10.00"], jawaban: 1, pembahasan: "Selisih suhu = 7 − (−5) = 12°C. Dibagi 2°C/jam = 6 jam. Pukul 06.00 + 6 jam = 12.00." },
+  { soal: "Bis berangkat dari kota A(−7), ke B(3), ke C(−2). Berapa total jarak tempuh bis?", pilihan: ["10 satuan", "5 satuan", "15 satuan", "12 satuan"], jawaban: 2, pembahasan: "AB = |3 − (−7)| = 10. BC = |−2 − 3| = 5. Total = 10 + 5 = 15 satuan." },
+  { soal: "Tabungan Andi −Rp 50.000. Ia menabung Rp x setiap minggu. Setelah 4 minggu, saldonya Rp 30.000. Berapa nilai x?", pilihan: ["Rp 10.000", "Rp 15.000", "Rp 20.000", "Rp 25.000"], jawaban: 2, pembahasan: "−50.000 + 4x = 30.000 → 4x = 80.000 → x = Rp 20.000 per minggu." },
+  { soal: "Suhu kota A −8°C. Kota B lebih dingin 3°C dari kota A. Berapa rata-rata suhu kedua kota?", pilihan: ["−9,5°C", "−11°C", "−5,5°C", "−8,5°C"], jawaban: 0, pembahasan: "Suhu B = −8 − 3 = −11°C. Rata-rata = (−8 + −11) ÷ 2 = −19 ÷ 2 = −9,5°C." },
+  { soal: "Lift gedung: max lantai 15, min lantai −3. Dari lantai 0, naik 7, turun 10, naik 5. Di lantai berapa sekarang?", pilihan: ["Lantai 2", "Lantai 22", "Lantai −2", "Lantai 12"], jawaban: 0, pembahasan: "0 + 7 − 10 + 5 = 2. Lantai 2, masih dalam batas." },
+  { soal: "Hutang Andi 3× hutang Budi. Total hutang mereka −Rp 120.000. Berapa hutang Andi?", pilihan: ["−Rp 30.000", "−Rp 90.000", "−Rp 40.000", "−Rp 60.000"], jawaban: 1, pembahasan: "Andi = 3 × Budi. Andi + Budi = −120.000. 4 × Budi = −120.000, Budi = −30.000. Andi = 3 × (−30.000) = −90.000." },
+  { soal: "Tangga memiliki 20 anak tangga. Siswa di anak tangga ke-7 naik 5, lalu turun 8. Di anak tangga berapa sekarang?", pilihan: ["Anak ke-4", "Anak ke-20", "Anak ke-3", "Anak ke-10"], jawaban: 0, pembahasan: "7 + 5 − 8 = 4. Sekarang di anak tangga ke-4." },
+  { soal: "Termometer menunjukkan x°C. Setelah naik 8°C lalu turun 12°C, menunjukkan −3°C. Berapa x?", pilihan: ["1°C", "−7°C", "7°C", "−1°C"], jawaban: 0, pembahasan: "x + 8 − 12 = −3 → x − 4 = −3 → x = 1°C." },
+  { soal: "Skor Tono 8 poin lebih rendah dari Andi. Jika Andi −5, berapa skor Tono?", pilihan: ["3", "−13", "13", "−3"], jawaban: 1, pembahasan: "Tono = Andi − 8 = −5 − 8 = −13." },
+  { soal: "Bis A di km −15, bis B di km 5. Berapa jarak antara kedua bis?", pilihan: ["10 km", "20 km", "−20 km", "15 km"], jawaban: 1, pembahasan: "Jarak = |5 − (−15)| = |5 + 15| = 20 km." },
+  { soal: "Modal awal −Rp 200.000. Agar saldo menjadi +Rp 50.000 dalam 5 hari, berapa rata-rata untung per hari?", pilihan: ["Rp 30.000", "Rp 50.000", "Rs 40.000", "Rp 25.000"], jawaban: 1, pembahasan: "Selisih = 50.000 − (−200.000) = 250.000. Per hari = 250.000 ÷ 5 = Rp 50.000." },
+  { soal: "Suhu −10°C. Setiap jam naik 3°C. Berapa jam dibutuhkan sampai suhu 5°C?", pilihan: ["3 jam", "5 jam", "15 jam", "10 jam"], jawaban: 1, pembahasan: "Selisih = 5 − (−10) = 15°C. 15 ÷ 3 = 5 jam." },
+  { soal: "Tabungan −Rp 75.000. Nabung Rp 15.000/minggu. Berapa minggu sampai saldo Rp 45.000?", pilihan: ["6 minggu", "8 minggu", "5 minggu", "10 minggu"], jawaban: 1, pembahasan: "−75.000 + 15.000x = 45.000 → 15.000x = 120.000 → x = 8 minggu." },
+  { soal: "Berapa hasil (−2)³ × (−3)²?", pilihan: ["−72", "72", "−36", "36"], jawaban: 0, pembahasan: "(−2)³ = −8. (−3)² = 9. −8 × 9 = −72." },
+  { soal: "Berapa hasil −3 × 4 − 6 ÷ (−2) + (−5)?", pilihan: ["−14", "−8", "−20", "−2"], jawaban: 0, pembahasan: "Kali dulu: −3 × 4 = −12. Bagi: 6 ÷ (−2) = −3. Jadi: −12 − (−3) + (−5) = −12 + 3 − 5 = −14." },
+  { soal: "Sebuah kolam kedalaman −2 m. Diperdalam 3× lipat. Berapa kedalaman kolam sekarang?", pilihan: ["−6 m", "+6 m", "−5 m", "−8 m"], jawaban: 0, pembahasan: "−2 × 3 = −6 m. Diperdalam 3× lipat = kalikan 3." },
+  { soal: "Andi punya −15 kelereng. Kelereng Budi 2× lipat Andi. Berapa total kelereng Andi dan Budi?", pilihan: ["−45", "−30", "+45", "−15"], jawaban: 0, pembahasan: "Budi = 2 × (−15) = −30. Total = −15 + (−30) = −45." },
+  { soal: "Posisi ular di −8 cm. Setiap 3 detik maju 5 cm. Berapa posisi setelah 12 detik?", pilihan: ["+12 cm", "−4 cm", "+20 cm", "+4 cm"], jawaban: 0, pembahasan: "12 ÷ 3 = 4 kali maju. 4 × 5 = 20 cm. −8 + 20 = +12 cm." },
+  { soal: "Eskalator turun 1 lantai setiap 2 detik dari lantai 0. Berapa posisi setelah 30 detik?", pilihan: ["−15", "−30", "+15", "−60"], jawaban: 0, pembahasan: "30 ÷ 2 = 15 kali turun. Posisi = 0 − 15 = −15." },
+  { soal: "Suhu awal x°C. Naik 5°C, turun 3°C, naik 2°C. Suhu akhir −4°C. Berapa x?", pilihan: ["−8°C", "−4°C", "0°C", "−6°C"], jawaban: 0, pembahasan: "x + 5 − 3 + 2 = −4 → x + 4 = −4 → x = −8°C." },
+  { soal: "Berapa hasil 4 × (−5) + 3 × (−4) ÷ 2?", pilihan: ["−26", "−32", "−16", "−14"], jawaban: 0, pembahasan: "4 × (−5) = −20. 3 × (−4) = −12. −12 ÷ 2 = −6. −20 + (−6) = −26." },
+  { soal: "Andi naik 5 lantai/menit selama 4 menit, lalu turun 3 lantai/menit selama 2 menit. Dari lantai 0, di lantai berapa?", pilihan: ["Lantai 14", "Lantai 26", "Lantai 20", "Lantai 8"], jawaban: 0, pembahasan: "Naik: 5 × 4 = 20. Turun: 3 × 2 = 6. 0 + 20 − 6 = 14." },
+  { soal: "Berapa hasil −6 × (4 − 7) + (−3)?", pilihan: ["15", "21", "−21", "9"], jawaban: 0, pembahasan: "Kurung dulu: 4 − 7 = −3. −6 × (−3) = 18. 18 + (−3) = 15." },
+  { soal: "Suhu pagi, siang, sore, malam: −2°C, 4°C, −1°C, −6°C. Berapa selisih suhu tertinggi dan terendah?", pilihan: ["10°C", "6°C", "8°C", "4°C"], jawaban: 0, pembahasan: "Tertinggi 4°C, terendah −6°C. Selisih = 4 − (−6) = 10°C." },
+  { soal: "Perusahaan rugi 3 bulan @ Rp 15.000, untung 9 bulan @ Rp 8.000. Berapa total keuntungan setahun?", pilihan: ["+Rp 27.000", "−Rp 45.000", "+Rp 72.000", "+Rp 117.000"], jawaban: 0, pembahasan: "Rugi: −15.000 × 3 = −45.000. Untung: 8.000 × 9 = 72.000. Total = −45.000 + 72.000 = +27.000." }
+];
+
+// ===== STATE =====
+const state = {
+  currentSlide: 1,
+  totalSlides: 7,
+  player1: '',
+  player2: '',
+  answers: {
+    pemanasan: Array(10).fill(null),
+    mudah: Array(25).fill(null),
+    sedang: Array(25).fill(null),
+    hots: Array(25).fill(null)
+  },
+  checked: { pemanasan: false, mudah: false, sedang: false, hots: false }
+};
+
+const slideNames = ['Cover', 'Tujuan', 'Pemanasan', 'Soal Mudah', 'Soal Sedang', 'Soal HOTS', 'Kesimpulan'];
+
+// ===== INIT =====
+function init() {
+  buildNumberLine();
+  buildFloatingInts();
+  renderPemanasan();
+  renderMC('mudah', dataMudah);
+  renderMC('sedang', dataSedang);
+  renderMC('hots', dataHots);
+  buildDots();
+  setupNameInputs();
+  setupKeyboard();
+}
+
+function buildNumberLine() {
+  const line = document.getElementById('numberLine');
+  for (let i = -5; i <= 5; i++) {
+    const tick = document.createElement('div');
+    tick.className = 'nl-tick' + (i === 0 ? ' zero' : '');
+    tick.dataset.val = i > 0 ? '+' + i : i;
+    line.appendChild(tick);
+  }
+}
+
+function buildFloatingInts() {
+  const bg = document.getElementById('coverBg');
+  const ints = ['−5', '+3', '−2', '+7', '−10', '+8', '−1', '+4', '−9', '+6', '0', '−3', '+5'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.className = 'float-int';
+    el.textContent = ints[i];
+    el.style.left = Math.random() * 90 + 5 + '%';
+    el.style.top = Math.random() * 90 + '%';
+    el.style.fontSize = (Math.random() * 60 + 40) + 'px';
+    el.style.animationDuration = (Math.random() * 15 + 20) + 's';
+    el.style.animationDelay = -(Math.random() * 20) + 's';
+    el.style.color = Math.random() > 0.5 ? 'var(--amber)' : 'var(--coral)';
+    bg.appendChild(el);
+  }
+}
+
+function buildDots() {
+  const dots = document.getElementById('slideDots');
+  for (let i = 1; i <= state.totalSlides; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => goToSlide(i);
+    dots.appendChild(d);
+  }
+}
+
+function setupNameInputs() {
+  const p1 = document.getElementById('player1');
+  const p2 = document.getElementById('player2');
+  const btn = document.getElementById('startBtn');
+  
+  const updateBtn = () => {
+    btn.disabled = !(p1.value.trim() && p2.value.trim());
+  };
+  
+  p1.addEventListener('input', updateBtn);
+  p2.addEventListener('input', updateBtn);
+  
+  // Allow Enter to start
+  [p1, p2].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !btn.disabled) startAdventure();
+    });
+  });
+}
+
+function setupKeyboard() {
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+}
+
+function startAdventure() {
+  state.player1 = document.getElementById('player1').value.trim();
+  state.player2 = document.getElementById('player2').value.trim();
+  document.getElementById('player1Name').textContent = state.player1;
+  document.getElementById('player2Name').textContent = state.player2;
+  document.getElementById('player1Chip').classList.remove('empty');
+  document.getElementById('player2Chip').classList.remove('empty');
+  document.getElementById('thankNames').textContent = state.player1 + ' & ' + state.player2;
+  nextSlide();
+  playSound('success');
+}
+
+// ===== NAVIGATION =====
+function goToSlide(n) {
+  if (n < 1 || n > state.totalSlides) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide' + n).classList.add('active');
+  state.currentSlide = n;
+  document.getElementById('slideNum').textContent = n;
+  document.getElementById('slideName').textContent = slideNames[n-1];
+  document.getElementById('progressFill').style.width = (n / state.totalSlides * 100) + '%';
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === n-1));
+  document.getElementById('prevBtn').disabled = n === 1;
+  document.getElementById('nextBtn').textContent = n === state.totalSlides ? 'Selesai' : 'Selanjutnya ›';
+  document.getElementById('slidesContainer').scrollTop = 0;
+  if (n === 7) updateFinalScore();
+  playSound('click');
+}
+
+function nextSlide() {
+  if (state.currentSlide < state.totalSlides) goToSlide(state.currentSlide + 1);
+}
+function prevSlide() {
+  if (state.currentSlide > 1) goToSlide(state.currentSlide - 1);
+}
+
+// ===== RENDER PEMANASAN =====
+function renderPemanasan() {
+  const grid = document.getElementById('pemanasanGrid');
+  grid.innerHTML = dataPemanasan.map((q, i) => `
+    <div class="q-card" data-type="pemanasan" data-index="${i}">
+      <div class="q-head">
+        <span class="q-num">SOAL ${String(i+1).padStart(2,'0')}</span>
+        <span class="q-status"></span>
+      </div>
+      <div class="q-calc">${q.soal} <span class="equals">=</span></div>
+      <div class="q-input-wrap">
+        <input type="text" class="q-input" placeholder="?" data-index="${i}" oninput="onPemanasanInput(${i}, this.value)">
+      </div>
+      <div class="q-explanation">
+        <strong>Jawaban: ${q.jawaban}</strong> — Pembahasan: ${getPembahasanPemanasan(q.soal, q.jawaban)}
+      </div>
+    </div>
+  `).join('');
+}
+
+function getPembahasanPemanasan(soal, jawaban) {
+  const map = {
+    "−7 + 5": "Bilangan berlawanan tanda, kurangkan yang lebih kecil dari yang lebih besar: 7 − 5 = 2, ikut tanda yang lebih besar yaitu 7 (negatif), jadi −2.",
+    "−12 + (−8)": "Sama-sama negatif, jumlahkan: 12 + 8 = 20, tanda tetap negatif, jadi −20.",
+    "15 − 23": "Pengurangan: 15 − 23. Karena 23 > 15, hasilnya negatif: −8.",
+    "−9 × 4": "Tanda berbeda, hasil negatif. 9 × 4 = 36, jadi −36.",
+    "−6 × (−7)": "Tanda sama (sama-sama negatif), hasil positif. 6 × 7 = 42.",
+    "24 ÷ (−6)": "Tanda berbeda, hasil negatif. 24 ÷ 6 = 4, jadi −4.",
+    "−50 ÷ (−10)": "Tanda sama, hasil positif. 50 ÷ 10 = 5.",
+    "−3 + 18 − 11": "Hitung bertahap: −3 + 18 = 15, lalu 15 − 11 = 4.",
+    "−4 × (−3) + (−6)": "Kali dulu: −4 × (−3) = 12 (sama-sama negatif = positif). Lalu 12 + (−6) = 6.",
+    "(−2)³": "(−2) × (−2) × (−2) = 4 × (−2) = −8. Pangkat ganjil dari negatif = negatif."
+  };
+  return map[soal] || "Hitung dengan teliti menggunakan aturan bilangan bulat.";
+}
+
+function onPemanasanInput(idx, val) {
+  state.answers.pemanasan[idx] = val.trim();
+  // Reset visual if user re-answers after checking
+  if (state.checked.pemanasan) {
+    const card = document.querySelector(`.q-card[data-type="pemanasan"][data-index="${idx}"]`);
+    card.classList.remove('correct', 'wrong', 'show-explanation');
+    state.checked.pemanasan = false;
+  }
+}
+
+// ===== RENDER MC =====
+function renderMC(type, data) {
+  const grid = document.getElementById(type + 'Grid');
+  grid.innerHTML = data.map((q, i) => `
+    <div class="q-card" data-type="${type}" data-index="${i}">
+      <div class="q-head">
+        <span class="q-num">SOAL ${String(i+1).padStart(2,'0')}</span>
+        <span class="q-status"></span>
+      </div>
+      <p class="q-text">${q.soal}</p>
+      <div class="q-options">
+        ${q.pilihan.map((opt, j) => `
+          <button class="q-option" data-option="${j}" onclick="selectOption('${type}', ${i}, ${j})">
+            <span class="opt-letter">${String.fromCharCode(65+j)}</span>
+            <span class="opt-text">${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="q-explanation">
+        <strong>Jawaban: ${String.fromCharCode(65+q.jawaban)}. ${q.pilihan[q.jawaban]}</strong><br>${q.pembahasan}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectOption(type, qIdx, optIdx) {
+  if (state.checked[type]) return; // Lock after checking
+  state.answers[type][qIdx] = optIdx;
+  const card = document.querySelector(`.q-card[data-type="${type}"][data-index="${qIdx}"]`);
+  card.querySelectorAll('.q-option').forEach((opt, i) => {
+    opt.classList.toggle('selected', i === optIdx);
+  });
+  playSound('click');
+}
+
+// ===== CHECK ANSWERS =====
+function normalizeAns(s) {
+  return String(s).replace(/−/g, '-').replace(/\s/g, '').replace(/,/g, '.').toLowerCase().trim();
+}
+
+function checkAnswers(type) {
+  const data = { pemanasan: dataPemanasan, mudah: dataMudah, sedang: dataSedang, hots: dataHots }[type];
+  let correct = 0, wrong = 0, unanswered = 0;
+  
+  data.forEach((q, i) => {
+    const card = document.querySelector(`.q-card[data-type="${type}"][data-index="${i}"]`);
+    const userAns = state.answers[type][i];
+    let isCorrect = false;
+    
+    if (userAns === null || userAns === undefined || userAns === '') {
+      unanswered++;
+      card.classList.add('wrong');
+      card.classList.add('show-explanation');
+      if (type === 'pemanasan') {
+        card.querySelector('.q-status').textContent = '✗';
+      } else {
+        // Show correct answer
+        card.querySelectorAll('.q-option').forEach((opt, j) => {
+          if (j === q.jawaban) opt.classList.add('correct-answer');
+        });
+        card.querySelector('.q-status').textContent = '✗';
+      }
+      wrong++;
+      return;
+    }
+    
+    if (type === 'pemanasan') {
+      isCorrect = normalizeAns(userAns) === normalizeAns(q.jawaban);
+    } else {
+      isCorrect = parseInt(userAns) === q.jawaban;
+    }
+    
+    if (isCorrect) {
+      correct++;
+      card.classList.add('correct', 'show-explanation');
+      card.querySelector('.q-status').textContent = '✓';
+      if (type !== 'pemanasan') {
+        card.querySelectorAll('.q-option').forEach((opt, j) => {
+          if (j === q.jawaban) opt.classList.add('correct-answer');
+          opt.classList.add('disabled');
+        });
+      }
+    } else {
+      wrong++;
+      card.classList.add('wrong', 'show-explanation');
+      card.querySelector('.q-status').textContent = '✗';
+      if (type !== 'pemanasan') {
+        card.querySelectorAll('.q-option').forEach((opt, j) => {
+          opt.classList.add('disabled');
+          if (j === q.jawaban) opt.classList.add('correct-answer');
+          if (j === parseInt(userAns) && j !== q.jawaban) opt.classList.add('wrong-answer');
+        });
+      }
+    }
+  });
+  
+  state.checked[type] = true;
+  
+  // Update score
+  document.getElementById(type + 'Correct').textContent = correct;
+  document.getElementById(type + 'Wrong').textContent = wrong;
+  document.getElementById(type + 'Score').textContent = correct + '/' + data.length;
+  
+  // Feedback
+  const percentage = (correct / data.length) * 100;
+  if (percentage === 100) {
+    showToast(`Sempurna! ${correct}/${data.length} benar semua! 🏆`, 'success');
+    playSound('fanfare');
+    confetti(60);
+  } else if (percentage >= 70) {
+    showToast(`Kerja bagus! ${correct}/${data.length} benar.`, 'success');
+    playSound('success');
+    confetti(30);
+  } else if (percentage >= 50) {
+    showToast(`Lumayan! ${correct}/${data.length} benar. Terus berlatih!`, '');
+    playSound('click');
+  } else {
+    showToast(`${correct}/${data.length} benar. Coba baca pembahasan ya!`, 'error');
+    playSound('error');
+  }
+}
+
+function toggleAllExplanations(type) {
+  const cards = document.querySelectorAll(`.q-card[data-type="${type}"]`);
+  const allShown = Array.from(cards).every(c => c.classList.contains('show-explanation'));
+  cards.forEach(c => c.classList.toggle('show-explanation', !allShown));
+}
+
+function resetAnswers(type) {
+  state.answers[type] = state.answers[type].map(() => null);
+  state.checked[type] = false;
+  const data = { pemanasan: dataPemanasan, mudah: dataMudah, sedang: dataSedang, hots: dataHots }[type];
+  
+  document.querySelectorAll(`.q-card[data-type="${type}"]`).forEach(card => {
+    card.classList.remove('correct', 'wrong', 'show-explanation');
+    card.querySelector('.q-status').textContent = '';
+    if (type === 'pemanasan') {
+      const input = card.querySelector('.q-input');
+      if (input) input.value = '';
+    } else {
+      card.querySelectorAll('.q-option').forEach(opt => {
+        opt.classList.remove('selected', 'correct-answer', 'wrong-answer', 'disabled');
+      });
+    }
+  });
+  
+  document.getElementById(type + 'Correct').textContent = '0';
+  document.getElementById(type + 'Wrong').textContent = '0';
+  document.getElementById(type + 'Score').textContent = '0/' + data.length;
+  showToast('Reset berhasil. Ayo coba lagi!', '');
+}
+
+// ===== FINAL SCORE =====
+function updateFinalScore() {
+  const pemanasan = parseInt(document.getElementById('pemanasanScore').textContent) || 0;
+  const mudah = parseInt(document.getElementById('mudahScore').textContent) || 0;
+  const sedang = parseInt(document.getElementById('sedangScore').textContent) || 0;
+  const hots = parseInt(document.getElementById('hotsScore').textContent) || 0;
+  
+  // Parse "x/total" format
+  const pScore = parseInt(document.getElementById('pemanasanScore').textContent.split('/')[0]) || 0;
+  const mScore = parseInt(document.getElementById('mudahScore').textContent.split('/')[0]) || 0;
+  const sScore = parseInt(document.getElementById('sedangScore').textContent.split('/')[0]) || 0;
+  const hScore = parseInt(document.getElementById('hotsScore').textContent.split('/')[0]) || 0;
+  
+  document.getElementById('finalPemanasan').textContent = pScore + '/10';
+  document.getElementById('finalMudah').textContent = mScore + '/25';
+  document.getElementById('finalSedang').textContent = sScore + '/25';
+  document.getElementById('finalHots').textContent = hScore + '/25';
+  document.getElementById('finalTotal').textContent = (pScore + mScore + sScore + hScore) + '/85';
+}
+
+function restart() {
+  ['pemanasan', 'mudah', 'sedang', 'hots'].forEach(resetAnswers);
+  document.getElementById('reflectionInput').value = '';
+  goToSlide(1);
+  showToast('Petualangan dimulai ulang!', '');
+}
+
+// ===== AUDIO =====
+let audioCtx;
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) {}
+  }
+}
+function playSound(type) {
+  initAudio();
+  if (!audioCtx) return;
+  if (type === 'click') playTone(600, 0.05, 'sine', 0.05);
+  else if (type === 'success') {
+    [523, 659, 784].forEach((f, i) => setTimeout(() => playTone(f, 0.12, 'sine', 0.1), i * 100));
+  }
+  else if (type === 'error') {
+    playTone(200, 0.15, 'sawtooth', 0.08);
+    setTimeout(() => playTone(150, 0.2, 'sawtooth', 0.08), 100);
+  }
+  else if (type === 'fanfare') {
+    [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'sine', 0.12), i * 120));
+  }
+}
+function playTone(freq, duration, type, vol) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+// ===== TOAST =====
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  setTimeout(() => t.classList.add('show'), 50);
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== CONFETTI =====
+function confetti(count = 30) {
+  const colors = ['#f59e0b', '#fbbf24', '#ef4444', '#10b981', '#f43f5e', '#f5ead8'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      c.style.width = (Math.random() * 8 + 6) + 'px';
+      c.style.height = (Math.random() * 8 + 6) + 'px';
+      c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }, i * 30);
+  }
+}
+
+// ===== START =====
+init();
+</script>
+
+</body>
+</html>
