@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bilangan Bulat — Lab Interaktif Dua Siswa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b14;
+    --bg-2: #15131f;
+    --card: #1a1828;
+    --card-2: #221f33;
+    --border: #2d2a40;
+    --border-light: #3d3a55;
+    --fg: #f4f1ea;
+    --muted: #a7a4b8;
+    --s1: #ff6b35;
+    --s1-soft: rgba(255, 107, 53, 0.12);
+    --s1-border: rgba(255, 107, 53, 0.35);
+    --s2: #2ec4b6;
+    --s2-soft: rgba(46, 196, 182, 0.12);
+    --s2-border: rgba(46, 196, 182, 0.35);
+    --accent: #ffd166;
+    --accent-soft: rgba(255, 209, 102, 0.12);
+    --correct: #4ade80;
+    --wrong: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 10%, rgba(255, 107, 53, 0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 85% 90%, rgba(46, 196, 182, 0.12) 0%, transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(255, 209, 102, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .display-font { font-family: 'Fraunces', serif; font-optical-sizing: auto; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  
+  .slide { display: none; min-height: 100vh; padding: 32px 40px 140px; position: relative; z-index: 2; animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  .slide.active { display: block; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .float-symbol {
+    position: absolute;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    opacity: 0.06;
+    pointer-events: none;
+    user-select: none;
+    animation: floatY 10s ease-in-out infinite;
+  }
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-40px) rotate(8deg); }
+  }
+  
+  .nav-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--border-light); cursor: pointer;
+    transition: all 0.3s; position: relative;
+  }
+  .nav-dot.active { background: var(--accent); width: 36px; border-radius: 5px; }
+  .nav-dot:hover:not(.active) { background: var(--muted); }
+  
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  
+  .student-panel { border-radius: 14px; padding: 18px; border: 1px solid; transition: all 0.3s; }
+  .student-panel.s1 { background: linear-gradient(180deg, var(--s1-soft), transparent 80%); border-color: var(--s1-border); }
+  .student-panel.s2 { background: linear-gradient(180deg, var(--s2-soft), transparent 80%); border-color: var(--s2-border); }
+  .student-panel.locked { opacity: 0.7; pointer-events: none; }
+  .student-panel.correct-answer { box-shadow: 0 0 0 2px var(--correct), 0 0 30px rgba(74, 222, 128, 0.15); }
+  .student-panel.wrong-answer { box-shadow: 0 0 0 2px var(--wrong), 0 0 30px rgba(239, 68, 68, 0.15); }
+  
+  .opt {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer; transition: all 0.2s;
+    background: rgba(255,255,255,0.02); margin-bottom: 6px;
+  }
+  .opt:hover { border-color: var(--border-light); background: rgba(255,255,255,0.05); }
+  .opt.selected-s1 { border-color: var(--s1); background: var(--s1-soft); }
+  .opt.selected-s2 { border-color: var(--s2); background: var(--s2-soft); }
+  .opt.selected-both { border-color: var(--accent); background: linear-gradient(90deg, var(--s1-soft) 0%, var(--s2-soft) 100%); }
+  
+  .marker {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border-light);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 11px; font-weight: 700;
+  }
+  .selected-s1 .marker { background: var(--s1); border-color: var(--s1); color: #1a0d05; }
+  .selected-s2 .marker { background: var(--s2); border-color: var(--s2); color: #051a18; }
+  .selected-both .marker { background: var(--accent); border-color: var(--accent); color: #1a1410; }
+  
+  .timer-ring {
+    --p: 100;
+    width: 92px; height: 92px; border-radius: 50%;
+    background: conic-gradient(var(--accent) calc(var(--p) * 1%), var(--border) 0);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .timer-ring::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--card); }
+  .timer-ring > div { position: relative; z-index: 1; text-align: center; }
+  .timer-ring.warning { background: conic-gradient(var(--wrong) calc(var(--p) * 1%), var(--border) 0); animation: pulse-warn 1s infinite; }
+  @keyframes pulse-warn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 10px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; border: none;
+    font-family: inherit; font-size: 14px;
+  }
+  .btn-primary { background: var(--accent); color: #1a1410; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255, 209, 102, 0.3); }
+  .btn-s1 { background: var(--s1); color: #1a0d05; }
+  .btn-s2 { background: var(--s2); color: #051a18; }
+  .btn-ghost { background: transparent; color: var(--fg); border: 1px solid var(--border-light); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.05); border-color: var(--muted); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  
+  .q-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .badge-easy { background: rgba(74, 222, 128, 0.15); color: var(--correct); }
+  .badge-medium { background: rgba(255, 209, 102, 0.15); color: var(--accent); }
+  .badge-hots { background: rgba(239, 68, 68, 0.15); color: #ff7878; }
+  
+  .result-indicator {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 8px;
+    font-size: 12px; font-weight: 700;
+  }
+  .result-correct { background: rgba(74, 222, 128, 0.15); color: var(--correct); }
+  .result-wrong { background: rgba(239, 68, 68, 0.15); color: var(--wrong); }
+  .result-pending { background: rgba(167, 164, 184, 0.15); color: var(--muted); }
+  
+  .explanation {
+    background: linear-gradient(135deg, var(--accent-soft), transparent);
+    border-left: 3px solid var(--accent);
+    padding: 14px 16px; border-radius: 8px; margin-top: 12px;
+    font-size: 14px; line-height: 1.7;
+  }
+  
+  .input {
+    background: var(--bg-2); border: 1px solid var(--border);
+    color: var(--fg); padding: 10px 14px; border-radius: 10px;
+    font-family: inherit; font-size: 14px; width: 100%;
+    transition: all 0.2s;
+  }
+  .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.15); }
+  
+  .prop-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px; transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .prop-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .prop-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--s1), var(--accent), var(--s2));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .prop-card:hover::before { opacity: 1; }
+  
+  .q-nav-dot {
+    min-width: 32px; height: 32px; padding: 0 8px; border-radius: 8px;
+    background: var(--bg-2); border: 1px solid var(--border);
+    color: var(--muted); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px; font-weight: 700; transition: all 0.2s;
+  }
+  .q-nav-dot.active { background: var(--accent); color: #1a1410; border-color: var(--accent); transform: scale(1.1); }
+  .q-nav-dot.both-answered { background: rgba(74, 222, 128, 0.15); color: var(--correct); border-color: rgba(74, 222, 128, 0.4); }
+  .q-nav-dot.partial { background: rgba(255, 209, 102, 0.15); color: var(--accent); border-color: rgba(255, 209, 102, 0.4); }
+  
+  .score-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .score-table th {
+    text-align: left; padding: 10px 12px; background: var(--bg-2);
+    color: var(--muted); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .score-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .score-table tr:hover td { background: rgba(255,255,255,0.02); }
+  
+  .toast {
+    position: fixed; bottom: 110px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card); border: 1px solid var(--border-light);
+    padding: 12px 20px; border-radius: 12px; z-index: 1000;
+    transition: transform 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    font-size: 14px; font-weight: 500;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  
+  .bottom-nav {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 24, 40, 0.85); backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 10px 14px; display: flex; align-items: center; gap: 14px;
+    z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  
+  .match-row {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    gap: 12px; align-items: center; padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .match-row:last-child { border-bottom: none; }
+  
+  .checkbox-opt {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; transition: all 0.2s;
+    background: rgba(255,255,255,0.02); margin-bottom: 4px;
+  }
+  .checkbox-opt:hover { border-color: var(--border-light); }
+  .checkbox-opt.checked-s1 { border-color: var(--s1); background: var(--s1-soft); }
+  .checkbox-opt.checked-s2 { border-color: var(--s2); background: var(--s2-soft); }
+  .checkbox-box {
+    width: 18px; height: 18px; border: 2px solid var(--border-light);
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-2); }
+  ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  
+  @media (max-width: 768px) {
+    .slide { padding: 24px 16px 140px; }
+    .match-row { grid-template-columns: 1fr; }
+  }
+  
+  .pulse-dot { animation: pulseDot 2s infinite; }
+  @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::after {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 80px; height: 80px; border-radius: 50%;
+    filter: blur(40px); opacity: 0.3;
+  }
+  .stat-card.s1::after { background: var(--s1); }
+  .stat-card.s2::after { background: var(--s2); }
+  
+  .glow-text-s1 { color: var(--s1); text-shadow: 0 0 30px rgba(255, 107, 53, 0.4); }
+  .glow-text-s2 { color: var(--s2); text-shadow: 0 0 30px rgba(46, 196, 182, 0.4); }
+</style>
+</head>
+<body>
+
+<div id="float-symbols"></div>
+
+<!-- SLIDE 1: COVER -->
+<section class="slide active" id="slide1">
+  <div class="max-w-6xl mx-auto pt-8">
+    <div class="flex items-center gap-3 mb-12">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, var(--s1), var(--accent));">
+        <span class="display-font font-black text-xl" style="color: #1a0d05;">±</span>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-widest" style="color: var(--muted);">Math Lab · Bilangan Bulat</div>
+        <div class="font-semibold text-sm">Sesi Bertanding Dua Siswa</div>
+      </div>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-8 items-center mb-16">
+      <div>
+        <div class="badge mb-6" style="background: var(--accent-soft); color: var(--accent);">
+          <span class="pulse-dot">●</span> Mode Live · 40 Soal Terkurasi
+        </div>
+        <h1 class="display-font font-black leading-none mb-6" style="font-size: clamp(48px, 7vw, 92px);">
+          Petualangan<br>
+          <span style="background: linear-gradient(90deg, var(--s1) 0%, var(--accent) 50%, var(--s2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent;">Bilangan Bulat</span>
+        </h1>
+        <p class="text-lg mb-8" style="color: var(--muted); max-width: 480px;">
+          Berlatih berdampingan, berpikir terstruktur, dan memahami operasi hitung bilangan bulat melalui soal-soal bertingkat — dari dasar hingga HOTS.
+        </p>
+        <div class="flex flex-wrap gap-3 mb-6">
+          <div class="card px-4 py-3 flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full" style="background: var(--correct);"></div>
+            <span class="text-sm font-medium">15 Mudah · 2 mnt</span>
+          </div>
+          <div class="card px-4 py-3 flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full" style="background: var(--accent);"></div>
+            <span class="text-sm font-medium">15 Sedang · 2.5 mnt</span>
+          </div>
+          <div class="card px-4 py-3 flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full" style="background: var(--wrong);"></div>
+            <span class="text-sm font-medium">10 HOTS · 3 mnt</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card p-8">
+        <div class="mb-6">
+          <div class="text-xs uppercase tracking-widest mb-2" style="color: var(--muted);">Pendaftaran Peserta</div>
+          <div class="display-font text-2xl font-bold">Siap Bertanding?</div>
+          <div class="text-sm mt-1" style="color: var(--muted);">Isi nama kedua siswa untuk memulai sesi.</div>
+        </div>
+        
+        <div class="space-y-4 mb-6">
+          <div>
+            <label class="text-sm font-semibold mb-2 flex items-center gap-2" style="color: var(--s1);">
+              <span class="w-3 h-3 rounded-full" style="background: var(--s1);"></span>
+              Siswa 1 — Panel Kiri
+            </label>
+            <input type="text" id="student1Name" class="input" placeholder="Contoh: Dimas Aryo" maxlength="30">
+          </div>
+          <div>
+            <label class="text-sm font-semibold mb-2 flex items-center gap-2" style="color: var(--s2);">
+              <span class="w-3 h-3 rounded-full" style="background: var(--s2);"></span>
+              Siswa 2 — Panel Kanan
+            </label>
+            <input type="text" id="student2Name" class="input" placeholder="Contoh: Rara Putri" maxlength="30">
+          </div>
+        </div>
+        
+        <button onclick="startSession()" class="btn btn-primary w-full justify-center text-base py-3.5">
+          Mulai Sesi Belajar
+          <span style="font-size: 18px;">→</span>
+        </button>
+        <p class="text-xs mt-3 text-center" style="color: var(--muted);">Dengan menekan tombol ini, kalian siap berlatih bersama.</p>
+      </div>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="prop-card">
+        <div class="text-3xl display-font font-black mb-2" style="color: var(--s1);">01</div>
+        <div class="font-semibold mb-1">Rangkuman Padat</div>
+        <div class="text-sm" style="color: var(--muted);">Operasi dasar, urutan pengerjaan, dan sifat-sifat bilangan bulat dalam satu tampilan.</div>
+      </div>
+      <div class="prop-card">
+        <div class="text-3xl display-font font-black mb-2" style="color: var(--accent);">02</div>
+        <div class="font-semibold mb-1">Validasi Tertunda</div>
+        <div class="text-sm" style="color: var(--muted);">Jawaban tidak langsung dinilai. Hasil muncul setelah kedua siswa selesai submit.</div>
+      </div>
+      <div class="prop-card">
+        <div class="text-3xl display-font font-black mb-2" style="color: var(--s2);">03</div>
+        <div class="font-semibold mb-1">Analitik Lengkap</div>
+        <div class="text-sm" style="color: var(--muted);">Skor, benar-salah per nomor, waktu pengerjaan, dan rata-rata waktu tiap siswa.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 2: MATERI -->
+<section class="slide" id="slide2">
+  <div class="max-w-6xl mx-auto pt-8">
+    <div class="mb-10">
+      <div class="text-xs uppercase tracking-widest mb-2" style="color: var(--muted);">Slide 02 · Rangkuman Materi</div>
+      <h2 class="display-font font-black text-5xl md:text-6xl mb-3">Operasi Hitung<br><span style="color: var(--accent);">Bilangan Bulat</span></h2>
+      <p style="color: var(--muted); max-width: 640px;">Memahami aturan tanda, urutan operasi, dan sifat-sifat dasar sebelum terjun ke latihan soal.</p>
+    </div>
+    
+    <!-- Aturan tanda -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="card p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold mono" style="background: var(--s1-soft); color: var(--s1);">+</div>
+          <div>
+            <div class="font-bold">Aturan Tanda</div>
+            <div class="text-xs" style="color: var(--muted);">Operasi dasar penjumlahan, pengurangan, perkalian, dan pembagian</div>
+          </div>
+        </div>
+        <div class="space-y-3 text-sm">
+          <div class="p-3 rounded-lg" style="background: var(--bg-2);">
+            <div class="font-semibold mb-1" style="color: var(--accent);">Penjumlahan & Pengurangan</div>
+            <div class="mono text-xs space-y-1" style="color: var(--muted);">
+              <div>(+) + (+) = (+) &nbsp; contoh: 5 + 3 = 8</div>
+              <div>(−) + (−) = (−) &nbsp; contoh: −5 + (−3) = −8</div>
+              <div>(+) + (−) → lihat tanda terbesar, kurangkan</div>
+              <div>8 + (−3) = 5 &nbsp; | &nbsp; 4 + (−9) = −5</div>
+              <div>a − b = a + (−b) &nbsp; contoh: 7 − (−2) = 7 + 2 = 9</div>
+            </div>
+          </div>
+          <div class="p-3 rounded-lg" style="background: var(--bg-2);">
+            <div class="font-semibold mb-1" style="color: var(--accent);">Perkalian & Pembagian</div>
+            <div class="mono text-xs space-y-1" style="color: var(--muted);">
+              <div>(+) × (+) = (+) &nbsp; | &nbsp; (−) × (−) = (+)</div>
+              <div>(+) × (−) = (−) &nbsp; | &nbsp; (−) × (+) = (−)</div>
+              <div>Aturan sama berlaku untuk pembagian (÷)</div>
+              <div>contoh: −6 × −4 = 24 &nbsp; | &nbsp; −24 ÷ 6 = −4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold mono" style="background: var(--s2-soft); color: var(--s2);">↻</div>
+          <div>
+            <div class="font-bold">Urutan Operasi</div>
+            <div class="text-xs" style="color: var(--muted);">KuKaBaTa-KuTa-BaKa — kerjakan dari kiri ke kanan untuk tingkat yang sama</div>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3 p-3 rounded-lg" style="background: var(--bg-2);">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm" style="background: var(--s1); color: #1a0d05;">1</div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm">Kurung — ( )</div>
+              <div class="text-xs" style="color: var(--muted);">Operasi di dalam tanda kurung dikerjakan paling awal. Kurung dalam dikerjakan sebelum kurung luar.</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg" style="background: var(--bg-2);">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm" style="background: var(--accent); color: #1a1410;">2</div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm">Kali & Bagi — × dan ÷</div>
+              <div class="text-xs" style="color: var(--muted);">Setelah kurung, kerjakan perkalian dan pembagian dari kiri ke kanan.</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-lg" style="background: var(--bg-2);">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm" style="background: var(--s2); color: #051a18;">3</div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm">Tambah & Kurang — + dan −</div>
+              <div class="text-xs" style="color: var(--muted);">Terakhir, kerjakan penjumlahan dan pengurangan dari kiri ke kanan.</div>
+            </div>
+          </div>
+          <div class="p-3 rounded-lg mono text-xs" style="background: var(--accent-soft); color: var(--accent);">
+            Contoh: −5 + 3 × (−2) = −5 + (−6) = −11
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sifat-sifat -->
+    <div class="mb-4">
+      <div class="text-xs uppercase tracking-widest mb-2" style="color: var(--muted);">Sifat Operasi</div>
+      <h3 class="display-font font-bold text-3xl mb-6">Sifat-Sifat Bilangan Bulat</h3>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-4 mb-8">
+      <div class="prop-card">
+        <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Sifat 1</div>
+        <div class="font-bold text-lg mb-2">Penutupan</div>
+        <div class="text-sm mb-3" style="color: var(--muted);">Hasil penjumlahan dan perkalian dua bilangan bulat pasti bilangan bulat juga.</div>
+        <div class="mono text-xs p-2 rounded" style="background: var(--bg-2); color: var(--fg);">a + b ∈ ℤ &nbsp; | &nbsp; a × b ∈ ℤ</div>
+      </div>
+      <div class="prop-card">
+        <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Sifat 2</div>
+        <div class="font-bold text-lg mb-2">Komutatif (Pertukaran)</div>
+        <div class="text-sm mb-3" style="color: var(--muted);">Urutan bilangan tidak memengaruhi hasil penjumlahan dan perkalian.</div>
+        <div class="mono text-xs p-2 rounded" style="background: var(--bg-2);">a + b = b + a<br>a × b = b × a</div>
+      </div>
+      <div class="prop-card">
+        <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Sifat 3</div>
+        <div class="font-bold text-lg mb-2">Asosiatif (Pengelompokan)</div>
+        <div class="text-sm mb-3" style="color: var(--muted);">Pengelompokan bilangan tidak memengaruhi hasil operasi.</div>
+        <div class="mono text-xs p-2 rounded" style="background: var(--bg-2);">(a+b)+c = a+(b+c)<br>(a×b)×c = a×(b×c)</div>
+      </div>
+      <div class="prop-card">
+        <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Sifat 4</div>
+        <div class="font-bold text-lg mb-2">Distributif</div>
+        <div class="text-sm mb-3" style="color: var(--muted);">Perkalian dapat didistribusikan terhadap penjumlahan/pengurangan.</div>
+        <div class="mono text-xs p-2 rounded" style="background: var(--bg-2);">a×(b+c) = (a×b)+(a×c)<br>a×(b−c) = (a×b)−(a×c)</div>
+      </div>
+      <div class="prop-card">
+        <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Sifat 5</div>
+        <div class="font-bold text-lg mb-2">Identitas (Netral)</div>
+        <div class="text-sm mb-3" style="color: var(--muted);">Ada elemen identitas untuk penjumlahan (0) dan perkalian (1).</div>
+        <div class="mono text-xs p-2 rounded" style="background: var(--bg-2);">a + 0 = a<br>a × 1 = a</div>
+      </div>
+      <div class="prop-card">
+        <div class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Sifat 6</div>
+        <div class="font-bold text-lg mb-2">Invers (Lawan)</div>
+        <div class="text-sm mb-3" style="color: var(--muted);">Setiap bilangan memiliki lawan untuk penjumlahan, dan perkalian dengan 0 menghasilkan 0.</div>
+        <div class="mono text-xs p-2 rounded" style="background: var(--bg-2);">a + (−a) = 0<br>a × 0 = 0</div>
+      </div>
+    </div>
+    
+    <div class="card p-5 flex flex-wrap items-center gap-4 justify-between">
+      <div class="text-sm" style="color: var(--muted);">
+        <span style="color: var(--fg); font-weight: 600;">Tip:</span> Pahami dulu, baru hafalkan. Konsep akan lebih lekat saat berhadapan dengan soal.
+      </div>
+      <button onclick="goToSlide(3)" class="btn btn-primary">
+        Lanjut ke Latihan Soal
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: SOAL -->
+<section class="slide" id="slide3">
+  <div class="max-w-6xl mx-auto pt-8">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div>
+        <div class="text-xs uppercase tracking-widest mb-2" style="color: var(--muted);">Slide 03 · Latihan Soal</div>
+        <h2 class="display-font font-black text-4xl md:text-5xl">Arena Bertanding</h2>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="card px-4 py-2 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full" style="background: var(--s1);"></span>
+          <span class="text-sm font-semibold" id="headerS1Name">Siswa 1</span>
+        </div>
+        <span style="color: var(--muted);">vs</span>
+        <div class="card px-4 py-2 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full" style="background: var(--s2);"></span>
+          <span class="text-sm font-semibold" id="headerS2Name">Siswa 2</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filter tabs -->
+    <div class="flex flex-wrap gap-2 mb-6" id="filterTabs">
+      <button class="btn btn-ghost filter-tab active" data-filter="all">Semua (40)</button>
+      <button class="btn btn-ghost filter-tab" data-filter="easy">Mudah (15)</button>
+      <button class="btn btn-ghost filter-tab" data-filter="medium">Sedang (15)</button>
+      <button class="btn btn-ghost filter-tab" data-filter="hots">HOTS (10)</button>
+    </div>
+    
+    <!-- Question navigator -->
+    <div class="card p-4 mb-6">
+      <div class="text-xs uppercase tracking-widest mb-3" style="color: var(--muted);">Navigasi Soal</div>
+      <div id="qNavigator" class="flex flex-wrap gap-2"></div>
+    </div>
+    
+    <!-- Main question area -->
+    <div id="questionContainer"></div>
+    
+    <!-- Navigation buttons -->
+    <div class="flex justify-between items-center mt-6 gap-4">
+      <button onclick="prevQuestion()" class="btn btn-ghost" id="prevBtn">
+        <span>←</span> Sebelumnya
+      </button>
+      <div class="text-sm" style="color: var(--muted);">
+        Soal <span class="mono font-bold" style="color: var(--fg);" id="currentQNum">1</span> dari <span class="mono" id="totalQNum">40</span>
+      </div>
+      <button onclick="nextQuestion()" class="btn btn-ghost" id="nextBtn">
+        Berikutnya <span>→</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: SKOR -->
+<section class="slide" id="slide4">
+  <div class="max-w-6xl mx-auto pt-8">
+    <div class="mb-10">
+      <div class="text-xs uppercase tracking-widest mb-2" style="color: var(--muted);">Slide 04 · Catatan Skor</div>
+      <h2 class="display-font font-black text-5xl md:text-6xl mb-3">Analitik <span style="color: var(--accent);">Pengerjaan</span></h2>
+      <p style="color: var(--muted); max-width: 640px;">Ringkasan performa kedua siswa — skor, distribusi benar-salah, dan statistik waktu pengerjaan.</p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="stat-card s1">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="w-3 h-3 rounded-full" style="background: var(--s1);"></span>
+          <span class="text-sm font-semibold glow-text-s1" id="scoreS1Name">Siswa 1</span>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <div class="text-xs uppercase tracking-wider" style="color: var(--muted);">Skor</div>
+            <div class="display-font font-black text-4xl mt-1" id="scoreS1Total">0</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider" style="color: var(--muted);">Benar</div>
+            <div class="display-font font-black text-4xl mt-1" style="color: var(--correct);" id="scoreS1Correct">0</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider" style="color: var(--muted);">Salah</div>
+            <div class="display-font font-black text-4xl mt-1" style="color: var(--wrong);" id="scoreS1Wrong">0</div>
+          </div>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span style="color: var(--muted);">Total Waktu</span><span class="mono font-semibold" id="scoreS1TotalTime">0s</span></div>
+          <div class="flex justify-between"><span style="color: var(--muted);">Rata-rata Waktu/Soal</span><span class="mono font-semibold" id="scoreS1AvgTime">0s</span></div>
+          <div class="flex justify-between"><span style="color: var(--muted);">Soal Dijawab</span><span class="mono font-semibold" id="scoreS1Answered">0/40</span></div>
+        </div>
+      </div>
+      
+      <div class="stat-card s2">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="w-3 h-3 rounded-full" style="background: var(--s2);"></span>
+          <span class="text-sm font-semibold glow-text-s2" id="scoreS2Name">Siswa 2</span>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <div class="text-xs uppercase tracking-wider" style="color: var(--muted);">Skor</div>
+            <div class="display-font font-black text-4xl mt-1" id="scoreS2Total">0</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider" style="color: var(--muted);">Benar</div>
+            <div class="display-font font-black text-4xl mt-1" style="color: var(--correct);" id="scoreS2Correct">0</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider" style="color: var(--muted);">Salah</div>
+            <div class="display-font font-black text-4xl mt-1" style="color: var(--wrong);" id="scoreS2Wrong">0</div>
+          </div>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span style="color: var(--muted);">Total Waktu</span><span class="mono font-semibold" id="scoreS2TotalTime">0s</span></div>
+          <div class="flex justify-between"><span style="color: var(--muted);">Rata-rata Waktu/Soal</span><span class="mono font-semibold" id="scoreS2AvgTime">0s</span></div>
+          <div class="flex justify-between"><span style="color: var(--muted);">Soal Dijawab</span><span class="mono font-semibold" id="scoreS2Answered">0/40</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Per-level breakdown -->
+    <div class="grid md:grid-cols-3 gap-4 mb-8">
+      <div class="card p-5">
+        <div class="badge badge-easy mb-3">Mudah</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="text-xs" style="color: var(--muted);">Siswa 1</div>
+            <div class="text-lg font-bold mono"><span style="color: var(--s1);" id="easyS1C">0</span>/<span style="color: var(--muted);">15</span></div>
+          </div>
+          <div>
+            <div class="text-xs" style="color: var(--muted);">Siswa 2</div>
+            <div class="text-lg font-bold mono"><span style="color: var(--s2);" id="easyS2C">0</span>/<span style="color: var(--muted);">15</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card p-5">
+        <div class="badge badge-medium mb-3">Sedang</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="text-xs" style="color: var(--muted);">Siswa 1</div>
+            <div class="text-lg font-bold mono"><span style="color: var(--s1);" id="medS1C">0</span>/<span style="color: var(--muted);">15</span></div>
+          </div>
+          <div>
+            <div class="text-xs" style="color: var(--muted);">Siswa 2</div>
+            <div class="text-lg font-bold mono"><span style="color: var(--s2);" id="medS2C">0</span>/<span style="color: var(--muted);">15</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card p-5">
+        <div class="badge badge-hots mb-3">HOTS</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="text-xs" style="color: var(--muted);">Siswa 1</div>
+            <div class="text-lg font-bold mono"><span style="color: var(--s1);" id="hotsS1C">0</span>/<span style="color: var(--muted);">10</span></div>
+          </div>
+          <div>
+            <div class="text-xs" style="color: var(--muted);">Siswa 2</div>
+            <div class="text-lg font-bold mono"><span style="color: var(--s2);" id="hotsS2C">0</span>/<span style="color: var(--muted);">10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Detail table -->
+    <div class="card overflow-hidden">
+      <div class="p-5 border-b" style="border-color: var(--border);">
+        <div class="font-bold text-lg">Detail Per Nomor</div>
+        <div class="text-sm" style="color: var(--muted);">Klik kolom jawaban untuk membuka soal & pembahasan</div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Level</th>
+              <th>Tipe</th>
+              <th>Kunci</th>
+              <th style="color: var(--s1);">Siswa 1</th>
+              <th style="color: var(--s1);">Waktu</th>
+              <th style="color: var(--s2);">Siswa 2</th>
+              <th style="color: var(--s2);">Waktu</th>
+            </tr>
+          </thead>
+          <tbody id="scoreTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="flex justify-center mt-8">
+      <button onclick="goToSlide(5)" class="btn btn-primary text-base py-3">
+        Lihat Kesimpulan & Refleksi
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: PENUTUP -->
+<section class="slide" id="slide5">
+  <div class="max-w-5xl mx-auto pt-8">
+    <div class="mb-10 text-center">
+      <div class="text-xs uppercase tracking-widest mb-2" style="color: var(--muted);">Slide 05 · Penutup</div>
+      <h2 class="display-font font-black text-5xl md:text-6xl mb-3">
+        Sampai Jumpa,<br>
+        <span style="background: linear-gradient(90deg, var(--s1), var(--accent), var(--s2)); -webkit-background-clip: text; background-clip: text; color: transparent;">Para Pemikir</span>
+      </h2>
+      <p style="color: var(--muted); max-width: 580px; margin: 0 auto;">Terima kasih sudah berlatih hari ini. Sebelum menutup sesi, mari rangkum dan renungkan.</p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="card p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
+            <span class="display-font font-black">✓</span>
+          </div>
+          <div class="font-bold text-lg">Kesimpulan</div>
+        </div>
+        <div class="space-y-3 text-sm" style="color: var(--muted); line-height: 1.7;">
+          <p>Bilangan bulat terdiri dari bilangan positif, negatif, dan nol. Operasi hitung pada bilangan bulat mengikuti aturan tanda yang konsisten.</p>
+          <p>Urutan pengerjaan operasi menggunakan prinsip <span style="color: var(--accent); font-weight: 600;">KuKaBaTa-KuTa-BaKa</span>: kurung dulu, lalu kali/bagi, terakhir tambah/kurang.</p>
+          <p>Sifat <span style="color: var(--fg); font-weight: 600;">komutatif, asosiatif, distributif, identitas, dan invers</span> berlaku pada operasi penjumlahan dan perkalian bilangan bulat.</p>
+          <p>Pemahaman konsep jauh lebih berharga daripada sekadar hafalan rumus — terutama saat menghadapi soal HOTS.</p>
+        </div>
+      </div>
+      
+      <div class="card p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--s2-soft); color: var(--s2);">
+            <span class="display-font font-black">↻</span>
+          </div>
+          <div class="font-bold text-lg">Refleksi Diri</div>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs uppercase tracking-wider mb-2 block" style="color: var(--muted);">Siswa 1 — Apa yang paling kamu pahami hari ini?</label>
+            <textarea id="refleksiS1" class="input" rows="3" placeholder="Tulis refleksimu di sini..." style="resize: vertical;"></textarea>
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wider mb-2 block" style="color: var(--muted);">Siswa 2 — Bagian mana yang masih membingungkan?</label>
+            <textarea id="refleksiS2" class="input" rows="3" placeholder="Tulis refleksimu di sini..." style="resize: vertical;"></textarea>
+          </div>
+          <button onclick="saveReflection()" class="btn btn-ghost w-full justify-center text-sm">
+            Simpan Refleksi
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card p-8 text-center" style="background: linear-gradient(135deg, var(--card) 0%, var(--card-2) 100%);">
+      <div class="display-font font-black text-3xl md:text-4xl mb-3">
+        Thank You <span style="color: var(--accent);">for Today</span>
+      </div>
+      <p style="color: var(--muted); max-width: 560px; margin: 0 auto 6px;">
+        Setiap jawaban benar adalah kemajuan, setiap jawaban salah adalah pelajaran. Teruslah berlatih — bilangan bulat hanyalah pintu pertama menuju matematika yang lebih luas.
+      </p>
+      <p class="text-sm mono" style="color: var(--accent);">
+        — Math Lab · Bilangan Bulat —
+      </p>
+    </div>
+    
+    <div class="flex justify-center mt-8 gap-3">
+      <button onclick="goToSlide(1)" class="btn btn-ghost">
+        <span>←</span> Kembali ke Awal
+      </button>
+      <button onclick="location.reload()" class="btn btn-primary">
+        Mulai Sesi Baru
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <button onclick="prevSlide()" class="btn btn-ghost" style="padding: 8px 12px;" id="navPrev">
+    <span>←</span>
+  </button>
+  <div class="flex items-center gap-2" id="navDots">
+    <div class="nav-dot active" onclick="goToSlide(1)"></div>
+    <div class="nav-dot" onclick="goToSlide(2)"></div>
+    <div class="nav-dot" onclick="goToSlide(3)"></div>
+    <div class="nav-dot" onclick="goToSlide(4)"></div>
+    <div class="nav-dot" onclick="goToSlide(5)"></div>
+  </div>
+  <button onclick="nextSlide()" class="btn btn-ghost" style="padding: 8px 12px;" id="navNext">
+    <span>→</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA SOAL
+// ============================================================
+const questions = [
+  // ===== EASY (15 soal) =====
+  { id: 1, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">5 + (−3)</span> adalah ...', options: ['2', '8', '−8', '−2'], correct: 0, explanation: 'Penjumlahan bilangan positif dengan negatif: kurangkan dan ambil tanda yang lebih besar. 5 + (−3) = 5 − 3 = 2.' },
+  { id: 2, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">−8 + 4</span> adalah ...', options: ['−4', '4', '−12', '12'], correct: 0, explanation: '−8 + 4: tanda terbesar adalah −8 (negatif). 8 − 4 = 4, maka hasilnya −4.' },
+  { id: 3, level: 'easy', type: 'isian', question: 'Hitung hasil dari <span class="mono">−10 − 7</span>.', correct: '-17', explanation: '−10 − 7 = −10 + (−7) = −17. Pengurangan bilangan positif diubah menjadi penjumlahan dengan lawanannya.' },
+  { id: 4, level: 'easy', type: 'bs', question: 'Pernyataan: <span class="mono">−5 × (−2) = 10</span>', correct: 'benar', explanation: 'Perkalian dua bilangan negatif menghasilkan bilangan positif. (−) × (−) = (+). Maka −5 × (−2) = 10 (BENAR).' },
+  { id: 5, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">24 ÷ (−6)</span> adalah ...', options: ['−4', '4', '−18', '18'], correct: 0, explanation: 'Pembagian bilangan positif dengan negatif menghasilkan negatif. 24 ÷ 6 = 4, maka 24 ÷ (−6) = −4.' },
+  { id: 6, level: 'easy', type: 'isian', question: 'Hitung hasil dari <span class="mono">15 + (−15)</span>.', correct: '0', explanation: 'Bilangan bulat dan lawannya jika dijumlahkan menghasilkan 0 (sifat invers penjumlahan). 15 + (−15) = 0.' },
+  { id: 7, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">−7 × 3</span> adalah ...', options: ['−21', '21', '−4', '4'], correct: 0, explanation: 'Perkalian negatif dengan positif menghasilkan negatif. 7 × 3 = 21, maka −7 × 3 = −21.' },
+  { id: 8, level: 'easy', type: 'bs', question: 'Pernyataan: <span class="mono">−(−4) = −4</span>', correct: 'salah', explanation: 'Lawan dari bilangan negatif adalah bilangan positif. −(−4) = 4, bukan −4. Pernyataan SALAH.' },
+  { id: 9, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">−20 + 25</span> adalah ...', options: ['5', '−5', '45', '−45'], correct: 0, explanation: 'Tanda terbesar adalah 25 (positif). 25 − 20 = 5. Maka −20 + 25 = 5.' },
+  { id: 10, level: 'easy', type: 'isian', question: 'Hitung hasil dari <span class="mono">100 − 135</span>.', correct: '-35', explanation: '100 − 135 = 100 + (−135) = −35. Karena 135 > 100, hasilnya negatif.' },
+  { id: 11, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">−9 + (−11)</span> adalah ...', options: ['−20', '20', '−2', '2'], correct: 0, explanation: 'Penjumlahan dua bilangan negatif: jumlahkan dan tetap negatif. 9 + 11 = 20, maka −9 + (−11) = −20.' },
+  { id: 12, level: 'easy', type: 'bs', question: 'Pernyataan: <span class="mono">0 − 8 = 8</span>', correct: 'salah', explanation: '0 − 8 = 0 + (−8) = −8, bukan 8. Pernyataan SALAH.' },
+  { id: 13, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">−6 × (−7)</span> adalah ...', options: ['42', '−42', '13', '−13'], correct: 0, explanation: 'Perkalian dua bilangan negatif menghasilkan positif. 6 × 7 = 42, maka −6 × (−7) = 42.' },
+  { id: 14, level: 'easy', type: 'isian', question: 'Hitung hasil dari <span class="mono">48 ÷ (−12)</span>.', correct: '-4', explanation: 'Pembagian positif dengan negatif menghasilkan negatif. 48 ÷ 12 = 4, maka 48 ÷ (−12) = −4.' },
+  { id: 15, level: 'easy', type: 'pg', question: 'Hasil dari <span class="mono">30 + (−45)</span> adalah ...', options: ['−15', '15', '−75', '75'], correct: 0, explanation: 'Tanda terbesar adalah −45 (negatif). 45 − 30 = 15, maka 30 + (−45) = −15.' },
+  
+  // ===== MEDIUM (15 soal) =====
+  { id: 16, level: 'medium', type: 'pg', question: 'Hasil dari <span class="mono">−5 + 3 × (−2)</span> adalah ...', options: ['−11', '−4', '4', '11'], correct: 0, explanation: 'Urutan operasi: kali dulu. 3 × (−2) = −6. Lalu −5 + (−6) = −11.' },
+  { id: 17, level: 'medium', type: 'pg', question: 'Hasil dari <span class="mono">(12 − 18) ÷ (−2)</span> adalah ...', options: ['3', '−3', '6', '−6'], correct: 0, explanation: 'Kurung dulu: 12 − 18 = −6. Lalu −6 ÷ (−2) = 3 (negatif ÷ negatif = positif).' },
+  { id: 18, level: 'medium', type: 'isian', question: 'Hitung hasil dari <span class="mono">−3 × 4 + (−10)</span>.', correct: '-22', explanation: 'Kali dulu: −3 × 4 = −12. Lalu −12 + (−10) = −22.' },
+  { id: 19, level: 'medium', type: 'bs', question: 'Pernyataan: <span class="mono">−2 × (−3)² = 18</span>', correct: 'salah', explanation: '(−3)² = 9. Lalu −2 × 9 = −18, bukan 18. Tanda negatif di luar kuadrat tetap berlaku. Pernyataan SALAH.' },
+  { id: 20, level: 'medium', type: 'pg', question: 'Hasil dari <span class="mono">2 × (−5) − 3 × (−4)</span> adalah ...', options: ['2', '−22', '−2', '22'], correct: 0, explanation: 'Kali dulu: 2 × (−5) = −10 dan 3 × (−4) = −12. Lalu −10 − (−12) = −10 + 12 = 2.' },
+  { id: 21, level: 'medium', type: 'kompleks', question: 'Pilih semua operasi yang menghasilkan bilangan positif.', options: ['−8 × (−3)', '−15 + 20', '7 × (−2)', '−4 + 10', '−20 ÷ 4'], correct: [0, 1, 3], explanation: 'a) −8 × (−3) = 24 ✓ (positif) &nbsp; b) −15 + 20 = 5 ✓ (positif) &nbsp; c) 7 × (−2) = −14 ✗ &nbsp; d) −4 + 10 = 6 ✓ (positif) &nbsp; e) −20 ÷ 4 = −5 ✗' },
+  { id: 22, level: 'medium', type: 'isian', question: 'Hitung hasil dari <span class="mono">(−7)² − 50</span>.', correct: '-1', explanation: '(−7)² = 49 (kuadrat selalu positif). Lalu 49 − 50 = −1.' },
+  { id: 23, level: 'medium', type: 'pg', question: 'Hasil dari <span class="mono">[(−3) + 5] × (−2)</span> adalah ...', options: ['−4', '4', '−16', '16'], correct: 0, explanation: 'Kurung dalam: −3 + 5 = 2. Lalu 2 × (−2) = −4.' },
+  { id: 24, level: 'medium', type: 'matching', question: 'Pasangkan setiap operasi dengan hasilnya yang benar.', pairs: [
+    { left: '−8 + 3', right: '−5' },
+    { left: '5 × (−4)', right: '−20' },
+    { left: '−12 ÷ (−3)', right: '4' },
+    { left: '7 − 15', right: '−8' }
+  ], explanation: '−8 + 3 = −5 (karena 8−3=5, tanda −). 5 × (−4) = −20 (positif × negatif). −12 ÷ (−3) = 4 (negatif ÷ negatif). 7 − 15 = 7 + (−15) = −8.' },
+  { id: 25, level: 'medium', type: 'pg', question: 'Suhu ruangan awalnya −5°C. Pagi naik 8°C, sore turun 12°C. Suhu akhir?', options: ['−9°C', '−25°C', '15°C', '−15°C'], correct: 0, explanation: '−5 + 8 − 12 = 3 − 12 = −9°C. Naik = tambah, turun = kurang.' },
+  { id: 26, level: 'medium', type: 'isian', question: 'Hitung hasil dari <span class="mono">3 × (−4)²</span>.', correct: '48', explanation: '(−4)² = 16 (kuadrat selalu positif). Lalu 3 × 16 = 48.' },
+  { id: 27, level: 'medium', type: 'bs', question: 'Pernyataan: <span class="mono">−10 − (−15) = −5</span>', correct: 'salah', explanation: '−10 − (−15) = −10 + 15 = 5, bukan −5. Pengurangan negatif menjadi penjumlahan positif. Pernyataan SALAH.' },
+  { id: 28, level: 'medium', type: 'pg', question: 'Hasil dari <span class="mono">−2 × 3 + 4 × (−5)</span> adalah ...', options: ['−26', '−14', '14', '26'], correct: 0, explanation: 'Kali dulu: −2 × 3 = −6 dan 4 × (−5) = −20. Lalu −6 + (−20) = −26.' },
+  { id: 29, level: 'medium', type: 'kompleks', question: 'Pilih semua pernyataan yang BENAR tentang operasi bilangan bulat.', options: ['Hasil bagi dua bilangan bertanda sama selalu positif', 'a − b = a + (−b)', 'Perkalian bilangan positif dan negatif selalu positif', '(−a) × (−b) = a × b', 'Pembagian bilangan bulat oleh nol tidak terdefinisi'], correct: [0, 1, 3, 4], explanation: 'a) ✓ tanda sama ÷ tanda sama = positif. b) ✓ definisi pengurangan. c) ✗ positif × negatif = negatif. d) ✓ negatif × negatif = positif. e) ✓ pembagian dengan 0 tidak terdefinisi.' },
+  { id: 30, level: 'medium', type: 'isian', question: 'Andi berhutang Rp 50.000, lalu berhutang lagi Rp 35.000. Kemudian ia membayar Rp 70.000. Berapa sisa hutang Andi (dalam ribuan rupiah, tulis angka saja)?', correct: '15', explanation: 'Hutang = negatif. −50 + (−35) + 70 = −85 + 70 = −15. Artinya masih berhutang Rp 15.000. Jawaban cukup angka 15.' },
+  
+  // ===== HOTS (10 soal) =====
+  { id: 31, level: 'hots', type: 'pg', question: 'Sebuah pola bilangan: <span class="mono">2, −4, 8, −16, 32, ...</span> Berapakah suku ke-7 pola tersebut?', options: ['128', '−128', '64', '−64'], correct: 0, explanation: 'Pola: setiap suku = (−1)^(n−1) × 2^n. Suku ke-1 = 2, ke-2 = −4, ke-3 = 8, ... Suku ke-7 = (−1)^6 × 2^7 = 1 × 128 = 128. Tanda bergantian; suku ganjil positif.' },
+  { id: 32, level: 'hots', type: 'pg', question: 'Sebuah bak ikan memiliki ketinggian air 50 cm. Setiap hari, ketinggian air naik 3 cm pada pagi hari (karena hujan) dan turun 5 cm pada sore hari (karena evaporasi). Berapa ketinggian air setelah 7 hari?', options: ['36 cm', '64 cm', '22 cm', '43 cm'], correct: 0, explanation: 'Perubahan harian bersih: +3 − 5 = −2 cm/hari. Setelah 7 hari: 7 × (−2) = −14 cm. Ketinggian akhir: 50 + (−14) = 36 cm.' },
+  { id: 33, level: 'hots', type: 'isian', question: 'Diketahui <span class="mono">a × b = −24</span> dan <span class="mono">a + b = −5</span>, dengan a dan b bilangan bulat. Berapakah nilai <span class="mono">|a − b|</span>?', correct: '11', explanation: 'Cari dua bilangan yang hasil kalinya −24 dan jumlahnya −5. Faktor: (−8, 3) karena −8 × 3 = −24 dan −8 + 3 = −5 ✓. Maka |a − b| = |−8 − 3| = |−11| = 11.' },
+  { id: 34, level: 'hots', type: 'pg', question: 'Seorang pedagang mengalami kerugian Rp 500.000 per hari selama 5 hari berturut-turut, kemudian memperoleh keuntungan Rp 800.000 per hari selama 3 hari. Berapa total keadaan keuangan pedagang?', options: ['Rugi Rp 100.000', 'Untung Rp 100.000', 'Rugi Rp 2.500.000', 'Untung Rp 2.400.000'], correct: 0, explanation: 'Rugi 5 hari: 5 × (−500.000) = −2.500.000. Untung 3 hari: 3 × 800.000 = 2.400.000. Total: −2.500.000 + 2.400.000 = −100.000. Artinya masih RUGI Rp 100.000.' },
+  { id: 35, level: 'hots', type: 'kompleks', question: 'Diketahui a < 0 dan b > 0 (a bilangan negatif, b bilangan positif). Pilih semua pernyataan yang PASTI BENAR.', options: ['a × b < 0', 'a + b bisa positif, negatif, atau nol', 'a − b < 0', 'a ÷ b > 0', '|a| + |b| > 0'], correct: [0, 1, 2, 4], explanation: 'a) ✓ negatif × positif = negatif. b) ✓ tergantung besarnya (mis. −3+5=2 positif; −7+5=−2 negatif; −5+5=0). c) ✓ negatif − positif = negatif − positif = lebih negatif. d) ✗ negatif ÷ positif = negatif. e) ✓ nilai mutlak selalu ≥ 0, dan karena keduanya bukan 0, jumlahnya > 0.' },
+  { id: 36, level: 'hots', type: 'matching', question: 'Pasangkan kondisi suhu awal & perubahan dengan suhu akhirnya.', pairs: [
+    { left: '10°C turun 15°C', right: '−5°C' },
+    { left: '−8°C naik 12°C', right: '4°C' },
+    { left: '−3°C turun 7°C', right: '−10°C' },
+    { left: '5°C naik 5°C', right: '10°C' }
+  ], explanation: '10−15=−5. −8+12=4. −3−7=−10. 5+5=10. Operasi sederhana dengan memperhatikan tanda.' },
+  { id: 37, level: 'hots', type: 'pg', question: 'Sebuah gedung memiliki 15 lantai di atas tanah (lantai 1–15) dan 5 lantai bawah tanah (lantai −1 hingga −5). Sebuah lift bergerak: dari lantai 12 → lantai −3 → lantai 8 → lantai −1. Berapa total jarak yang ditempuh lift (dalam jumlah lantai)?', options: ['35 lantai', '24 lantai', '13 lantai', '19 lantai'], correct: 0, explanation: 'Jarak = jumlah perpindahan (selalu positif). 12 → −3: |12−(−3)| = 15. −3 → 8: |−3−8| = 11. 8 → −1: |8−(−1)| = 9. Total = 15+11+9 = 35 lantai.' },
+  { id: 38, level: 'hots', type: 'isian', question: 'Diketahui pola: <span class="mono">1, −2, 3, −4, 5, −6, 7, −8, ...</span> (suku ke-n = (−1)^(n+1) × n). Berapakah jumlah 20 suku pertama pola tersebut?', correct: '-10', explanation: 'Kelompokkan per dua suku: (1+(−2)) + (3+(−4)) + (5+(−6)) + ... Setiap pasangan bernilai −1. Ada 10 pasangan (20 suku). Total = 10 × (−1) = −10.' },
+  { id: 39, level: 'hots', type: 'bs', question: 'Pernyataan: Untuk setiap bilangan bulat a dan b, jika <span class="mono">a × b = 0</span> maka pasti <span class="mono">a = 0</span> atau <span class="mono">b = 0</span>.', correct: 'benar', explanation: 'Ini adalah sifat integral domain pada bilangan bulat (ℤ). Tidak ada dua bilangan bulat tak-nol yang hasil kalinya 0. Pernyataan BENAR. (Bandingkan: pada bilangan riil juga berlaku, tapi pada matriks tidak selalu.)' },
+  { id: 40, level: 'hots', type: 'pg', question: 'Ani, Budi, dan Citra bermain game dengan skor awal masing-masing 100. Setiap ronde: pemenang +20, dua yang kalah masing-masing −15, jika seri semua 0. Ronde 1: Ani menang. Ronde 2: Citra menang. Ronde 3: Budi menang. Ronde 4: Ani menang. Ronde 5: Citra menang. Berapa skor akhir Budi?', options: ['60', '85', '100', '40'], correct: 0, explanation: 'Budi: R1 (kalah) = −15, R2 (kalah) = −15, R3 (menang) = +20, R4 (kalah) = −15, R5 (kalah) = −15. Total perubahan: −15−15+20−15−15 = −40. Skor akhir: 100 + (−40) = 60.' }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  currentSlide: 1,
+  student1: { name: '', answers: {}, submitted: {}, submitTime: {} },
+  student2: { name: '', answers: {}, submitted: {}, submitTime: {} },
+  currentQIdx: 0,
+  currentFilter: 'all',
+  questionStartTime: null,
+  timerInterval: null,
+  timerRemaining: 0,
+  timerInitial: 0,
+  validated: {} // qIdx -> bool
+};
+
+const LEVEL_TIMES = { easy: 120, medium: 150, hots: 180 }; // detik
+const LEVEL_LABELS = { easy: 'Mudah', medium: 'Sedang', hots: 'HOTS' };
+const TYPE_LABELS = { pg: 'Pilihan Ganda', isian: 'Isian Singkat', bs: 'Benar-Salah', kompleks: 'PG Kompleks', matching: 'Memasangkan' };
+
+// ============================================================
+// INISIALISASI
+// ============================================================
+function init() {
+  // Floating symbols di cover
+  const symbols = ['+', '−', '×', '÷', '±', '∞', '∑', '√', 'π', '≠', '≤', '≥'];
+  const container = document.getElementById('float-symbols');
+  symbols.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'float-symbol';
+    el.textContent = s;
+    el.style.fontSize = (40 + Math.random() * 80) + 'px';
+    el.style.left = (Math.random() * 95) + '%';
+    el.style.top = (Math.random() * 95) + '%';
+    el.style.animationDelay = (Math.random() * 8) + 's';
+    el.style.animationDuration = (8 + Math.random() * 6) + 's';
+    container.appendChild(el);
+  });
+  
+  // Filter tabs
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.currentFilter = tab.dataset.filter;
+      // Pindah ke soal pertama dari filter itu
+      const filtered = getFilteredQuestions();
+      if (filtered.length > 0) {
+        state.currentQIdx = filtered[0];
+        renderQuestion();
+      }
+    });
+  });
+  
+  // Style for active filter tab
+  const style = document.createElement('style');
+  style.textContent = '.filter-tab.active { background: var(--accent); color: #1a1410; border-color: var(--accent); }';
+  document.head.appendChild(style);
+  
+  // Enter key di input nama
+  document.getElementById('student1Name').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('student2Name').focus(); });
+  document.getElementById('student2Name').addEventListener('keypress', e => { if (e.key === 'Enter') startSession(); });
+}
+
+// ============================================================
+// NAVIGASI SLIDE
+// ============================================================
+function goToSlide(n) {
+  if (n < 1 || n > 5) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide' + n).classList.add('active');
+  document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === n - 1));
+  state.currentSlide = n;
+  
+  if (n === 3) {
+    if (!state.questionStartTime) startQuestionTimer();
+    renderQuestion();
+  }
+  if (n === 4) renderScoreSlide();
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextSlide() { if (state.currentSlide < 5) goToSlide(state.currentSlide + 1); }
+function prevSlide() { if (state.currentSlide > 1) goToSlide(state.currentSlide - 1); }
+
+// ============================================================
+// MULAI SESI
+// ============================================================
+function startSession() {
+  const n1 = document.getElementById('student1Name').value.trim();
+  const n2 = document.getElementById('student2Name').value.trim();
+  
+  if (!n1 || !n2) {
+    showToast('⚠ Mohon isi nama kedua siswa terlebih dahulu.');
+    return;
+  }
+  if (n1.toLowerCase() === n2.toLowerCase()) {
+    showToast('⚠ Gunakan nama yang berbeda untuk masing-masing siswa.');
+    return;
+  }
+  
+  state.student1.name = n1;
+  state.student2.name = n2;
+  document.getElementById('headerS1Name').textContent = n1;
+  document.getElementById('headerS2Name').textContent = n2;
+  document.getElementById('scoreS1Name').textContent = n1;
+  document.getElementById('scoreS2Name').textContent = n2;
+  
+  goToSlide(2);
+  showToast('✓ Sesi dimulai! Selamat belajar, ' + n1 + ' & ' + n2 + '.');
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+function getFilteredQuestions() {
+  if (state.currentFilter === 'all') return questions.map((_, i) => i);
+  return questions.map((q, i) => q.level === state.currentFilter ? i : -1).filter(i => i !== -1);
+}
+
+function renderQuestion() {
+  const q = questions[state.currentQIdx];
+  const container = document.getElementById('questionContainer');
+  const s1 = state.student1;
+  const s2 = state.student2;
+  
+  // Update counter
+  document.getElementById('currentQNum').textContent = state.currentQIdx + 1;
+  document.getElementById('totalQNum').textContent = questions.length;
+  
+  // Submit status
+  const s1Submitted = s1.submitted[state.currentQIdx];
+  const s2Submitted = s2.submitted[state.currentQIdx];
+  const bothSubmitted = s1Submitted && s2Submitted;
+  const showValidation = bothSubmitted || state.validated[state.currentQIdx];
+  
+  // Cek benar/salah
+  let s1Correct = false, s2Correct = false;
+  if (showValidation) {
+    s1Correct = checkAnswer(q, s1.answers[state.currentQIdx]);
+    s2Correct = checkAnswer(q, s2.answers[state.currentQIdx]);
+  }
+  
+  // Reset timer untuk soal baru
+  if (state.questionStartTime === null || state.timerRemaining === 0) {
+    startQuestionTimer();
+  }
+  
+  let answerUI = '';
+  switch(q.type) {
+    case 'pg': answerUI = renderPG(q, showValidation); break;
+    case 'isian': answerUI = renderIsian(q, showValidation); break;
+    case 'bs': answerUI = renderBS(q, showValidation); break;
+    case 'kompleks': answerUI = renderKompleks(q, showValidation); break;
+    case 'matching': answerUI = renderMatching(q, showValidation); break;
+  }
+  
+  container.innerHTML = `
+    <div class="q-card">
+      <div class="p-6 border-b" style="border-color: var(--border);">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div class="flex items-center gap-3">
+            <span class="badge badge-${q.level}">${LEVEL_LABELS[q.level]}</span>
+            <span class="text-xs uppercase tracking-wider" style="color: var(--muted);">${TYPE_LABELS[q.type]}</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-xs" style="color: var(--muted);">
+              ${s1Submitted ? '<span style="color: var(--s1);">●</span> ' + s1.name + ' selesai' : '<span style="color: var(--muted);">○</span> ' + s1.name + ' mengerjakan'}
+              &nbsp;·&nbsp;
+              ${s2Submitted ? '<span style="color: var(--s2);">●</span> ' + s2.name + ' selesai' : '<span style="color: var(--muted);">○</span> ' + s2.name + ' mengerjakan'}
+            </div>
+            <div class="timer-ring" id="timerRing">
+              <div>
+                <div class="mono font-bold text-sm" id="timerText">2:00</div>
+                <div class="text-[10px]" style="color: var(--muted);">waktu</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="display-font text-2xl md:text-3xl font-bold leading-snug">
+          <span style="color: var(--muted);" class="mono text-base mr-2">No.${q.id}.</span>
+          ${q.question}
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-0">
+        <!-- SISWA 1 -->
+        <div class="student-panel s1 ${s1Submitted ? 'locked' : ''} ${showValidation ? (s1Correct ? 'correct-answer' : 'wrong-answer') : ''}" style="border-right: 1px solid var(--border); border-top: none; border-bottom: none; border-left: none;">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full" style="background: var(--s1);"></span>
+              <span class="font-bold" style="color: var(--s1);">${s1.name}</span>
+            </div>
+            ${showValidation ? (s1Correct ? '<span class="result-indicator result-correct">✓ Benar</span>' : '<span class="result-indicator result-wrong">✗ Salah</span>') : (s1Submitted ? '<span class="result-indicator result-pending">Menunggu...</span>' : '')}
+          </div>
+          ${answerUI.s1}
+          <div class="mt-4">
+            ${s1Submitted 
+              ? `<button class="btn btn-ghost w-full justify-center" disabled>✓ Jawaban Terkunci</button>`
+              : `<button onclick="submitAnswer(1)" class="btn btn-s1 w-full justify-center">Submit Jawaban</button>`
+            }
+          </div>
+        </div>
+        
+        <!-- SISWA 2 -->
+        <div class="student-panel s2 ${s2Submitted ? 'locked' : ''} ${showValidation ? (s2Correct ? 'correct-answer' : 'wrong-answer') : ''}" style="border: none;">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full" style="background: var(--s2);"></span>
+              <span class="font-bold" style="color: var(--s2);">${s2.name}</span>
+            </div>
+            ${showValidation ? (s2Correct ? '<span class="result-indicator result-correct">✓ Benar</span>' : '<span class="result-indicator result-wrong">✗ Salah</span>') : (s2Submitted ? '<span class="result-indicator result-pending">Menunggu...</span>' : '')}
+          </div>
+          ${answerUI.s2}
+          <div class="mt-4">
+            ${s2Submitted 
+              ? `<button class="btn btn-ghost w-full justify-center" disabled>✓ Jawaban Terkunci</button>`
+              : `<button onclick="submitAnswer(2)" class="btn btn-s2 w-full justify-center">Submit Jawaban</button>`
+            }
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pembahasan -->
+      <div class="p-6 border-t" style="border-color: var(--border); background: var(--bg-2);">
+        ${showValidation 
+          ? `<div class="explanation">
+              <div class="font-bold mb-2" style="color: var(--accent);">📖 Pembahasan</div>
+              <div>${q.explanation}</div>
+              <div class="mt-3 text-xs" style="color: var(--muted);">
+                Kunci jawaban: <span class="mono font-bold" style="color: var(--fg);">${getCorrectAnswerText(q)}</span>
+              </div>
+            </div>`
+          : `<div class="text-sm text-center" style="color: var(--muted);">
+              Pembahasan akan muncul setelah kedua siswa submit jawaban.
+            </div>
+            <div class="flex justify-center mt-3">
+              <button onclick="forceShowValidation()" class="btn btn-ghost text-xs">Tampilkan Hasil & Pembahasan</button>
+            </div>`
+        }
+      </div>
+    </div>
+  `;
+  
+  // Update navigator
+  renderNavigator();
+  
+  // Update prev/next
+  document.getElementById('prevBtn').disabled = state.currentQIdx === 0;
+  document.getElementById('nextBtn').disabled = state.currentQIdx === questions.length - 1;
+  
+  // Attach event listeners untuk opsi
+  attachOptionListeners();
+  
+  // Update timer display
+  updateTimerDisplay();
+}
+
+function getCorrectAnswerText(q) {
+  switch(q.type) {
+    case 'pg': return q.options[q.correct];
+    case 'isian': return q.correct;
+    case 'bs': return q.correct === 'benar' ? 'BENAR' : 'SALAH';
+    case 'kompleks': return q.correct.map(i => String.fromCharCode(65 + i)).join(', ');
+    case 'matching': return q.pairs.map(p => p.left + ' → ' + p.right).join('  |  ');
+  }
+}
+
+// ============================================================
+// RENDER PER TIPE SOAL
+// ============================================================
+function renderPG(q, showValidation) {
+  const build = (student) => {
+    const ans = state['student'+student].answers[state.currentQIdx];
+    return q.options.map((opt, i) => {
+      const letter = String.fromCharCode(65 + i);
+      const isSelected = ans === i;
+      let classes = 'opt';
+      if (isSelected) classes += student === 1 ? ' selected-s1' : ' selected-s2';
+      const isCorrect = i === q.correct;
+      let indicator = '';
+      if (showValidation && isCorrect) indicator = '<span class="ml-auto text-xs" style="color: var(--correct);">✓ kunci</span>';
+      if (showValidation && isSelected && !isCorrect) indicator = '<span class="ml-auto text-xs" style="color: var(--wrong);">✗ dipilih</span>';
+      return `<div class="${classes}" data-student="${student}" data-type="pg" data-value="${i}">
+        <div class="marker">${letter}</div>
+        <div class="flex-1 mono">${opt}</div>
+        ${indicator}
+      </div>`;
+    }).join('');
+  };
+  return { s1: build(1), s2: build(2) };
+}
+
+function renderIsian(q, showValidation) {
+  const build = (student) => {
+    const s = state['student'+student];
+    const ans = s.answers[state.currentQIdx] || '';
+    const isSubmitted = s.submitted[state.currentQIdx];
+    const isCorrect = showValidation && checkAnswer(q, s.answers[state.currentQIdx]);
+    let indicator = '';
+    if (showValidation) {
+      indicator = isCorrect 
+        ? '<span class="result-indicator result-correct mt-2">✓ Benar</span>'
+        : '<span class="result-indicator result-wrong mt-2">✗ Salah</span>';
+    }
+    return `<div>
+      <input type="text" class="input" data-student="${student}" data-type="isian" 
+        placeholder="Ketik jawaban..." value="${ans}" 
+        ${isSubmitted ? 'disabled' : ''}>
+      ${indicator}
+    </div>`;
+  };
+  return { s1: build(1), s2: build(2) };
+}
+
+function renderBS(q, showValidation) {
+  const build = (student) => {
+    const s = state['student'+student];
+    const ans = s.answers[state.currentQIdx];
+    const isSubmitted = s.submitted[state.currentQIdx];
+    return ['benar', 'salah'].map(opt => {
+      const isSelected = ans === opt;
+      let classes = 'opt';
+      if (isSelected) classes += student === 1 ? ' selected-s1' : ' selected-s2';
+      const isCorrect = opt === q.correct;
+      let indicator = '';
+      if (showValidation && isCorrect) indicator = '<span class="ml-auto text-xs" style="color: var(--correct);">✓ kunci</span>';
+      if (showValidation && isSelected && !isCorrect) indicator = '<span class="ml-auto text-xs" style="color: var(--wrong);">✗ dipilih</span>';
+      return `<div class="${classes}" data-student="${student}" data-type="bs" data-value="${opt}">
+        <div class="marker">${opt === 'benar' ? 'B' : 'S'}</div>
+        <div class="flex-1 font-semibold">${opt === 'benar' ? 'BENAR' : 'SALAH'}</div>
+        ${indicator}
+      </div>`;
+    }).join('');
+  };
+  return { s1: build(1), s2: build(2) };
+}
+
+function renderKompleks(q, showValidation) {
+  const build = (student) => {
+    const s = state['student'+student];
+    const ans = s.answers[state.currentQIdx] || [];
+    const isSubmitted = s.submitted[state.currentQIdx];
+    return q.options.map((opt, i) => {
+      const letter = String.fromCharCode(65 + i);
+      const isSelected = ans.includes(i);
+      let classes = 'checkbox-opt';
+      if (isSelected) classes += student === 1 ? ' checked-s1' : ' checked-s2';
+      const isCorrect = q.correct.includes(i);
+      let indicator = '';
+      if (showValidation && isCorrect) indicator = '<span class="ml-auto text-xs" style="color: var(--correct);">✓</span>';
+      if (showValidation && isSelected && !isCorrect) indicator = '<span class="ml-auto text-xs" style="color: var(--wrong);">✗</span>';
+      return `<div class="${classes}" data-student="${student}" data-type="kompleks" data-value="${i}">
+        <div class="checkbox-box">${isSelected ? '✓' : ''}</div>
+        <div class="flex-1 text-sm">${letter}. ${opt}</div>
+        ${indicator}
+      </div>`;
+    }).join('');
+  };
+  return { s1: build(1), s2: build(2) };
+}
+
+function renderMatching(q, showValidation) {
+  // Acak urutan opsi kanan sekali per soal (gunakan seed dari q.id)
+  const rightOptions = q.pairs.map(p => p.right);
+  // Untuk konsistensi, simpan urutan acak berdasarkan id
+  if (!q._shuffledRight) {
+    q._shuffledRight = shuffleArray([...rightOptions], q.id);
+  }
+  
+  const build = (student) => {
+    const s = state['student'+student];
+    const ans = s.answers[state.currentQIdx] || {};
+    const isSubmitted = s.submitted[state.currentQIdx];
+    return q.pairs.map((pair, i) => {
+      const selected = ans[i] || '';
+      const isCorrect = selected === pair.right;
+      let indicator = '';
+      if (showValidation) {
+        indicator = isCorrect 
+          ? '<span class="text-xs" style="color: var(--correct);">✓</span>'
+          : '<span class="text-xs" style="color: var(--wrong);">✗ → ' + pair.right + '</span>';
+      }
+      return `<div class="match-row">
+        <div class="mono text-sm p-2 rounded" style="background: var(--bg-2);">${pair.left}</div>
+        <div style="color: var(--muted);">→</div>
+        <div>
+          <select class="input" data-student="${student}" data-type="matching" data-pair="${i}" ${isSubmitted ? 'disabled' : ''}>
+            <option value="">— pilih —</option>
+            ${q._shuffledRight.map(r => `<option value="${r}" ${selected === r ? 'selected' : ''}>${r}</option>`).join('')}
+          </select>
+          ${indicator}
+        </div>
+      </div>`;
+    }).join('');
+  };
+  return { s1: build(1), s2: build(2) };
+}
+
+function shuffleArray(arr, seed) {
+  // Pseudo-random dengan seed sederhana
+  let s = seed;
+  const random = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ============================================================
+// ATTACH OPTION LISTENERS
+// ============================================================
+function attachOptionListeners() {
+  // PG, BS, Kompleks
+  document.querySelectorAll('[data-type="pg"], [data-type="bs"], [data-type="kompleks"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const student = parseInt(el.dataset.student);
+      const s = state['student'+student];
+      if (s.submitted[state.currentQIdx]) return;
+      const type = el.dataset.type;
+      const value = el.dataset.type === 'kompleks' ? parseInt(el.dataset.value) : (el.dataset.type === 'bs' ? el.dataset.value : parseInt(el.dataset.value));
+      
+      if (type === 'kompleks') {
+        const arr = s.answers[state.currentQIdx] || [];
+        const idx = arr.indexOf(value);
+        if (idx > -1) arr.splice(idx, 1);
+        else arr.push(value);
+        s.answers[state.currentQIdx] = arr.sort((a,b) => a-b);
+      } else {
+        s.answers[state.currentQIdx] = value;
+      }
+      renderQuestion();
+    });
+  });
+  
+  // Isian
+  document.querySelectorAll('[data-type="isian"]').forEach(el => {
+    el.addEventListener('input', () => {
+      const student = parseInt(el.dataset.student);
+      const s = state['student'+student];
+      if (s.submitted[state.currentQIdx]) return;
+      s.answers[state.currentQIdx] = el.value;
+    });
+  });
+  
+  // Matching
+  document.querySelectorAll('[data-type="matching"]').forEach(el => {
+    el.addEventListener('change', () => {
+      const student = parseInt(el.dataset.student);
+      const s = state['student'+student];
+      if (s.submitted[state.currentQIdx]) return;
+      const pairIdx = parseInt(el.dataset.pair);
+      const ans = s.answers[state.currentQIdx] || {};
+      ans[pairIdx] = el.value;
+      s.answers[state.currentQIdx] = ans;
+    });
+  });
+}
+
+// ============================================================
+// SUBMIT JAWABAN
+// ============================================================
+function submitAnswer(student) {
+  const s = state['student'+student];
+  const q = questions[state.currentQIdx];
+  const ans = s.answers[state.currentQIdx];
+  
+  // Cek apakah sudah mengisi jawaban
+  let hasAnswer = false;
+  if (q.type === 'kompleks') hasAnswer = Array.isArray(ans) && ans.length > 0;
+  else if (q.type === 'matching') hasAnswer = ans && Object.keys(ans).length > 0;
+  else if (q.type === 'isian') hasAnswer = ans && ans.trim() !== '';
+  else hasAnswer = ans !== undefined && ans !== null;
+  
+  if (!hasAnswer) {
+    showToast('⚠ ' + s.name + ', jawaban belum diisi!');
+    return;
+  }
+  
+  // Catat waktu submit
+  const elapsed = state.timerInitial - state.timerRemaining;
+  s.submitted[state.currentQIdx] = true;
+  s.submitTime[state.currentQIdx] = elapsed;
+  
+  showToast('✓ ' + s.name + ' telah submit jawaban.');
+  
+  // Cek apakah keduanya sudah submit
+  if (state.student1.submitted[state.currentQIdx] && state.student2.submitted[state.currentQIdx]) {
+    state.validated[state.currentQIdx] = true;
+    stopTimer();
+  }
+  
+  renderQuestion();
+}
+
+function forceShowValidation() {
+  // Paksa tampilkan validasi (jika siswa ingin langsung lihat hasil)
+  state.validated[state.currentQIdx] = true;
+  // Tandai siswa yang belum submit sebagai tidak menjawab
+  if (!state.student1.submitted[state.currentQIdx]) {
+    state.student1.submitted[state.currentQIdx] = true;
+    state.student1.submitTime[state.currentQIdx] = state.timerInitial - state.timerRemaining;
+  }
+  if (!state.student2.submitted[state.currentQIdx]) {
+    state.student2.submitted[state.currentQIdx] = true;
+    state.student2.submitTime[state.currentQIdx] = state.timerInitial - state.timerRemaining;
+  }
+  stopTimer();
+  renderQuestion();
+}
+
+// ============================================================
+// VALIDASI JAWABAN
+// ============================================================
+function checkAnswer(q, ans) {
+  if (ans === undefined || ans === null) return false;
+  switch(q.type) {
+    case 'pg': return ans === q.correct;
+    case 'isian': 
+      const normalized = String(ans).trim().toLowerCase().replace(/\s/g, '').replace(/,/g, '.');
+      const correct = String(q.correct).trim().toLowerCase().replace(/\s/g, '').replace(/,/g, '.');
+      return normalized === correct;
+    case 'bs': return ans === q.correct;
+    case 'kompleks':
+      if (!Array.isArray(ans)) return false;
+      if (ans.length !== q.correct.length) return false;
+      const sortedAns = [...ans].sort((a,b) => a-b);
+      const sortedCorrect = [...q.correct].sort((a,b) => a-b);
+      return sortedAns.every((v, i) => v === sortedCorrect[i]);
+    case 'matching':
+      if (!ans || typeof ans !== 'object') return false;
+      return q.pairs.every((pair, i) => ans[i] === pair.right);
+  }
+  return false;
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startQuestionTimer() {
+  stopTimer();
+  const q = questions[state.currentQIdx];
+  state.timerInitial = LEVEL_TIMES[q.level];
+  state.timerRemaining = state.timerInitial;
+  state.questionStartTime = Date.now();
+  
+  state.timerInterval = setInterval(() => {
+    state.timerRemaining--;
+    if (state.timerRemaining <= 0) {
+      state.timerRemaining = 0;
+      stopTimer();
+      // Auto-submit yang belum submit
+      if (!state.student1.submitted[state.currentQIdx]) {
+        state.student1.submitted[state.currentQIdx] = true;
+        state.student1.submitTime[state.currentQIdx] = state.timerInitial;
+      }
+      if (!state.student2.submitted[state.currentQIdx]) {
+        state.student2.submitted[state.currentQIdx] = true;
+        state.student2.submitTime[state.currentQIdx] = state.timerInitial;
+      }
+      state.validated[state.currentQIdx] = true;
+      showToast('⏰ Waktu habis! Jawaban otomatis terkunci.');
+      renderQuestion();
+    } else {
+      updateTimerDisplay();
+    }
+  }, 1000);
+  
+  updateTimerDisplay();
+}
+
+function stopTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const ring = document.getElementById('timerRing');
+  const text = document.getElementById('timerText');
+  if (!ring || !text) return;
+  
+  const pct = (state.timerRemaining / state.timerInitial) * 100;
+  ring.style.setProperty('--p', pct);
+  
+  const m = Math.floor(state.timerRemaining / 60);
+  const s = state.timerRemaining % 60;
+  text.textContent = m + ':' + String(s).padStart(2, '0');
+  
+  if (state.timerRemaining <= 30) {
+    ring.classList.add('warning');
+  } else {
+    ring.classList.remove('warning');
+  }
+}
+
+// ============================================================
+// NAVIGASI SOAL
+// ============================================================
+function nextQuestion() {
+  if (state.currentQIdx < questions.length - 1) {
+    state.currentQIdx++;
+    state.questionStartTime = null;
+    state.timerRemaining = 0;
+    renderQuestion();
+    if (state.currentSlide === 3) startQuestionTimer();
+  }
+}
+
+function prevQuestion() {
+  if (state.currentQIdx > 0) {
+    state.currentQIdx--;
+    state.questionStartTime = null;
+    state.timerRemaining = 0;
+    renderQuestion();
+    if (state.currentSlide === 3) startQuestionTimer();
+  }
+}
+
+function goToQuestion(idx) {
+  state.currentQIdx = idx;
+  state.questionStartTime = null;
+  state.timerRemaining = 0;
+  renderQuestion();
+  if (state.currentSlide === 3) startQuestionTimer();
+}
+
+// ============================================================
+// NAVIGATOR
+// ============================================================
+function renderNavigator() {
+  const nav = document.getElementById('qNavigator');
+  nav.innerHTML = questions.map((q, i) => {
+    const s1Done = state.student1.submitted[i];
+    const s2Done = state.student2.submitted[i];
+    let cls = 'q-nav-dot';
+    if (i === state.currentQIdx) cls += ' active';
+    else if (s1Done && s2Done) cls += ' both-answered';
+    else if (s1Done || s2Done) cls += ' partial';
+    return `<div class="${cls}" onclick="goToQuestion(${i})" title="Soal ${i+1}: ${LEVEL_LABELS[q.level]}">${i+1}</div>`;
+  }).join('');
+}
+
+// ============================================================
+// SLIDE SKOR
+// ============================================================
+function renderScoreSlide() {
+  let s1Correct = 0, s2Correct = 0;
+  let s1TotalTime = 0, s2TotalTime = 0;
+  let s1Answered = 0, s2Answered = 0;
+  const levelStats = { easy: { s1: 0, s2: 0 }, medium: { s1: 0, s2: 0 }, hots: { s1: 0, s2: 0 } };
+  
+  questions.forEach((q, i) => {
+    const s1Ans = state.student1.answers[i];
+    const s2Ans = state.student2.answers[i];
+    const s1Time = state.student1.submitTime[i] || 0;
+    const s2Time = state.student2.submitTime[i] || 0;
+    
+    const c1 = checkAnswer(q, s1Ans);
+    const c2 = checkAnswer(q, s2Ans);
+    
+    if (c1) { s1Correct++; levelStats[q.level].s1++; }
+    if (c2) { s2Correct++; levelStats[q.level].s2++; }
+    if (state.student1.submitted[i]) { s1Answered++; s1TotalTime += s1Time; }
+    if (state.student2.submitted[i]) { s2Answered++; s2TotalTime += s2Time; }
+  });
+  
+  // Skor: benar × 100 / total
+  const total = questions.length;
+  const s1Score = Math.round((s1Correct / total) * 100);
+  const s2Score = Math.round((s2Correct / total) * 100);
+  
+  // Animasi angka
+  animateNumber('scoreS1Total', 0, s1Score, 1000);
+  animateNumber('scoreS2Total', 0, s2Score, 1000);
+  animateNumber('scoreS1Correct', 0, s1Correct, 1000);
+  animateNumber('scoreS2Correct', 0, s2Correct, 1000);
+  animateNumber('scoreS1Wrong', 0, s1Answered - s1Correct, 1000);
+  animateNumber('scoreS2Wrong', 0, s2Answered - s2Correct, 1000);
+  
+  document.getElementById('scoreS1TotalTime').textContent = formatTime(s1TotalTime);
+  document.getElementById('scoreS2TotalTime').textContent = formatTime(s2TotalTime);
+  document.getElementById('scoreS1AvgTime').textContent = s1Answered > 0 ? formatTime(Math.round(s1TotalTime / s1Answered)) : '0s';
+  document.getElementById('scoreS2AvgTime').textContent = s2Answered > 0 ? formatTime(Math.round(s2TotalTime / s2Answered)) : '0s';
+  document.getElementById('scoreS1Answered').textContent = s1Answered + '/' + total;
+  document.getElementById('scoreS2Answered').textContent = s2Answered + '/' + total;
+  
+  document.getElementById('easyS1C').textContent = levelStats.easy.s1;
+  document.getElementById('easyS2C').textContent = levelStats.easy.s2;
+  document.getElementById('medS1C').textContent = levelStats.medium.s1;
+  document.getElementById('medS2C').textContent = levelStats.medium.s2;
+  document.getElementById('hotsS1C').textContent = levelStats.hots.s1;
+  document.getElementById('hotsS2C').textContent = levelStats.hots.s2;
+  
+  // Tabel detail
+  const tbody = document.getElementById('scoreTableBody');
+  tbody.innerHTML = questions.map((q, i) => {
+    const s1Ans = state.student1.answers[i];
+    const s2Ans = state.student2.answers[i];
+    const s1Time = state.student1.submitTime[i];
+    const s2Time = state.student2.submitTime[i];
+    const c1 = checkAnswer(q, s1Ans);
+    const c2 = checkAnswer(q, s2Ans);
+    const s1Submitted = state.student1.submitted[i];
+    const s2Submitted = state.student2.submitted[i];
+    
+    const s1Display = s1Submitted ? (c1 ? '<span class="result-indicator result-correct">✓</span>' : '<span class="result-indicator result-wrong">✗</span>') : '<span style="color: var(--muted);">—</span>';
+    const s2Display = s2Submitted ? (c2 ? '<span class="result-indicator result-correct">✓</span>' : '<span class="result-indicator result-wrong">✗</span>') : '<span style="color: var(--muted);">—</span>';
+    
+    return `<tr style="cursor: pointer;" onclick="goToSlide(3); setTimeout(() => goToQuestion(${i}), 300);">
+      <td class="mono font-bold">${i+1}</td>
+      <td><span class="badge badge-${q.level}">${LEVEL_LABELS[q.level]}</span></td>
+      <td class="text-xs" style="color: var(--muted);">${TYPE_LABELS[q.type]}</td>
+      <td class="mono text-xs">${getCorrectAnswerText(q)}</td>
+      <td>${s1Display}</td>
+      <td class="mono text-xs" style="color: var(--s1);">${s1Submitted ? formatTime(s1Time) : '—'}</td>
+      <td>${s2Display}</td>
+      <td class="mono text-xs" style="color: var(--s2);">${s2Submitted ? formatTime(s2Time) : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function animateNumber(id, from, to, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(from + (to - from) * eased);
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function formatTime(s) {
+  if (!s || s === 0) return '0s';
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + 'm ' + sec + 's';
+}
+
+// ============================================================
+// REFLEKSI
+// ============================================================
+function saveReflection() {
+  const r1 = document.getElementById('refleksiS1').value.trim();
+  const r2 = document.getElementById('refleksiS2').value.trim();
+  if (!r1 && !r2) {
+    showToast('⚠ Tulis refleksi salah satu siswa dulu.');
+    return;
+  }
+  showToast('✓ Refleksi tersimpan. Terima kasih atas partisipasinya!');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer = null;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'ArrowRight' && state.currentSlide === 3) nextQuestion();
+  if (e.key === 'ArrowLeft' && state.currentSlide === 3) prevQuestion();
+  if (e.key === 'Escape') showToast('Tekan ← → untuk navigasi soal');
+});
+
+// Start
+init();
+</script>
+</body>
+</html>
