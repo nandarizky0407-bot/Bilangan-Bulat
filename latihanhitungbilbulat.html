@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petualangan Bilangan Bulat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,800;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg: #0d0817;
+  --bg-2: #1a0f2e;
+  --fg: #fff8ee;
+  --muted: #a89bc4;
+  --primary: #ff6b35;
+  --primary-glow: rgba(255,107,53,0.4);
+  --secondary: #4ecdc4;
+  --secondary-glow: rgba(78,205,196,0.4);
+  --accent: #ffd93d;
+  --pink: #ff6b9d;
+  --card: rgba(255,255,255,0.06);
+  --card-border: rgba(255,255,255,0.12);
+  --correct: #4ecdc4;
+  --wrong: #ff5c8a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* Animated background */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(255,107,53,0.18), transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(78,205,196,0.18), transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(255,217,61,0.08), transparent 70%),
+    linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+}
+
+.floating-symbols {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.symbol {
+  position: absolute;
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  opacity: 0.08;
+  user-select: none;
+  animation: float 20s infinite ease-in-out;
+  color: var(--fg);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-40px) rotate(20deg); }
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.slide {
+  width: 100%;
+  max-width: 1200px;
+  display: none;
+  animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide.active {
+  display: block;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Slide 1: Cover ===== */
+.cover {
+  text-align: center;
+  padding: 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px;
+  font-size: 0.875rem;
+  color: var(--accent);
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+}
+
+.cover h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.cover .subtitle {
+  font-size: 1.125rem;
+  color: var(--muted);
+  margin-bottom: 3rem;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cover-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.cover-stat {
+  text-align: center;
+}
+
+.cover-stat .num {
+  font-family: 'Fraunces', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.cover-stat .label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.25rem;
+}
+
+.name-form {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  position: absolute;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 1rem;
+  transition: all 0.3s;
+  pointer-events: none;
+  background: var(--bg);
+  padding: 0 0.5rem;
+  font-weight: 500;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  background: var(--card);
+  border: 2px solid var(--card-border);
+  border-radius: 16px;
+  color: var(--fg);
+  font-size: 1.125rem;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.input-group input:focus,
+.input-group input:not(:placeholder-shown) {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-glow);
+}
+
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label {
+  top: 0;
+  font-size: 0.75rem;
+  color: var(--primary);
+  transform: translateY(-50%);
+}
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #ff8c5a);
+  color: white;
+  box-shadow: 0 8px 24px var(--primary-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px var(--primary-glow);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--card-border);
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+}
+
+.btn-block { width: 100%; }
+.btn-lg {
+  padding: 1.25rem 2.5rem;
+  font-size: 1.125rem;
+}
+
+/* ===== Slide 2: Material ===== */
+.material {
+  padding: 1rem;
+}
+
+.material-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.material-header .eyebrow {
+  display: inline-block;
+  background: rgba(255,217,61,0.15);
+  color: var(--accent);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.material-header h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+}
+
+.material-header p {
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.material-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.material-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.material-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.material-card:nth-child(1)::before { background: linear-gradient(90deg, var(--primary), var(--pink)); }
+.material-card:nth-child(2)::before { background: linear-gradient(90deg, var(--secondary), var(--accent)); }
+.material-card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent), var(--primary)); }
+
+.material-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.material-card .icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.material-card:nth-child(1) .icon { background: rgba(255,107,53,0.15); color: var(--primary); }
+.material-card:nth-child(2) .icon { background: rgba(78,205,196,0.15); color: var(--secondary); }
+.material-card:nth-child(3) .icon { background: rgba(255,217,61,0.15); color: var(--accent); }
+
+.material-card h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.material-card > p {
+  color: var(--muted);
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+/* Number line */
+.number-line {
+  position: relative;
+  height: 80px;
+  margin: 1.25rem 0;
+  padding: 0 0.5rem;
+}
+
+.number-line-track {
+  position: absolute;
+  top: 50%;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 3px;
+  background: linear-gradient(90deg, var(--wrong), var(--muted), var(--secondary));
+  border-radius: 3px;
+  transform: translateY(-50%);
+}
+
+.number-line-numbers {
+  position: absolute;
+  top: 50%;
+  left: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+}
+
+.number-line-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 2px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  z-index: 1;
+}
+
+.number-line-num:hover {
+  transform: scale(1.25);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.number-line-num.zero {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.number-line-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.number-line-legend .neg { color: var(--wrong); }
+.number-line-legend .pos { color: var(--secondary); }
+
+/* Tips list */
+.tips-list {
+  list-style: none;
+}
+
+.tips-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.tips-list li:last-child { border-bottom: none; }
+
+.sign-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.875rem;
+  font-family: 'Fraunces', serif;
+  flex-shrink: 0;
+}
+
+.sign-positive { background: rgba(78,205,196,0.15); color: var(--secondary); }
+.sign-negative { background: rgba(255,92,138,0.15); color: var(--wrong); }
+.sign-mixed { background: rgba(255,217,61,0.15); color: var(--accent); }
+
+.example-box {
+  background: rgba(0,0,0,0.3);
+  border-left: 3px solid var(--accent);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-top: 0.75rem;
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--fg);
+}
+
+.example-box strong { color: var(--accent); }
+
+/* ===== Slide 3: Practice ===== */
+.practice {
+  padding: 0.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.practice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.question-counter {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.counter-item .counter-text {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.counter-item .counter-number {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.counter-item .counter-number .total { color: var(--muted); font-size: 1rem; }
+
+.timer-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  padding: 0.75rem 1.25rem;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.timer-circle {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.timer-circle svg { transform: rotate(-90deg); }
+.timer-circle .bg-ring { stroke: var(--card-border); }
+.timer-circle .progress-ring {
+  stroke: var(--secondary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.3s;
+}
+
+.timer-circle.warning .progress-ring { stroke: var(--accent); }
+.timer-circle.danger .progress-ring {
+  stroke: var(--wrong);
+  animation: pulseRed 1s infinite;
+}
+
+@keyframes pulseRed {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.timer-text-svg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-family: 'Fraunces', serif;
+}
+
+.timer-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.timer-value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--fg);
+  line-height: 1.2;
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 8px;
+  background: var(--card);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--card-border);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+  border-radius: 100px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0%;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  border-radius: 100px;
+}
+
+/* Question card */
+.question-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s;
+}
+
+.question-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--primary-glow), transparent 50%);
+  opacity: 0.08;
+  animation: rotate 30s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.question-card.correct-answer {
+  border-color: var(--correct);
+  box-shadow: 0 0 0 4px var(--secondary-glow);
+}
+
+.question-card.wrong-answer {
+  border-color: var(--wrong);
+  box-shadow: 0 0 0 4px rgba(255,92,138,0.3);
+  animation: shake 0.4s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.question-type-badge {
+  display: inline-block;
+  background: rgba(255,217,61,0.15);
+  color: var(--accent);
+  padding: 0.3rem 0.875rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.question-text {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.02em;
+}
+
+.question-text .op { color: var(--primary); margin: 0 0.25rem; }
+.question-text .equals { color: var(--muted); margin: 0 0.5rem; }
+.question-text .qmark {
+  color: var(--accent);
+  display: inline-block;
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Answer input */
+.answer-input-container {
+  max-width: 320px;
+  margin: 0 auto 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.answer-input {
+  width: 100%;
+  padding: 1.25rem;
+  background: rgba(0,0,0,0.35);
+  border: 2px solid var(--card-border);
+  border-radius: 16px;
+  color: var(--fg);
+  font-size: 1.75rem;
+  font-family: 'Fraunces', serif;
+  font-weight: 800;
+  text-align: center;
+  transition: all 0.3s;
+  -moz-appearance: textfield;
+}
+
+.answer-input::-webkit-outer-spin-button,
+.answer-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.answer-input::placeholder { color: var(--muted); opacity: 0.5; }
+
+.answer-input:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 4px var(--secondary-glow);
+}
+
+.answer-input.correct {
+  border-color: var(--correct);
+  background: rgba(78,205,196,0.1);
+  color: var(--correct);
+}
+
+.answer-input.wrong {
+  border-color: var(--wrong);
+  background: rgba(255,92,138,0.1);
+  color: var(--wrong);
+}
+
+.answer-input:disabled { cursor: not-allowed; }
+
+/* Feedback */
+.feedback {
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.feedback.show { display: flex; }
+.feedback.correct { background: rgba(78,205,196,0.15); color: var(--correct); border: 1px solid rgba(78,205,196,0.3); }
+.feedback.wrong { background: rgba(255,92,138,0.15); color: var(--wrong); border: 1px solid rgba(255,92,138,0.3); }
+.feedback i { font-size: 1.25rem; }
+
+/* Action buttons */
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.action-buttons .btn {
+  padding: 0.875rem 1rem;
+  font-size: 0.95rem;
+}
+
+.btn-check {
+  background: linear-gradient(135deg, var(--secondary), #6ee7d7);
+  color: #0a3d36;
+}
+
+.btn-explain {
+  background: linear-gradient(135deg, var(--accent), #ffe571);
+  color: #4a3a00;
+}
+
+.btn-next {
+  background: linear-gradient(135deg, var(--primary), #ff8c5a);
+  color: white;
+}
+
+.btn-finish {
+  background: rgba(255,92,138,0.15);
+  color: var(--wrong);
+  border: 1px solid rgba(255,92,138,0.4);
+}
+
+.btn-finish:hover {
+  background: rgba(255,92,138,0.25);
+}
+
+/* Explanation panel */
+.explanation-panel {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: none;
+  backdrop-filter: blur(10px);
+}
+
+.explanation-panel.show {
+  display: block;
+  animation: slideIn 0.4s ease;
+}
+
+.explanation-panel h4 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.explanation-steps {
+  list-style: none;
+  counter-reset: step;
+}
+
+.explanation-steps li {
+  position: relative;
+  padding: 0.6rem 0 0.6rem 2.75rem;
+  counter-increment: step;
+  border-bottom: 1px solid var(--card-border);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.explanation-steps li:last-child { border-bottom: none; }
+
+.explanation-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.6rem;
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  color: #4a3a00;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+  font-family: 'Fraunces', serif;
+}
+
+.explanation-steps li:last-child::before {
+  background: var(--secondary);
+  color: #0a3d36;
+}
+
+/* ===== Slide 4: Results ===== */
+.results {
+  text-align: center;
+  padding: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.results-header {
+  margin-bottom: 2.5rem;
+}
+
+.results-header .eyebrow {
+  display: inline-block;
+  background: rgba(255,107,53,0.15);
+  color: var(--primary);
+  padding: 0.3rem 0.875rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.results-header h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.05;
+}
+
+.results-header p {
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 1.75rem 1.25rem;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+.stat-card:hover { transform: translateY(-4px); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.stat-card:nth-child(1)::before { background: var(--accent); }
+.stat-card:nth-child(2)::before { background: var(--correct); }
+.stat-card:nth-child(3)::before { background: var(--wrong); }
+.stat-card:nth-child(4)::before { background: var(--primary); }
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin: 0 auto 1rem;
+}
+
+.stat-card:nth-child(1) .stat-icon { background: rgba(255,217,61,0.15); color: var(--accent); }
+.stat-card:nth-child(2) .stat-icon { background: rgba(78,205,196,0.15); color: var(--secondary); }
+.stat-card:nth-child(3) .stat-icon { background: rgba(255,92,138,0.15); color: var(--wrong); }
+.stat-card:nth-child(4) .stat-icon { background: rgba(255,107,53,0.15); color: var(--primary); }
+
+.stat-value {
+  font-family: 'Fraunces', serif;
+  font-size: 2.75rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.motivation-card {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.motivation-card .quote-icon {
+  font-size: 2.5rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.motivation-text {
+  font-family: 'Fraunces', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.motivation-author {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.thank-you {
+  margin-top: 2rem;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.thank-you strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: rgba(13, 8, 23, 0.95);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(20px);
+  padding: 0.875rem 1.5rem;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 1000;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  max-width: 90vw;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--secondary); color: var(--secondary); }
+.toast.error { border-color: var(--wrong); color: var(--wrong); }
+.toast.info { border-color: var(--accent); color: var(--accent); }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .action-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+  .action-buttons .btn { font-size: 0.85rem; padding: 0.75rem 0.5rem; }
+  .practice-header { flex-direction: row; justify-content: space-between; }
+  .question-counter { gap: 1rem; }
+  .counter-item .counter-number { font-size: 1.25rem; }
+  .timer-display { padding: 0.5rem 0.875rem; gap: 0.6rem; }
+  .timer-circle { width: 40px; height: 40px; }
+  .timer-circle svg { width: 40px; height: 40px; }
+  .question-card { padding: 2rem 1.25rem; }
+  .cover-stats { gap: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .action-buttons { grid-template-columns: 1fr; }
+  .material-card { padding: 1.5rem; }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="bg-canvas"></div>
+<div class="floating-symbols" id="floatingSymbols"></div>
+
+<div class="app">
+  <!-- Slide 1: Cover -->
+  <section class="slide active" id="slide1">
+    <div class="cover">
+      <div class="cover-badge">
+        <i class="fa-solid fa-calculator"></i>
+        <span>Matematika SMP — Operasi Hitung</span>
+      </div>
+      <h1>Petualangan<br>Bilangan Bulat</h1>
+      <p class="subtitle">Asah kemampuanmu dalam operasi hitung bilangan bulat melalui 100 soal seru, menantang, dan penuh kejutan!</p>
+      <div class="cover-stats">
+        <div class="cover-stat">
+          <div class="num">100</div>
+          <div class="label">Soal Latihan</div>
+        </div>
+        <div class="cover-stat">
+          <div class="num">5</div>
+          <div class="label">Jenis Operasi</div>
+        </div>
+        <div class="cover-stat">
+          <div class="num">2'</div>
+          <div class="label">Per Soal</div>
+        </div>
+      </div>
+      <div class="name-form">
+        <div class="input-group">
+          <input type="text" id="studentName" placeholder=" " autocomplete="off" maxlength="30">
+          <label for="studentName">Masukkan namamu</label>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" id="startBtn">
+          <i class="fa-solid fa-rocket"></i>
+          Mulai Petualangan
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 2: Material -->
+  <section class="slide" id="slide2">
+    <div class="material">
+      <div class="material-header">
+        <div class="eyebrow">Persiapan</div>
+        <h2>Ingat Dulu Yuk!</h2>
+        <p>Tiga konsep penting sebelum memulai petualangan</p>
+      </div>
+      <div class="material-grid">
+        <!-- Card 1: Number Line -->
+        <div class="material-card">
+          <div class="icon"><i class="fa-solid fa-arrows-left-right"></i></div>
+          <h3>Garis Bilangan</h3>
+          <p>Garis bilangan membantu memvisualisasikan bilangan bulat. Bilangan negatif di kiri nol, positif di kanan nol.</p>
+          <div class="number-line">
+            <div class="number-line-track"></div>
+            <div class="number-line-numbers">
+              <span class="number-line-num">−5</span>
+              <span class="number-line-num">−4</span>
+              <span class="number-line-num">−3</span>
+              <span class="number-line-num">−2</span>
+              <span class="number-line-num">−1</span>
+              <span class="number-line-num zero">0</span>
+              <span class="number-line-num">1</span>
+              <span class="number-line-num">2</span>
+              <span class="number-line-num">3</span>
+              <span class="number-line-num">4</span>
+              <span class="number-line-num">5</span>
+            </div>
+          </div>
+          <div class="number-line-legend">
+            <span class="neg"><i class="fa-solid fa-arrow-left"></i> Negatif</span>
+            <span class="pos">Positif <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+          <div class="example-box" style="margin-top: 1rem;">
+            <strong>Penjumlahan</strong> = geser kanan &nbsp;•&nbsp; <strong>Pengurangan</strong> = geser kiri<br>
+            Contoh: <strong>−2 + 5</strong> → mulai dari −2, geser kanan 5 langkah = <strong>3</strong>
+          </div>
+        </div>
+        
+        <!-- Card 2: Multiplication & Division -->
+        <div class="material-card">
+          <div class="icon"><i class="fa-solid fa-times"></i></div>
+          <h3>Perkalian & Pembagian</h3>
+          <p>Aturan tanda untuk perkalian dan pembagian bilangan bulat:</p>
+          <ul class="tips-list">
+            <li>
+              <span class="sign-badge sign-positive">+ × +</span>
+              <span>Hasil <strong style="color:var(--secondary)">positif</strong></span>
+            </li>
+            <li>
+              <span class="sign-badge sign-positive">− × −</span>
+              <span>Hasil <strong style="color:var(--secondary)">positif</strong></span>
+            </li>
+            <li>
+              <span class="sign-badge sign-negative">+ × −</span>
+              <span>Hasil <strong style="color:var(--wrong)">negatif</strong></span>
+            </li>
+            <li>
+              <span class="sign-badge sign-negative">− × +</span>
+              <span>Hasil <strong style="color:var(--wrong)">negatif</strong></span>
+            </li>
+          </ul>
+          <div class="example-box">
+            <strong>Contoh:</strong><br>
+            (−4) × (−3) = <strong>12</strong> &nbsp;•&nbsp; (−15) ÷ 3 = <strong>−5</strong><br>
+            6 × (−7) = <strong>−42</strong> &nbsp;•&nbsp; (−24) ÷ (−4) = <strong>6</strong>
+          </div>
+        </div>
+        
+        <!-- Card 3: Addition & Subtraction -->
+        <div class="material-card">
+          <div class="icon"><i class="fa-solid fa-plus"></i></div>
+          <h3>Penjumlahan & Pengurangan</h3>
+          <p>Tanda sama → jumlahkan. Tanda beda → kurangi, ikuti tanda terbesar.</p>
+          <ul class="tips-list">
+            <li>
+              <span class="sign-badge sign-positive">(+a) + (+b)</span>
+              <span>= +(a+b)</span>
+            </li>
+            <li>
+              <span class="sign-badge sign-negative">(−a) + (−b)</span>
+              <span>= −(a+b)</span>
+            </li>
+            <li>
+              <span class="sign-badge sign-mixed">a − (−b)</span>
+              <span>= a + b</span>
+            </li>
+            <li>
+              <span class="sign-badge sign-mixed">a − (+b)</span>
+              <span>= a − b</span>
+            </li>
+          </ul>
+          <div class="example-box">
+            <strong>Contoh:</strong><br>
+            −8 + 5 = <strong>−3</strong> &nbsp;•&nbsp; 10 − (−4) = <strong>14</strong><br>
+            −7 + (−3) = <strong>−10</strong> &nbsp;•&nbsp; 12 − 15 = <strong>−3</strong>
+          </div>
+        </div>
+      </div>
+      <div style="text-align: center;">
+        <button class="btn btn-primary btn-lg" id="toPracticeBtn">
+          <i class="fa-solid fa-arrow-right"></i>
+          Aku Sudah Siap!
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Practice -->
+  <section class="slide" id="slide3">
+    <div class="practice">
+      <div class="practice-header">
+        <div class="question-counter">
+          <div class="counter-item">
+            <div class="counter-text">Soal</div>
+            <div class="counter-number"><span id="currentQ">1</span><span class="total">/100</span></div>
+          </div>
+          <div class="counter-item">
+            <div class="counter-text">Dijawab</div>
+            <div class="counter-number" id="answeredCount">0</div>
+          </div>
+        </div>
+        <div class="timer-display">
+          <div class="timer-circle" id="timerCircle">
+            <svg width="50" height="50">
+              <circle class="bg-ring" cx="25" cy="25" r="20" fill="none" stroke-width="4"/>
+              <circle class="progress-ring" id="progressRing" cx="25" cy="25" r="20" fill="none" stroke-width="4" 
+                stroke-dasharray="125.66" stroke-dashoffset="0"/>
+            </svg>
+            <div class="timer-text-svg" id="timerTextSvg">2:00</div>
+          </div>
+          <div>
+            <div class="timer-label">Sisa Waktu</div>
+            <div class="timer-value" id="timerValue">2:00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="question-card" id="questionCard">
+        <div class="question-type-badge" id="questionType">Penjumlahan</div>
+        <div class="question-text" id="questionText">5 + 3 = <span class="qmark">?</span></div>
+        <div class="answer-input-container">
+          <input type="number" class="answer-input" id="answerInput" placeholder="?" autocomplete="off">
+        </div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <div class="explanation-panel" id="explanationPanel">
+        <h4><i class="fa-solid fa-lightbulb"></i> Pembahasan</h4>
+        <ol class="explanation-steps" id="explanationSteps"></ol>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-check" id="checkBtn">
+          <i class="fa-solid fa-check"></i>
+          Cek Jawaban
+        </button>
+        <button class="btn btn-explain" id="explainBtn">
+          <i class="fa-solid fa-lightbulb"></i>
+          Pembahasan
+        </button>
+        <button class="btn btn-next" id="nextBtn">
+          <i class="fa-solid fa-forward"></i>
+          Soal Selanjutnya
+        </button>
+        <button class="btn btn-finish" id="finishBtn">
+          <i class="fa-solid fa-flag-checkered"></i>
+          Selesai
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: Results -->
+  <section class="slide" id="slide4">
+    <div class="results">
+      <div class="results-header">
+        <div class="eyebrow">Hasil Latihan</div>
+        <h2>Kerja Bagus!</h2>
+        <p id="resultName">Terima kasih sudah berlatih</p>
+      </div>
+      <div class="results-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-list-check"></i></div>
+          <div class="stat-value" id="totalAnswered">0</div>
+          <div class="stat-label">Soal Dikerjakan</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-value" id="totalCorrect">0</div>
+          <div class="stat-label">Jawaban Benar</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="stat-value" id="totalWrong">0</div>
+          <div class="stat-label">Jawaban Salah</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="stat-value" id="avgTime">0s</div>
+          <div class="stat-label">Rata-rata Waktu</div>
+        </div>
+      </div>
+      <div class="motivation-card">
+        <div class="quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+        <p class="motivation-text" id="motivationText"></p>
+        <p class="motivation-author">— Untukmu, siswa hebat</p>
+      </div>
+      <div class="thank-you">
+        <p>Terima kasih sudah berlatih, <strong id="thankYouName">Siswa Hebat</strong>!<br>
+        Teruslah berlatih, dan kamu akan semakin jago matematika.</p>
+      </div>
+      <button class="btn btn-primary btn-lg" id="restartBtn" style="margin-top: 2rem;">
+        <i class="fa-solid fa-rotate-right"></i>
+        Latihan Lagi
+      </button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== State =====
+const state = {
+  currentSlide: 1,
+  studentName: '',
+  currentQuestion: 0,
+  questions: [],
+  results: [],
+  questionStartTime: 0,
+  timerInterval: null,
+  timeRemaining: 120,
+  hasChecked: false
+};
+
+// ===== Utility Functions =====
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Format number for display - wrap negatives in parens (except first operand)
+function fmt(n, isFirst = false) {
+  if (n < 0 && !isFirst) return `(${n})`;
+  return `${n}`;
+}
+
+// ===== Question Generation =====
+function generateQuestions() {
+  const questions = [];
+  const types = ['tambah', 'kurang', 'kali', 'bagi', 'campuran'];
+  
+  for (let i = 0; i < 100; i++) {
+    const type = types[i % 5];
+    questions.push(generateQuestion(type, i));
+    // Shuffle the last few to mix up the order a bit while keeping variety
+  }
+  
+  // Slight shuffle to mix types but keep distribution
+  for (let i = questions.length - 1; i > 0; i--) {
+    if (Math.random() < 0.3) {
+      const j = Math.max(0, i - randInt(1, 5));
+      // Only swap if same type to maintain type distribution
+      if (questions[i].type === questions[j].type) {
+        [questions[i], questions[j]] = [questions[j], questions[i]];
+      }
+    }
+  }
+  
+  // Reassign IDs
+  questions.forEach((q, i) => q.id = i);
+  
+  return questions;
+}
+
+function generateQuestion(type, id) {
+  let q;
+  switch(type) {
+    case 'tambah': q = genAddition(); break;
+    case 'kurang': q = genSubtraction(); break;
+    case 'kali': q = genMultiplication(); break;
+    case 'bagi': q = genDivision(); break;
+    case 'campuran': q = genMixed(); break;
+  }
+  q.type = type;
+  q.id = id;
+  return q;
+}
+
+function genAddition() {
+  const a = randInt(-25, 25);
+  const b = randInt(-25, 25);
+  return {
+    typeLabel: 'Penjumlahan',
+    question: `${a} + (${b})`,
+    answer: a + b,
+    steps: explainAddition(a, b)
+  };
+}
+
+function genSubtraction() {
+  const a = randInt(-25, 25);
+  const b = randInt(-25, 25);
+  return {
+    typeLabel: 'Pengurangan',
+    question: `${a} − (${b})`,
+    answer: a - b,
+    steps: explainSubtraction(a, b)
+  };
+}
+
+function genMultiplication() {
+  let a = randInt(-12, 12);
+  let b = randInt(-12, 12);
+  if (Math.abs(a) <= 1) a = a < 0 ? -2 : 2;
+  if (Math.abs(b) <= 1) b = b < 0 ? -2 : 2;
+  return {
+    typeLabel: 'Perkalian',
+    question: `${a} × (${b})`,
+    answer: a * b,
+    steps: explainMultiplication(a, b)
+  };
+}
+
+function genDivision() {
+  let divisor = randInt(-10, 10);
+  if (Math.abs(divisor) <= 1) divisor = divisor < 0 ? -2 : 2;
+  const quotient = randInt(-10, 10);
+  if (quotient === 0) quotient = 1;
+  const dividend = divisor * quotient;
+  return {
+    typeLabel: 'Pembagian',
+    question: `${dividend} ÷ (${divisor})`,
+    answer: quotient,
+    steps: explainDivision(dividend, divisor, quotient)
+  };
+}
+
+function genMixed() {
+  const patterns = [
+    // a + b × c
+    () => {
+      const a = randInt(-15, 15);
+      let b = randInt(-10, 10);
+      let c = randInt(-5, 5);
+      if (Math.abs(c) === 1) c = c < 0 ? -2 : 2;
+      const answer = a + b * c;
+      return {
+        typeLabel: 'Campuran (Tambah & Kali)',
+        question: `${a} + ${fmt(b)} × (${c})`,
+        answer,
+        steps: [
+          `Soal: ${a} + ${fmt(b)} × (${c})`,
+          `Aturan: operasi perkalian dikerjakan sebelum penjumlahan.`,
+          `Hitung perkalian: ${fmt(b)} × (${c}) = ${b * c} (gunakan aturan tanda perkalian).`,
+          `Lalu jumlahkan: ${a} + (${b * c}) = ${answer}.`,
+          `Jawaban: ${answer}`
+        ]
+      };
+    },
+    // a × b + c
+    () => {
+      let a = randInt(-8, 8);
+      let b = randInt(-8, 8);
+      const c = randInt(-15, 15);
+      if (Math.abs(a) === 1) a = a < 0 ? -2 : 2;
+      if (Math.abs(b) === 1) b = b < 0 ? -2 : 2;
+      const answer = a * b + c;
+      return {
+        typeLabel: 'Campuran (Kali & Tambah)',
+        question: `${a} × (${b}) + ${fmt(c)}`,
+        answer,
+        steps: [
+          `Soal: ${a} × (${b}) + ${fmt(c)}`,
+          `Aturan: operasi perkalian dikerjakan sebelum penjumlahan.`,
+          `Hitung perkalian: ${a} × (${b}) = ${a * b}.`,
+          `Lalu jumlahkan: ${a * b} + ${fmt(c)} = ${answer}.`,
+          `Jawaban: ${answer}`
+        ]
+      };
+    },
+    // a − b × c
+    () => {
+      const a = randInt(-15, 15);
+      let b = randInt(-8, 8);
+      let c = randInt(-5, 5);
+      if (Math.abs(c) === 1) c = c < 0 ? -2 : 2;
+      const answer = a - b * c;
+      return {
+        typeLabel: 'Campuran (Kurang & Kali)',
+        question: `${a} − ${fmt(b)} × (${c})`,
+        answer,
+        steps: [
+          `Soal: ${a} − ${fmt(b)} × (${c})`,
+          `Aturan: operasi perkalian dikerjakan sebelum pengurangan.`,
+          `Hitung perkalian: ${fmt(b)} × (${c}) = ${b * c}.`,
+          `Lalu kurangkan: ${a} − (${b * c}) = ${a - b * c}.`,
+          `Ingat: a − (−n) = a + n, dan a − n = a + (−n).`,
+          `Jawaban: ${answer}`
+        ]
+      };
+    },
+    // (a + b) × c
+    () => {
+      const a = randInt(-10, 10);
+      const b = randInt(-10, 10);
+      let c = randInt(-6, 6);
+      if (Math.abs(c) === 1) c = c < 0 ? -2 : 2;
+      const inner = a + b;
+      const answer = inner * c;
+      return {
+        typeLabel: 'Campuran (Kurung & Kali)',
+        question: `(${a} + ${b}) × (${c})`,
+        answer,
+        steps: [
+          `Soal: (${a} + ${b}) × (${c})`,
+          `Aturan: kerjakan operasi dalam tanda kurung terlebih dahulu.`,
+          `Hitung dalam kurung: (${a} + ${b}) = ${inner}.`,
+          `Lalu kalikan: ${inner} × (${c}) = ${answer} (gunakan aturan tanda).`,
+          `Jawaban: ${answer}`
+        ]
+      };
+    },
+    // a × b − c × d
+    () => {
+      let a = randInt(-6, 6);
+      let b = randInt(-6, 6);
+      let c = randInt(-6, 6);
+      let d = randInt(-6, 6);
+      if (Math.abs(a) === 1) a = a < 0 ? -2 : 2;
+      if (Math.abs(b) === 1) b = b < 0 ? -2 : 2;
+      if (Math.abs(c) === 1) c = c < 0 ? -2 : 2;
+      if (Math.abs(d) === 1) d = d < 0 ? -2 : 2;
+      const first = a * b;
+      const second = c * d;
+      const answer = first - second;
+      return {
+        typeLabel: 'Campuran (Kali & Kurang & Kali)',
+        question: `${a} × (${b}) − ${fmt(c)} × (${d})`,
+        answer,
+        steps: [
+          `Soal: ${a} × (${b}) − ${fmt(c)} × (${d})`,
+          `Aturan: kerjakan kedua perkalian terlebih dahulu.`,
+          `Perkalian pertama: ${a} × (${b}) = ${first}.`,
+          `Perkalian kedua: ${fmt(c)} × (${d}) = ${second}.`,
+          `Lalu kurangkan: ${first} − (${second}) = ${answer}.`,
+          `Jawaban: ${answer}`
+        ]
+      };
+    },
+    // a ÷ b + c
+    () => {
+      let divisor = randInt(-8, 8);
+      if (Math.abs(divisor) <= 1) divisor = divisor < 0 ? -2 : 2;
+      const quotient1 = randInt(-8, 8);
+      const dividend = divisor * quotient1;
+      const c = randInt(-15, 15);
+      const answer = quotient1 + c;
+      return {
+        typeLabel: 'Campuran (Bagi & Tambah)',
+        question: `${dividend} ÷ (${divisor}) + ${fmt(c)}`,
+        answer,
+        steps: [
+          `Soal: ${dividend} ÷ (${divisor}) + ${fmt(c)}`,
+          `Aturan: operasi pembagian dikerjakan sebelum penjumlahan.`,
+          `Hitung pembagian: ${dividend} ÷ (${divisor}) = ${quotient1} (gunakan aturan tanda).`,
+          `Lalu jumlahkan: ${quotient1} + ${fmt(c)} = ${answer}.`,
+          `Jawaban: ${answer}`
+        ]
+      };
+    }
+  ];
+  return pick(patterns)();
+}
+
+// ===== Explanation Generators =====
+function explainAddition(a, b) {
+  const result = a + b;
+  const steps = [`Soal: ${a} + (${b})`];
+  
+  if (a >= 0 && b >= 0) {
+    steps.push(`Kedua bilangan bertanda positif, langsung jumlahkan nilainya.`);
+    steps.push(`${a} + ${b} = ${result}`);
+  } else if (a < 0 && b < 0) {
+    steps.push(`Kedua bilangan bertanda negatif, jumlahkan nilai mutlaknya dan hasil tetap negatif.`);
+    steps.push(`|${a}| + |${b}| = ${Math.abs(a)} + ${Math.abs(b)} = ${Math.abs(a) + Math.abs(b)}`);
+    steps.push(`Maka ${a} + (${b}) = −${Math.abs(a) + Math.abs(b)} = ${result}`);
+  } else {
+    const bigger = Math.abs(a) >= Math.abs(b) ? a : b;
+    const smaller = Math.abs(a) >= Math.abs(b) ? b : a;
+    const biggerSign = bigger >= 0 ? 'positif' : 'negatif';
+    steps.push(`Tanda berbeda, kurangi nilai mutlak yang lebih besar dengan yang lebih kecil.`);
+    steps.push(`|${bigger}| − |${smaller}| = ${Math.abs(bigger)} − ${Math.abs(smaller)} = ${Math.abs(bigger) - Math.abs(smaller)}`);
+    steps.push(`Hasil mengikuti tanda bilangan dengan nilai mutlak terbesar, yaitu ${biggerSign}.`);
+    steps.push(`Maka ${a} + (${b}) = ${result}`);
+  }
+  
+  steps.push(`Jawaban akhir: ${result}`);
+  return steps;
+}
+
+function explainSubtraction(a, b) {
+  const result = a - b;
+  const steps = [`Soal: ${a} − (${b})`];
+  steps.push(`Pengurangan dapat diubah menjadi penjumlahan dengan lawan dari bilangan pengurang.`);
+  steps.push(`Lawan dari (${b}) adalah (${-b}).`);
+  steps.push(`Sehingga: ${a} − (${b}) = ${a} + (${-b})`);
+  
+  const newA = a;
+  const newB = -b;
+  if (newA >= 0 && newB >= 0) {
+    steps.push(`Kedua bilangan positif, jumlahkan: ${newA} + ${newB} = ${result}`);
+  } else if (newA < 0 && newB < 0) {
+    steps.push(`Kedua bilangan negatif, jumlahkan nilai mutlaknya: −(|${newA}| + |${newB}|) = −${Math.abs(newA) + Math.abs(newB)} = ${result}`);
+  } else {
+    const bigger = Math.abs(newA) >= Math.abs(newB) ? newA : newB;
+    const smaller = Math.abs(newA) >= Math.abs(newB) ? newB : newA;
+    const sign = bigger >= 0 ? 'positif' : 'negatif';
+    steps.push(`Tanda berbeda, kurangi: |${bigger}| − |${smaller}| = ${Math.abs(bigger) - Math.abs(smaller)}`);
+    steps.push(`Ikuti tanda bilangan dengan nilai mutlak terbesar, yaitu ${sign}.`);
+    steps.push(`Hasil = ${result}`);
+  }
+  
+  steps.push(`Jawaban akhir: ${result}`);
+  return steps;
+}
+
+function explainMultiplication(a, b) {
+  const result = a * b;
+  const steps = [`Soal: ${a} × (${b})`];
+  steps.push(`Kalikan nilai mutlaknya: |${a}| × |${b}| = ${Math.abs(a)} × ${Math.abs(b)} = ${Math.abs(a) * Math.abs(b)}`);
+  
+  if ((a >= 0 && b >= 0) || (a < 0 && b < 0)) {
+    steps.push(`Karena tanda sama (keduanya ${a >= 0 ? 'positif' : 'negatif'}), hasilnya positif.`);
+  } else {
+    steps.push(`Karena tanda berbeda, hasilnya negatif.`);
+  }
+  
+  steps.push(`Maka ${a} × (${b}) = ${result}`);
+  steps.push(`Jawaban akhir: ${result}`);
+  return steps;
+}
+
+function explainDivision(dividend, divisor, quotient) {
+  const steps = [`Soal: ${dividend} ÷ (${divisor})`];
+  steps.push(`Bagi nilai mutlaknya: |${dividend}| ÷ |${divisor}| = ${Math.abs(dividend)} ÷ ${Math.abs(divisor)} = ${Math.abs(quotient)}`);
+  
+  if ((dividend >= 0 && divisor >= 0) || (dividend < 0 && divisor < 0)) {
+    steps.push(`Karena tanda sama, hasilnya positif.`);
+  } else {
+    steps.push(`Karena tanda berbeda, hasilnya negatif.`);
+  }
+  
+  steps.push(`Maka ${dividend} ÷ (${divisor}) = ${quotient}`);
+  steps.push(`Jawaban akhir: ${quotient}`);
+  return steps;
+}
+
+// ===== Floating Background Symbols =====
+function createFloatingSymbols() {
+  const symbols = ['+', '−', '×', '÷', '=', '?', '1', '2', '3', '5', '7', '−1', '+4', '−9', '0', '8'];
+  const container = document.getElementById('floatingSymbols');
+  
+  for (let i = 0; i < 22; i++) {
+    const sym = document.createElement('div');
+    sym.className = 'symbol';
+    sym.textContent = pick(symbols);
+    sym.style.left = Math.random() * 100 + '%';
+    sym.style.top = Math.random() * 100 + '%';
+    sym.style.fontSize = (Math.random() * 70 + 40) + 'px';
+    sym.style.animationDuration = (Math.random() * 15 + 15) + 's';
+    sym.style.animationDelay = (Math.random() * -20) + 's';
+    container.appendChild(sym);
+  }
+}
+
+// ===== Slide Navigation =====
+function showSlide(n) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide' + n).classList.add('active');
+  state.currentSlide = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== Timer =====
+function startTimer() {
+  stopTimer();
+  state.timeRemaining = 120;
+  state.questionStartTime = Date.now();
+  updateTimerDisplay();
+  state.timerInterval = setInterval(() => {
+    state.timeRemaining--;
+    updateTimerDisplay();
+    if (state.timeRemaining <= 0) {
+      stopTimer();
+      if (!state.hasChecked) {
+        showToast('Waktu habis! Tekan "Cek Jawaban" atau lanjut ke soal berikutnya.', 'info');
+      }
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(Math.max(0, state.timeRemaining) / 60);
+  const seconds = Math.max(0, state.timeRemaining) % 60;
+  const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  document.getElementById('timerTextSvg').textContent = display;
+  document.getElementById('timerValue').textContent = display;
+  
+  const circumference = 2 * Math.PI * 20;
+  const progress = Math.max(0, state.timeRemaining) / 120;
+  const offset = circumference - progress * circumference;
+  document.getElementById('progressRing').style.strokeDashoffset = offset;
+  
+  const circle = document.getElementById('timerCircle');
+  circle.classList.remove('warning', 'danger');
+  if (state.timeRemaining <= 30 && state.timeRemaining > 0) {
+    circle.classList.add('danger');
+  } else if (state.timeRemaining <= 60) {
+    circle.classList.add('warning');
+  }
+}
+
+// ===== Question Display =====
+function loadQuestion() {
+  const q = state.questions[state.currentQuestion];
+  document.getElementById('currentQ').textContent = state.currentQuestion + 1;
+  document.getElementById('questionType').textContent = q.typeLabel;
+  document.getElementById('questionText').innerHTML = `${q.question} <span class="op">=</span> <span class="qmark">?</span>`;
+  
+  const input = document.getElementById('answerInput');
+  input.value = '';
+  input.classList.remove('correct', 'wrong');
+  input.disabled = false;
+  
+  const card = document.getElementById('questionCard');
+  card.classList.remove('correct-answer', 'wrong-answer');
+  
+  document.getElementById('feedback').classList.remove('show', 'correct', 'wrong');
+  document.getElementById('explanationPanel').classList.remove('show');
+  
+  state.hasChecked = false;
+  
+  const progress = (state.currentQuestion / 100) * 100;
+  document.getElementById('progressFill').style.width = progress + '%';
+  
+  startTimer();
+  
+  setTimeout(() => input.focus(), 200);
+}
+
+// ===== Check Answer =====
+function checkAnswer() {
+  if (state.hasChecked) return;
+  
+  const input = document.getElementById('answerInput');
+  const userAnswer = input.value.trim();
+  
+  if (userAnswer === '') {
+    showToast('Isi jawaban dulu ya!', 'error');
+    input.focus();
+    return;
+  }
+  
+  const q = state.questions[state.currentQuestion];
+  const userNum = parseInt(userAnswer, 10);
+  const correct = userNum === q.answer;
+  
+  state.hasChecked = true;
+  stopTimer();
+  
+  const timeSpent = 120 - Math.max(0, state.timeRemaining);
+  state.results[state.currentQuestion] = {
+    questionId: q.id,
+    correct,
+    timeSpent
+  };
+  
+  input.classList.add(correct ? 'correct' : 'wrong');
+  input.disabled = true;
+  
+  const card = document.getElementById('questionCard');
+  card.classList.add(correct ? 'correct-answer' : 'wrong-answer');
+  
+  const feedback = document.getElementById('feedback');
+  feedback.classList.add('show', correct ? 'correct' : 'wrong');
+  feedback.innerHTML = correct 
+    ? `<i class="fa-solid fa-circle-check"></i> Hebat! Jawabanmu benar.`
+    : `<i class="fa-solid fa-circle-xmark"></i> Belum tepat. Jawaban yang benar: <strong>${q.answer}</strong>`;
+  
+  updateAnsweredCount();
+}
+
+function updateAnsweredCount() {
+  const count = state.results.filter(r => r !== undefined && r !== null).length;
+  document.getElementById('answeredCount').textContent = count;
+}
+
+// ===== Explanation =====
+function showExplanation() {
+  const q = state.questions[state.currentQuestion];
+  const panel = document.getElementById('explanationPanel');
+  const stepsList = document.getElementById('explanationSteps');
+  
+  stepsList.innerHTML = q.steps.map(s => `<li>${s}</li>`).join('');
+  panel.classList.add('show');
+  setTimeout(() => {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+// ===== Next Question =====
+function nextQuestion() {
+  // Auto-check if user typed an answer but hasn't checked yet
+  const input = document.getElementById('answerInput');
+  if (!state.hasChecked && input.value.trim() !== '') {
+    checkAnswer();
+  }
+  
+  if (state.currentQuestion < 99) {
+    state.currentQuestion++;
+    loadQuestion();
+  } else {
+    showToast('Ini sudah soal terakhir!', 'info');
+    finishPractice();
+  }
+}
+
+// ===== Finish Practice =====
+function finishPractice() {
+  stopTimer();
+  
+  const answered = state.results.filter(r => r !== undefined && r !== null);
+  const correctCount = answered.filter(r => r.correct).length;
+  const wrongCount = answered.length - correctCount;
+  const totalTime = answered.reduce((sum, r) => sum + r.timeSpent, 0);
+  const avgTime = answered.length > 0 ? Math.round(totalTime / answered.length) : 0;
+  
+  document.getElementById('totalAnswered').textContent = answered.length;
+  document.getElementById('totalCorrect').textContent = correctCount;
+  document.getElementById('totalWrong').textContent = wrongCount;
+  document.getElementById('avgTime').textContent = avgTime + 's';
+  
+  const percentage = answered.length > 0 ? (correctCount / answered.length) * 100 : 0;
+  let motivation;
+  if (answered.length === 0) {
+    motivation = 'Belum ada soal yang dikerjakan. Coba latihan lagi dan buktikan kemampuanmu!';
+  } else if (percentage >= 90) {
+    motivation = 'Luar biasa! Kamu menguasai operasi bilangan bulat dengan sangat baik. Kamu adalah ahli matematika sejati!';
+  } else if (percentage >= 75) {
+    motivation = 'Kerja yang bagus! Kamu sudah memahami konsepnya dengan baik. Sedikit lagi untuk menjadi sempurna!';
+  } else if (percentage >= 60) {
+    motivation = 'Tetap semangat! Kamu sudah mulai memahami. Dengan sedikit latihan lagi, kamu pasti bisa lebih baik!';
+  } else if (percentage >= 40) {
+    motivation = 'Jangan menyerah! Setiap ahli pernah menjadi pemula. Pelajari kembali materinya dan coba lagi!';
+  } else {
+    motivation = 'Tetap berlatih ya! Pelajari lagi materi di Slide 2, lalu coba latihan ini lagi. Kamu pasti bisa!';
+  }
+  document.getElementById('motivationText').textContent = motivation;
+  
+  const name = state.studentName || 'Siswa Hebat';
+  document.getElementById('thankYouName').textContent = name;
+  document.getElementById('resultName').textContent = `Kerja bagus, ${name}!`;
+  
+  showSlide(4);
+}
+
+// ===== Toast =====
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  const icons = { success: 'circle-check', error: 'circle-exclamation', info: 'circle-info' };
+  toast.className = 'toast ' + type;
+  toast.innerHTML = `<i class="fa-solid fa-${icons[type] || 'circle-info'}"></i> ${message}`;
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ===== Event Listeners =====
+document.getElementById('startBtn').addEventListener('click', () => {
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) {
+    showToast('Masukkan namamu dulu ya!', 'error');
+    document.getElementById('studentName').focus();
+    return;
+  }
+  state.studentName = name;
+  showSlide(2);
+});
+
+document.getElementById('studentName').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('startBtn').click();
+  }
+});
+
+document.getElementById('toPracticeBtn').addEventListener('click', () => {
+  state.questions = generateQuestions();
+  state.currentQuestion = 0;
+  state.results = [];
+  loadQuestion();
+  showSlide(3);
+});
+
+document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+
+document.getElementById('answerInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (!state.hasChecked) {
+      checkAnswer();
+    } else {
+      nextQuestion();
+    }
+  }
+});
+
+document.getElementById('explainBtn').addEventListener('click', showExplanation);
+
+document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+
+document.getElementById('finishBtn').addEventListener('click', () => {
+  const answered = state.results.filter(r => r !== undefined && r !== null).length;
+  if (answered === 0) {
+    showToast('Kerjakan minimal satu soal dulu ya!', 'info');
+    return;
+  }
+  finishPractice();
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  state.currentQuestion = 0;
+  state.results = [];
+  state.questions = generateQuestions();
+  loadQuestion();
+  showSlide(3);
+});
+
+// ===== Initialize =====
+createFloatingSymbols();
+</script>
+</body>
+</html>
