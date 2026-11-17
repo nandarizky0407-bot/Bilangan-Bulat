@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integers — Interactive Lesson (Grade 5)</title>
+<style>
+:root{
+  --ink:#172554; --ink-soft:#475569;
+  --blue:#2563eb; --blue-lt:#dbeafe;
+  --red:#dc2626; --red-lt:#fee2e2;
+  --green:#16a34a; --green-lt:#dcfce7;
+  --amber:#d97706; --amber-lt:#fef3c7;
+  --purple:#7c3aed; --purple-lt:#ede9fe;
+  --card:#ffffff; --line:#e2e8f0;
+  --radius:22px;
+  --shadow:0 10px 30px rgba(30,41,59,.12);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Comic Sans MS','Comic Neue','Segoe UI',Verdana,sans-serif;color:var(--ink);background:linear-gradient(160deg,#dbeafe 0%,#ede9fe 45%,#dcfce7 100%) fixed;}
+.app{max-width:1060px;margin:0 auto;padding:14px 16px 120px}
+
+/* ---------- header ---------- */
+header.top{position:sticky;top:8px;z-index:80;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:rgba(255,255,255,.82);backdrop-filter:blur(8px);border:1px solid var(--line);
+  border-radius:18px;padding:10px 14px;box-shadow:var(--shadow);margin-bottom:10px}
+.brand{font-weight:800;display:flex;gap:8px;align-items:center;font-size:18px}
+.brand .logo{font-size:24px}
+.top-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.icon-btn{font-size:15px;font-weight:800;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;font-family:inherit}
+.icon-btn:hover{background:var(--blue-lt)}
+.lang-pill{display:flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.lang-pill button{border:none;background:#fff;font-family:inherit;font-weight:800;font-size:14px;padding:8px 12px;cursor:pointer;color:var(--ink-soft)}
+.lang-pill button.on{background:var(--blue);color:#fff}
+.progress{height:10px;background:#fff;border-radius:99px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);margin-bottom:12px}
+#progFill{height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#a78bfa,#f472b6);transition:width .3s;border-radius:99px}
+
+/* ---------- slides ---------- */
+.slide{display:none;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 34px 34px;margin-bottom:8px}
+.slide.active{display:block;animation:pop .35s ease}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.kicker{display:inline-block;background:var(--purple-lt);color:var(--purple);font-weight:800;font-size:13px;letter-spacing:.6px;padding:6px 14px;border-radius:99px;text-transform:uppercase;margin-bottom:8px}
+h2.slide-title{font-size:34px;margin:4px 0 14px;line-height:1.15}
+h3{margin:0 0 6px;font-size:19px}
+.lead{font-size:19px;color:var(--ink-soft);line-height:1.6;margin:6px 0 14px}
+.hidden{display:none!important}
+.chip{display:inline-flex;align-items:center;background:var(--blue-lt);border:2px solid #bfdbfe;color:#1e40af;padding:6px 14px;border-radius:99px;font-weight:700;font-size:15px}
+.grid2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.grid3{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:16px 18px}
+.card .emo{font-size:30px;display:inline-block;margin-bottom:4px}
+.card p{margin:6px 0 0;line-height:1.55;font-size:16px}
+.tip{background:var(--amber-lt);border:2px dashed #f59e0b;border-radius:16px;padding:14px 18px}
+.didyou{background:var(--purple-lt);border:2px solid #ddd6fe;border-radius:16px;padding:14px 18px}
+.tiny-note{font-size:14px;color:var(--ink-soft);margin-top:8px}
+
+/* ---------- cover ---------- */
+.cover{background:linear-gradient(150deg,#3b82f6,#8b5cf6 55%,#ec4899);color:#fff;text-align:center;padding:56px 30px;position:relative;overflow:hidden}
+.cover .kicker{background:rgba(255,255,255,.22);color:#fff}
+.cover-title{font-size:64px;margin:10px 0 4px;text-shadow:0 4px 0 rgba(0,0,0,.18);letter-spacing:1px}
+.cover-sub{font-size:21px;max-width:680px;margin:10px auto 18px;color:#f1f5f9;line-height:1.5}
+.cover-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 26px}
+.cover .chip{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.4)}
+.start-btn{font-size:22px;font-weight:800;background:#fbbf24;color:#1f2937;border:none;padding:16px 36px;border-radius:99px;cursor:pointer;box-shadow:0 6px 0 #b45309;transition:transform .1s;font-family:inherit}
+.start-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b45309}
+.cover .tiny-note{color:#e0e7ff}
+.floaties span{position:absolute;font-size:44px;animation:float 6s ease-in-out infinite;opacity:.92;pointer-events:none}
+.floaties span:nth-child(1){top:8%;left:6%;animation-delay:0s}
+.floaties span:nth-child(2){top:12%;right:8%;animation-delay:1.2s}
+.floaties span:nth-child(3){bottom:20%;left:10%;animation-delay:2.1s}
+.floaties span:nth-child(4){bottom:14%;right:6%;animation-delay:3s}
+.floaties span:nth-child(5){top:45%;right:16%;animation-delay:4.2s}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-18px) rotate(8deg)}}
+
+/* ---------- generic bits ---------- */
+.up{background:var(--green-lt);border-color:#86efac}
+.down{background:var(--red-lt);border-color:#fca5a5}
+ol.custom{list-style:none;padding:0;margin:10px 0;counter-reset:obj}
+ol.custom li{counter-increment:obj;display:flex;gap:12px;margin:12px 0;font-size:17px;line-height:1.55;align-items:flex-start}
+ol.custom li::before{content:counter(obj);background:var(--blue);color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none;font-size:16px}
+.numstrip{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:24px;font-weight:800;margin:12px 0}
+.numchip{background:#fff;border:2px solid var(--line);padding:6px 14px;border-radius:12px}
+.numchip.neg{color:var(--red);border-color:#fecaca;background:var(--red-lt)}
+.numchip.pos{color:var(--green);border-color:#bbf7d0;background:var(--green-lt)}
+.numchip.zero{color:var(--amber);border-color:#fde68a;background:var(--amber-lt)}
+.numchip.bad{color:var(--ink-soft);position:relative;opacity:.85}
+.numchip.bad::after{content:'✖';position:absolute;top:-10px;right:-10px;background:var(--red);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.mini-btn{font-family:inherit;font-size:16px;font-weight:800;background:var(--amber);color:#fff;border:none;padding:10px 18px;border-radius:99px;cursor:pointer;box-shadow:0 3px 0 #b45309}
+.mini-btn:active{transform:translateY(2px);box-shadow:none}
+.mini-btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.reveal-box{background:#eff6ff;border:2px solid #bfdbfe;border-radius:14px;padding:14px 18px;margin-top:12px;font-size:17px;line-height:1.55;animation:pop .3s}
+.write-line{border-bottom:2px dotted #94a3b8;height:34px;margin-top:14px}
+
+/* ---------- classify game ---------- */
+.cl-chips{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.cl-chip{font-family:inherit;font-size:22px;font-weight:800;padding:10px 18px;border-radius:14px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.cl-chip.sel{outline:4px solid var(--blue)}
+.cl-chip.good{background:var(--green-lt);border-color:#86efac;color:var(--green)}
+.cl-chip.bad{background:var(--red-lt);border-color:#fca5a5;color:var(--red);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.cl-bins{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
+.bin{font-family:inherit;font-size:17px;font-weight:800;padding:12px 22px;border-radius:16px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.bin:hover{background:var(--blue-lt)}
+.cl-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cl-msg{font-weight:800;font-size:16px}
+
+/* ---------- number line ---------- */
+.nl-belt{position:relative;background:#eff6ff;border:2px solid #bfdbfe;border-radius:18px;padding:56px 30px 12px;margin:14px 0}
+.nl-track{position:relative;height:64px}
+.tick{position:absolute;bottom:0;transform:translateX(-50%);background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 2px;font-family:inherit}
+.tick-line{width:3px;height:26px;background:#93c5fd;border-radius:2px}
+.tick-num{font-size:15px;font-weight:700;color:#1e40af}
+.tick.zero .tick-num{color:var(--red)}
+.tick.zero .tick-line{background:#f87171;height:32px}
+.tick:hover .tick-num{transform:scale(1.2)}
+.nl-frog{position:absolute;bottom:36px;font-size:36px;transform:translateX(-50%);transition:left .3s ease;filter:drop-shadow(0 3px 3px rgba(0,0,0,.2));z-index:3}
+.nl-frog.bounce{animation:bounce .6s}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}40%{transform:translateX(-50%) translateY(-22px)}60%{transform:translateX(-50%) translateY(-6px)}}
+.nl-ctrl{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+.nl-btn{font-family:inherit;font-size:24px;font-weight:800;width:64px;height:52px;border-radius:14px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.nl-btn:hover{background:var(--blue-lt)}
+.nl-readout{font-size:20px;font-weight:800;min-width:250px;text-align:center}
+.nl-mission{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;background:var(--amber-lt);border:2px dashed #f59e0b;border-radius:14px;padding:12px 14px;margin-top:12px;font-weight:700;font-size:17px}
+
+/* ---------- thermometer ---------- */
+.th-row{display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.th-tube{width:46px;height:220px;background:#f1f5f9;border-radius:99px;position:relative;overflow:visible;border:3px solid #cbd5e1}
+.th-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,#f97316,#ef4444);transition:height .25s,background .25s;border-radius:99px}
+.th-zero{position:absolute;left:-8px;right:-8px;bottom:33.33%;border-top:3px dashed #334155;z-index:2}
+.th-zero span{position:absolute;left:calc(100% + 8px);top:-11px;font-weight:800;color:#334155;font-size:13px}
+.th-side{flex:1;min-width:230px}
+.th-read{font-size:32px;font-weight:800;margin-bottom:8px}
+.th-side input[type=range]{width:100%;cursor:pointer}
+
+/* ---------- compare machine ---------- */
+.cmp-row{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.cmp-card{font-size:42px;font-weight:800;background:#f8fafc;border:3px solid var(--line);border-radius:18px;padding:8px 26px;min-width:110px;text-align:center}
+.cmp-slot{font-size:38px;font-weight:800;width:76px;height:76px;border-radius:50%;background:var(--amber-lt);display:flex;align-items:center;justify-content:center;border:3px dashed #f59e0b}
+.cmp-btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.cmp-btns button{font-family:inherit;font-size:30px;font-weight:800;width:78px;height:60px;border-radius:16px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.cmp-btns button:hover{background:var(--blue-lt)}
+.cmp-foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:12px;font-weight:800}
+.cmp-msg.ok{color:var(--green)}
+.cmp-msg.no{color:var(--red)}
+
+/* ---------- ordering game ---------- */
+.ord-tiles{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.ord-tile{font-family:inherit;font-size:26px;font-weight:800;padding:12px 20px;border-radius:14px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.ord-tile.locked{background:var(--green-lt);border-color:#86efac;color:var(--green);cursor:default;opacity:.95}
+.ord-tile.shake{animation:shake .35s}
+.ord-line{display:flex;gap:10px;flex-wrap:wrap;min-height:58px;background:#f8fafc;border:2px dashed var(--line);border-radius:14px;padding:8px;margin-top:14px;align-items:center}
+.ord-line .ph{color:#94a3b8;font-weight:700;font-size:15px}
+.ord-foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;font-weight:800}
+.ord-msg.ok{color:var(--green)}
+.ord-msg.no{color:var(--red)}
+
+/* ---------- quiz ---------- */
+.q-head{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.q-type{background:var(--purple-lt);color:var(--purple);border-color:#ddd6fe}
+.story{display:flex;gap:14px;background:#fffbeb;border:2px solid #fde68a;border-radius:16px;padding:16px 18px;margin:10px 0 14px;font-size:17px;line-height:1.6}
+.story-emoji{font-size:36px;flex:none;line-height:1}
+.q-text{font-size:20px;font-weight:800;margin:4px 0 14px;line-height:1.5}
+.ans-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.ans-input{font-family:inherit;font-size:24px;font-weight:700;padding:12px 16px;border-radius:14px;border:3px solid var(--blue);width:250px;color:var(--ink)}
+.ans-input:focus{outline:3px solid #93c5fd}
+.check-btn{font-family:inherit;font-size:19px;font-weight:800;background:var(--green);color:#fff;border:none;padding:13px 26px;border-radius:99px;cursor:pointer;box-shadow:0 4px 0 #15803d}
+.check-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #15803d}
+.sign-btns{display:flex;gap:10px;flex-wrap:wrap}
+.sign-btns button{font-family:inherit;font-size:28px;font-weight:800;width:76px;height:60px;border-radius:16px;border:3px solid var(--line);background:#fff;cursor:pointer}
+.sign-btns button.sel{border-color:var(--blue);background:var(--blue-lt)}
+.q-feedback{margin-top:14px}
+.fb{font-size:19px;font-weight:800;padding:12px 16px;border-radius:14px;margin:8px 0;animation:pop .3s;line-height:1.5}
+.fb.ok{background:var(--green-lt);color:var(--green);border:2px solid #86efac}
+.fb.no{background:var(--red-lt);color:var(--red);border:2px solid #fca5a5}
+.fb.info{background:#eff6ff;color:var(--blue);border:2px solid #bfdbfe}
+.pembahasan{background:var(--amber-lt);border:2px solid #fcd34d;border-radius:16px;padding:14px 18px;margin-top:10px;line-height:1.6;font-size:16.5px}
+.pb-title{font-weight:800;margin-bottom:6px;color:var(--amber);font-size:16px}
+.q-val-cards{display:flex;align-items:center;gap:14px;justify-content:flex-start;flex-wrap:wrap;margin:6px 0 14px}
+
+/* ---------- dashboard ---------- */
+.dash{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:10px;margin:14px 0}
+.dash button{font-family:inherit;height:52px;border-radius:14px;border:2px solid var(--line);background:#fff;font-weight:800;font-size:18px;cursor:pointer}
+.dash button:hover{background:var(--blue-lt)}
+.dash button.ok{background:var(--green-lt);border-color:#22c55e;color:var(--green)}
+.dash button.no{background:var(--red-lt);border-color:#ef4444;color:var(--red)}
+.dash button.cur{outline:3px solid var(--blue)}
+.dash-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px}
+#dashScore{font-weight:800;font-size:17px}
+
+/* ---------- menu overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.menu-panel{background:#fff;border-radius:22px;max-width:920px;width:100%;max-height:82vh;overflow:auto;padding:20px 24px;box-shadow:var(--shadow)}
+.menu-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.menu-head h3{font-size:22px;margin:0}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.menu-grid button{font-family:inherit;text-align:left;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:#f8fafc;cursor:pointer;font-weight:700;display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink);line-height:1.3}
+.menu-grid button:hover{background:var(--blue-lt)}
+.menu-grid button.cur{background:var(--blue-lt);border-color:var(--blue)}
+.menu-grid .mn{background:var(--blue);color:#fff;border-radius:8px;min-width:28px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;font-weight:800}
+
+/* ---------- footer nav ---------- */
+footer.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px;z-index:70;display:flex;justify-content:center;align-items:center;gap:14px}
+.nav-btn{font-family:inherit;font-size:18px;font-weight:800;padding:12px 24px;border-radius:99px;border:2px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
+.nav-btn:hover:not(:disabled){background:var(--blue-lt)}
+.nav-btn:disabled{opacity:.4;cursor:default}
+.counter{font-weight:800;color:var(--ink-soft);min-width:90px;text-align:center;font-size:15px}
+
+/* ---------- reflection ---------- */
+.conf-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.conf-btn{font-family:inherit;font-size:19px;font-weight:800;padding:14px 20px;border-radius:16px;border:3px solid var(--line);background:#fff;cursor:pointer}
+.conf-btn.sel{border-color:var(--blue);background:var(--blue-lt)}
+#confMsg{margin-top:12px}
+
+@media(max-width:680px){
+  h2.slide-title{font-size:26px}
+  .cover-title{font-size:42px}
+  .slide{padding:20px 16px}
+  .app{padding:10px 10px 130px}
+  .cmp-card{font-size:32px;min-width:84px}
+  .tick-num{font-size:11px}
+  .nl-readout{min-width:180px;font-size:17px}
+  header.top{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="top">
+  <div class="brand"><span class="logo">🔢</span><span data-en="Integers • Grade 5" data-id="Bilangan Bulat • Kelas 5 SD">Integers • Grade 5</span></div>
+  <div class="top-right">
+    <button id="menuBtn" class="icon-btn">☰ <span data-en="Slides" data-id="Slide">Slides</span></button>
+    <div class="lang-pill" id="langPill">
+      <button data-lang="en" class="on">🇬🇧 EN</button>
+      <button data-lang="id">🇮🇩 ID</button>
+    </div>
+    <button id="fsBtn" class="icon-btn" title="Fullscreen">⛶</button>
+  </div>
+</header>
+
+<div class="progress"><div id="progFill"></div></div>
+
+<div id="menuOv" class="overlay hidden">
+  <div class="menu-panel">
+    <div class="menu-head"><h3 data-en="All slides — jump anywhere!" data-id="Semua slide — lompat ke mana saja!">All slides — jump anywhere!</h3><button id="menuClose" class="icon-btn">✕</button></div>
+    <div id="menuGrid" class="menu-grid"></div>
+  </div>
+</div>
+
+<main class="deck" id="deck">
+
+<!-- ============ SLIDE 1 : COVER ============ -->
+<section class="slide cover" data-title-en="Cover" data-title-id="Sampul">
+  <div class="floaties"><span>❄️</span><span>🔥</span><span>🐸</span><span>🏔️</span><span>💰</span></div>
+  <div class="kicker" data-en="Cambridge Primary Mathematics • Grade 5" data-id="Matematika Cambridge Primary • Kelas 5 SD">Cambridge Primary Mathematics • Grade 5</div>
+  <h1 class="cover-title" data-en="INTEGERS!" data-id="BILANGAN BULAT!">INTEGERS!</h1>
+  <p class="cover-sub" data-en="Positive numbers, negative numbers &amp; zero — an interactive adventure on the number line!" data-id="Bilangan positif, bilangan negatif &amp; nol — petualangan interaktif di garis bilangan!">Positive numbers, negative numbers &amp; zero — an interactive adventure on the number line!</p>
+  <div class="cover-chips">
+    <span class="chip" data-en="🎬 43 slides" data-id="🎬 43 slide">🎬 43 slides</span>
+    <span class="chip" data-en="✏️ 30 story problems + pembahasan" data-id="✏️ 30 soal cerita + pembahasan">✏️ 30 story problems + pembahasan</span>
+    <span class="chip" data-en="🎮 5 interactive games" data-id="🎮 5 permainan interaktif">🎮 5 interactive games</span>
+    <span class="chip" data-en="🌐 EN ⇄ ID translation" data-id="🌐 Terjemahan EN ⇄ ID">🌐 EN ⇄ ID translation</span>
+  </div>
+  <button class="start-btn" id="startBtn" data-en="Start the lesson ▶" data-id="Mulai pelajaran ▶">Start the lesson ▶</button>
+  <p class="tiny-note" data-en="Tip: press the 🇬🇧 EN / 🇮🇩 ID buttons (top right) at any time to translate every slide, question and explanation." data-id="Tips: tekan tombol 🇬🇧 EN / 🇮🇩 ID (kanan atas) kapan saja untuk menerjemahkan semua slide, soal, dan pembahasan.">Tip: press the 🇬🇧 EN / 🇮🇩 ID buttons (top right) at any time to translate every slide, question and explanation.</p>
+</section>
+
+<!-- ============ SLIDE 2 : APPERCEPTION ============ -->
+<section class="slide" data-title-en="Warm-Up (Apperception)" data-title-id="Apersepsi">
+  <div class="kicker" data-en="Before we start" data-id="Sebelum mulai">Before we start</div>
+  <h2 class="slide-title" data-en="Warm-Up! Let's Think 🤔" data-id="Apersepsi: Ayo Berpikir! 🤔">Warm-Up! Let's Think 🤔</h2>
+  <p class="lead" data-en="Numbers do not just sit inside a maths book — they move <b>UP</b> and <b>DOWN</b> all around you, every single day!" data-id="Bilangan tidak hanya ada di dalam buku matematika — setiap hari bilangan bergerak <b>NAIK</b> dan <b>TURUN</b> di sekitarmu!">Numbers do not just sit inside a maths book — they move <b>UP</b> and <b>DOWN</b> all around you, every single day!</p>
+  <div class="grid2">
+    <div class="card up">
+      <span class="emo">⬆️</span>
+      <h3 data-en="Things that go UP" data-id="Hal-hal yang NAIK">Things that go UP</h3>
+      <p data-en="Climbing stairs 🪜, earning and saving money 💰, the temperature rising on a sunny day ☀️, a plane taking off ✈️." data-id="Naik tangga 🪜, mendapat dan menyimpan uang 💰, suhu naik di hari yang panas ☀️, pesawat lepas landas ✈️.">Climbing stairs 🪜, earning and saving money 💰, the temperature rising on a sunny day ☀️, a plane taking off ✈️.</p>
+    </div>
+    <div class="card down">
+      <span class="emo">⬇️</span>
+      <h3 data-en="Things that go DOWN" data-id="Hal-hal yang TURUN">Things that go DOWN</h3>
+      <p data-en="Going down stairs 🪜, spending money 💸, the temperature falling on a snowy night ❄️, a diver sinking into the sea 🤿." data-id="Turun tangga 🪜, membelanjakan uang 💸, suhu turun di malam bersalju ❄️, penyelam menyelam ke laut 🤿.">Going down stairs 🪜, spending money 💸, the temperature falling on a snowy night ❄️, a diver sinking into the sea 🤿.</p>
+    </div>
+  </div>
+  <div class="card tip" style="margin-top:16px">
+    <h3 data-en="🤔 Quick think — can you guess?" data-id="🤔 Berpikir cepat — bisakah kamu menebak?">🤔 Quick think — can you guess?</h3>
+    <p data-en="Rina climbs <b>UP</b> 3 steps. We can call that <b>+3</b>. Now she goes <b>DOWN</b> 2 steps. What number could show <i>down 2</i>?" data-id="Rina <b>NAIK</b> 3 anak tangga. Kita bisa tulis <b>+3</b>. Sekarang dia <b>TURUN</b> 2 anak tangga. Bilangan apa yang bisa menunjukkan <i>turun 2</i>?">Rina climbs <b>UP</b> 3 steps. We can call that <b>+3</b>. Now she goes <b>DOWN</b> 2 steps. What number could show <i>down 2</i>?</p>
+    <button id="warmBtn" class="mini-btn" data-en="Reveal the idea 💡" data-id="Tampilkan idenya 💡">Reveal the idea 💡</button>
+    <div id="warmAns" class="reveal-box hidden" data-en="It is <b>−2</b>! Going down is the opposite of going up, so it needs a <b>minus sign</b>. Numbers below zero are exactly what today's lesson is about — welcome to the world of integers! 🎉" data-id="Jawabannya <b>−2</b>! Turun adalah kebalikan dari naik, jadi perlu <b>tanda negatif</b>. Bilangan di bawah nol adalah inti pelajaran hari ini — selamat datang di dunia bilangan bulat! 🎉">It is <b>−2</b>! Going down is the opposite of going up, so it needs a <b>minus sign</b>. Numbers below zero are exactly what today's lesson is about — welcome to the world of integers! 🎉</div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3 : LEARNING OBJECTIVES ============ -->
+<section class="slide" data-title-en="Learning Objectives" data-title-id="Tujuan Pembelajaran">
+  <div class="kicker" data-en="Our goals today" data-id="Tujuan hari ini">Our goals today</div>
+  <h2 class="slide-title" data-en="Learning Objectives 🎯" data-id="Tujuan Pembelajaran 🎯">Learning Objectives 🎯</h2>
+  <p class="lead" data-en="By the end of today's adventure, you will be able to:" data-id="Setelah menyelesaikan petualangan hari ini, kamu akan mampu:">By the end of today's adventure, you will be able to:</p>
+  <ol class="custom">
+    <li data-en="<b>Understand</b> what integers are — positive numbers, negative numbers, and zero — and tell them apart from fractions and decimals." data-id="<b>Memahami</b> apa itu bilangan bulat — bilangan positif, negatif, dan nol — serta membedakannya dari pecahan dan desimal."><b>Understand</b> what integers are — positive numbers, negative numbers, and zero — and tell them apart from fractions and decimals.</li>
+    <li data-en="<b>Recognise</b> integers hiding in everyday life: temperatures, money, elevators, sea level, games and sports." data-id="<b>Mengenali</b> bilangan bulat dalam kehidupan sehari-hari: suhu, uang, lift, permukaan laut, permainan, dan olahraga."><b>Recognise</b> integers hiding in everyday life: temperatures, money, elevators, sea level, games and sports.</li>
+    <li data-en="<b>Use</b> an interactive number line to find, place and hop between integers." data-id="<b>Menggunakan</b> garis bilangan interaktif untuk menemukan, menempatkan, dan melompat antar bilangan bulat."><b>Use</b> an interactive number line to find, place and hop between integers.</li>
+    <li data-en="<b>Compare</b> integers using the signs &lt;, &gt; and = correctly — even when both numbers are negative!" data-id="<b>Membandingkan</b> bilangan bulat dengan tanda &lt;, &gt;, dan = dengan benar — bahkan saat keduanya negatif!"><b>Compare</b> integers using the signs &lt;, &gt; and = correctly — even when both numbers are negative!</li>
+    <li data-en="<b>Order</b> integers from smallest to largest (ascending) and from largest to smallest (descending)." data-id="<b>Mengurutkan</b> bilangan bulat dari terkecil ke terbesar (naik) dan dari terbesar ke terkecil (turun)."><b>Order</b> integers from smallest to largest (ascending) and from largest to smallest (descending).</li>
+    <li data-en="<b>Solve</b> 30 real-life story problems — and check every answer with its own explanation (pembahasan)." data-id="<b>Menyelesaikan</b> 30 soal cerita kehidupan nyata — dan memeriksa setiap jawaban dengan pembahasannya."><b>Solve</b> 30 real-life story problems — and check every answer with its own explanation (pembahasan).</li>
+  </ol>
+</section>
+
+<!-- ============ SLIDE 4 : DEFINITION ============ -->
+<section class="slide" data-title-en="What Are Integers?" data-title-id="Apa Itu Bilangan Bulat?">
+  <div class="kicker" data-en="Material 1 • Definition" data-id="Materi 1 • Definisi">Material 1 • Definition</div>
+  <h2 class="slide-title" data-en="What Are Integers? 📖" data-id="Apa Itu Bilangan Bulat? 📖">What Are Integers? 📖</h2>
+  <div class="card" style="background:var(--blue-lt);border-color:#93c5fd">
+    <h3 data-en="⭐ Definition" data-id="⭐ Definisi">⭐ Definition</h3>
+    <p style="font-size:19px" data-en="<b>Integers are whole numbers</b> that can be <b>positive</b>, <b>negative</b>, or <b>zero</b>. Integers have <b>no fractions</b> and <b>no decimals</b>." data-id="<b>Bilangan bulat adalah bilangan utuh</b> yang dapat berupa <b>positif</b>, <b>negatif</b>, atau <b>nol</b>. Bilangan bulat <b>tidak berbentuk pecahan</b> dan <b>tidak berbentuk desimal</b>."><b>Integers are whole numbers</b> that can be <b>positive</b>, <b>negative</b>, or <b>zero</b>. Integers have <b>no fractions</b> and <b>no decimals</b>.</p>
+  </div>
+  <div class="didyou" style="margin-top:14px">
+    <p style="margin:0" data-en="🔤 Mathematicians write the whole integer family with the symbol <b>ℤ</b>. The word <i>integer</i> comes from Latin and means <i>whole</i> or <i>untouched</i> — a number that is complete, with nothing broken off like a fraction!" data-id="🔤 Para ahli matematika menuliskan keluarga bilangan bulat dengan simbol <b>ℤ</b>. Kata <i>integer</i> berasal dari bahasa Latin yang berarti <i>utuh</i> — bilangan yang lengkap, tidak terpotong seperti pecahan!">🔤 Mathematicians write the whole integer family with the symbol <b>ℤ</b>. The word <i>integer</i> comes from Latin and means <i>whole</i> or <i>untouched</i> — a number that is complete, with nothing broken off like a fraction!</p>
+  </div>
+  <h3 style="margin-top:18px" data-en="✅ These ARE integers" data-id="✅ Ini ADALAH bilangan bulat">✅ These ARE integers</h3>
+  <div class="numstrip">
+    <span class="numchip">…</span>
+    <span class="numchip neg">−4</span><span class="numchip neg">−3</span><span class="numchip neg">−2</span><span class="numchip neg">−1</span>
+    <span class="numchip zero">0</span>
+    <span class="numchip pos">1</span><span class="numchip pos">2</span><span class="numchip pos">3</span><span class="numchip pos">4</span>
+    <span class="numchip">…</span>
+  </div>
+  <h3 style="margin-top:16px" data-en="❌ These are NOT integers" data-id="❌ Ini BUKAN bilangan bulat">❌ These are NOT integers</h3>
+  <div class="numstrip">
+    <span class="numchip bad">½</span>
+    <span class="numchip bad">0.5</span>
+    <span class="numchip bad">2¾</span>
+    <span class="numchip bad">−1.2</span>
+    <span class="numchip bad">3.14</span>
+    <span class="numchip bad">0.001</span>
+  </div>
+  <p class="tiny-note" data-en="Fractions and decimals are useful numbers too — they just do not belong to the integer family. 🧩" data-id="Pecahan dan desimal juga bilangan yang berguna — hanya saja mereka bukan anggota keluarga bilangan bulat. 🧩">Fractions and decimals are useful numbers too — they just do not belong to the integer family. 🧩</p>
+</section>
+
+<!-- ============ SLIDE 5 : MEMBERS ============ -->
+<section class="slide" data-title-en="The Integer Family" data-title-id="Anggota Bilangan Bulat">
+  <div class="kicker" data-en="Material 2 • Members of the integers" data-id="Materi 2 • Anggota bilangan bulat">Material 2 • Members of the integers</div>
+  <h2 class="slide-title" data-en="The Integer Family 👨‍👩‍👧‍👦" data-id="Anggota Bilangan Bulat 👨‍👩‍👧‍👦">The Integer Family 👨‍👩‍👧‍👦</h2>
+  <p class="lead" data-en="The integer family has exactly three groups. Meet them all!" data-id="Keluarga bilangan bulat memiliki tepat tiga kelompok. Kenali semuanya!">The integer family has exactly three groups. Meet them all!</p>
+  <div class="grid3">
+    <div class="card" style="background:var(--red-lt);border-color:#fca5a5">
+      <span class="emo">🌡️</span>
+      <h3 data-en="Negative integers" data-id="Bilangan bulat negatif">Negative integers</h3>
+      <p class="big-ex" style="font-weight:800;font-size:26px;color:var(--red)">…, −3, −2, −1</p>
+      <p data-en="Always smaller than zero. They wear a minus sign (−): cold temperatures, debts, basements, depths." data-id="Selalu lebih kecil dari nol. Selalu bertanda negatif (−): suhu dingin, utang, lantai basement, kedalaman.">Always smaller than zero. They wear a minus sign (−): cold temperatures, debts, basements, depths.</p>
+    </div>
+    <div class="card" style="background:var(--amber-lt);border-color:#fde68a">
+      <span class="emo">⚖️</span>
+      <h3 data-en="Zero" data-id="Nol">Zero</h3>
+      <p class="big-ex" style="font-weight:800;font-size:26px;color:var(--amber)">0</p>
+      <p data-en="The middle hero! Zero is an integer, but it is neither negative nor positive." data-id="Sangat di tengah! Nol adalah bilangan bulat, tetapi bukan negatif dan bukan positif.">The middle hero! Zero is an integer, but it is neither negative nor positive.</p>
+    </div>
+    <div class="card" style="background:var(--green-lt);border-color:#86efac">
+      <span class="emo">🚀</span>
+      <h3 data-en="Positive integers" data-id="Bilangan bulat positif">Positive integers</h3>
+      <p class="big-ex" style="font-weight:800;font-size:26px;color:var(--green)">1, 2, 3, 4, …</p>
+      <p data-en="Always greater than zero. The + sign is optional: +7 and 7 mean the same thing." data-id="Selalu lebih besar dari nol. Tanda + boleh ditulis atau tidak: +7 sama dengan 7.">Always greater than zero. The + sign is optional: +7 and 7 mean the same thing.</p>
+    </div>
+  </div>
+  <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+    <span class="chip" style="background:var(--red-lt);border-color:#fca5a5;color:var(--red)" data-en="❌ No fractions like ½" data-id="❌ Bukan pecahan seperti ½">❌ No fractions like ½</span>
+    <span class="chip" style="background:var(--red-lt);border-color:#fca5a5;color:var(--red)" data-en="❌ No decimals like 2.4" data-id="❌ Bukan desimal seperti 2.4">❌ No decimals like 2.4</span>
+    <span class="chip" style="background:var(--green-lt);border-color:#86efac;color:var(--green)" data-en="✅ Whole steps only!" data-id="✅ Hanya bilangan utuh!">✅ Whole steps only!</span>
+  </div>
+  <div class="card" style="margin-top:18px;background:#fff">
+    <h3 data-en="🎮 Sorting game: tap a number, then tap the right basket!" data-id="🎮 Permainan memilah: ketuk sebuah bilangan, lalu ketuk keranjang yang benar!">🎮 Sorting game: tap a number, then tap the right basket!</h3>
+    <p class="cl-prompt" id="clPrompt" style="color:var(--ink-soft);font-weight:700" data-en="Tap a number chip first — then choose a basket." data-id="Ketuk bilangan terlebih dahulu — lalu pilih keranjang.">Tap a number chip first — then choose a basket.</p>
+    <div id="clChips" class="cl-chips"></div>
+    <div class="cl-bins">
+      <button id="binInt" class="bin">✅ <span data-en="Integer basket" data-id="Keranjang bilangan bulat">Integer basket</span></button>
+      <button id="binNot" class="bin">🚫 <span data-en="Not an integer basket" data-id="Keranjang bukan bilangan bulat">Not an integer basket</span></button>
+    </div>
+    <div class="cl-foot">
+      <span id="clScore" class="cl-msg"></span>
+      <button id="clReset" class="mini-btn ghost" data-en="Reset 🔄" data-id="Ulangi 🔄">Reset 🔄</button>
+    </div>
+  </div>
+</section>
+<!-- ============ SLIDE 6 : INTERACTIVE NUMBER LINE ============ -->
+<section class="slide" data-title-en="Interactive Number Line" data-title-id="Garis Bilangan Interaktif">
+  <div class="kicker" data-en="Material 3 • The number line" data-id="Materi 3 • Garis bilangan">Material 3 • The number line</div>
+  <h2 class="slide-title" data-en="The Interactive Number Line 🐸" data-id="Garis Bilangan Interaktif 🐸">The Interactive Number Line 🐸</h2>
+  <p class="lead" data-en="The number line is the map of the integer world. Our frog friend will help you explore it!" data-id="Garis bilangan adalah peta dunia bilangan bulat. Sahabat kodok kita akan membantumu menjelajahinya!">The number line is the map of the integer world. Our frog friend will help you explore it!</p>
+  <div class="grid3">
+    <div class="card">
+      <span class="emo">➡️</span>
+      <h3 data-en="Right = bigger" data-id="Kanan = lebih besar">Right = bigger</h3>
+      <p data-en="Numbers get <b>bigger</b> as you move to the right: −2 &lt; 0 &lt; 3." data-id="Bilangan menjadi semakin <b>besar</b> saat bergerak ke kanan: −2 &lt; 0 &lt; 3.">Numbers get <b>bigger</b> as you move to the right: −2 &lt; 0 &lt; 3.</p>
+    </div>
+    <div class="card">
+      <span class="emo">⬅️</span>
+      <h3 data-en="Left = smaller" data-id="Kiri = lebih kecil">Left = smaller</h3>
+      <p data-en="Numbers get <b>smaller</b> as you move to the left: 4 &gt; 1 &gt; −7." data-id="Bilangan menjadi semakin <b>kecil</b> saat bergerak ke kiri: 4 &gt; 1 &gt; −7.">Numbers get <b>smaller</b> as you move to the left: 4 &gt; 1 &gt; −7.</p>
+    </div>
+    <div class="card">
+      <span class="emo">🪞</span>
+      <h3 data-en="Mirror twins" data-id="Kembar cermin">Mirror twins</h3>
+      <p data-en="3 and −3 are the same distance from 0, on opposite sides. Zero sits exactly in the middle." data-id="3 dan −3 berjarak sama dari 0, di sisi yang berlawanan. Nol berada tepat di tengah.">3 and −3 are the same distance from 0, on opposite sides. Zero sits exactly in the middle.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;background:#fff">
+    <h3 data-en="🎮 Frog hopping game" data-id="🎮 Permainan lompat kodok">🎮 Frog hopping game</h3>
+    <p class="tiny-note" data-en="Tap any number to jump there, or hop step by step with the arrows." data-id="Ketuk bilangan apa pun untuk melompat ke sana, atau melompat selangkah demi selangkah dengan tombol panah.">Tap any number to jump there, or hop step by step with the arrows.</p>
+    <div class="nl-belt">
+      <div class="nl-track" id="nlTrack"><div class="nl-frog" id="nlFrog">🐸</div></div>
+    </div>
+    <div class="nl-ctrl">
+      <button id="nlLeft" class="nl-btn" data-en="⬅ Left" data-id="⬅ Kiri">⬅</button>
+      <div class="nl-readout" id="nlReadout"></div>
+      <button id="nlRight" class="nl-btn" data-en="Right ➡" data-id="Kanan ➡">➡</button>
+    </div>
+    <div class="nl-mission">
+      <span id="nlMission"></span>
+      <button id="nlCheck" class="mini-btn" data-en="Check mission ✅" data-id="Periksa misi ✅">Check mission ✅</button>
+      <button id="nlNew" class="mini-btn ghost" data-en="New mission 🎲" data-id="Misi baru 🎲">New mission 🎲</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 7 : DAILY LIFE ============ -->
+<section class="slide" data-title-en="Integers in Daily Life" data-title-id="Bilangan Bulat Sehari-hari">
+  <div class="kicker" data-en="Material 4 • Around us" data-id="Materi 4 • Di sekitar kita">Material 4 • Around us</div>
+  <h2 class="slide-title" data-en="Integers in Daily Life 🌍" data-id="Bilangan Bulat dalam Kehidupan Sehari-hari 🌍">Integers in Daily Life 🌍</h2>
+  <p class="lead" data-en="Integer hunters, look around! Here are the favourite hiding places of positive and negative numbers." data-id="Pemburu bilangan bulat, lihatlah sekitar! Berikut tempat persembunyian favorit bilangan positif dan negatif.">Integer hunters, look around! Here are the favourite hiding places of positive and negative numbers.</p>
+  <div class="grid3">
+    <div class="card">
+      <span class="emo">🌡️</span>
+      <h3 data-en="Temperature" data-id="Suhu">Temperature</h3>
+      <p data-en="−5°C means 5 degrees <b>below zero</b> — freezing! +30°C is a warm afternoon." data-id="−5°C berarti 5 derajat <b>di bawah nol</b> — beku! +30°C adalah sore yang hangat.">−5°C means 5 degrees <b>below zero</b> — freezing! +30°C is a warm afternoon.</p>
+    </div>
+    <div class="card">
+      <span class="emo">🏢</span>
+      <h3 data-en="Elevators" data-id="Lift">Elevators</h3>
+      <p data-en="Basement 2 (B2) is written as floor <b>−2</b>. The ground floor is 0, and floor 5 is up high." data-id="Basement 2 (B2) ditulis sebagai lantai <b>−2</b>. Lantai dasar adalah 0, dan lantai 5 jauh di atas.">Basement 2 (B2) is written as floor <b>−2</b>. The ground floor is 0, and floor 5 is up high.</p>
+    </div>
+    <div class="card">
+      <span class="emo">💰</span>
+      <h3 data-en="Money" data-id="Uang">Money</h3>
+      <p data-en="Saving Rp5,000 is <b>+5,000</b>, but owing Rp5,000 to a friend is <b>−5,000</b> — less than zero!" data-id="Menabung Rp5.000 berarti <b>+5.000</b>, tetapi berutang Rp5.000 kepada teman berarti <b>−5.000</b> — kurang dari nol!">Saving Rp5,000 is <b>+5,000</b>, but owing Rp5,000 to a friend is <b>−5,000</b> — less than zero!</p>
+    </div>
+    <div class="card">
+      <span class="emo">🌊</span>
+      <h3 data-en="Sea level" data-id="Permukaan laut">Sea level</h3>
+      <p data-en="Sea level is 0. A fish swims at <b>−120 m</b> while a plane flies at <b>+9,000 m</b>." data-id="Permukaan laut adalah 0. Seekor ikan berenang di <b>−120 m</b>, sedangkan pesawat terbang di <b>+9.000 m</b>.">Sea level is 0. A fish swims at <b>−120 m</b> while a plane flies at <b>+9,000 m</b>.</p>
+    </div>
+    <div class="card">
+      <span class="emo">🎮</span>
+      <h3 data-en="Games &amp; sports" data-id="Permainan &amp; olahraga">Games &amp; sports</h3>
+      <p data-en="Win 250 points → <b>+250</b>. Lose 3 lives → <b>−3</b>. In golf, finishing 2 under par is a brilliant <b>−2</b>!" data-id="Menang 250 poin → <b>+250</b>. Kehilangan 3 nyawa → <b>−3</b>. Dalam golf, finis 2 di bawah par adalah <b>−2</b> yang luar biasa!">Win 250 points → <b>+250</b>. Lose 3 lives → <b>−3</b>. In golf, finishing 2 under par is a brilliant <b>−2</b>!</p>
+    </div>
+    <div class="card">
+      <span class="emo">🕐</span>
+      <h3 data-en="Time zones" data-id="Zona waktu">Time zones</h3>
+      <p data-en="Jakarta is UTC<b>+7</b> (7 hours ahead). New York is UTC<b>−5</b> (5 hours behind)." data-id="Jakarta berada di UTC<b>+7</b> (7 jam lebih cepat). New York berada di UTC<b>−5</b> (5 jam lebih lambat).">Jakarta is UTC<b>+7</b> (7 hours ahead). New York is UTC<b>−5</b> (5 hours behind).</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;background:#fff">
+    <h3 data-en="🌡️ Thermometer lab — slide the button!" data-id="🌡️ Laboratorium termometer — geser tombolnya!">🌡️ Thermometer lab — slide the button!</h3>
+    <div class="th-row">
+      <div class="th-tube"><div class="th-fill" id="thFill"></div><div class="th-zero"><span>0°</span></div></div>
+      <div class="th-side">
+        <div class="th-read" id="thRead"></div>
+        <input type="range" id="thSlider" min="-20" max="40" step="1" value="12">
+        <p class="tiny-note" data-en="Slide me up and down! What happens below 0? 🥶 Which colours show positive temperatures?" data-id="Geser aku naik dan turun! Apa yang terjadi di bawah 0? 🥶 Warna apa yang menunjukkan suhu positif?">Slide me up and down! What happens below 0? 🥶 Which colours show positive temperatures?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 8 : COMPARING ============ -->
+<section class="slide" data-title-en="Comparing Integers" data-title-id="Membandingkan Bilangan Bulat">
+  <div class="kicker" data-en="Material 5 • Comparing" data-id="Materi 5 • Membandingkan">Material 5 • Comparing</div>
+  <h2 class="slide-title" data-en="Comparing Integers ⚖️" data-id="Membandingkan Bilangan Bulat ⚖️">Comparing Integers ⚖️</h2>
+  <div class="grid2">
+    <div class="card" style="background:var(--blue-lt);border-color:#93c5fd">
+      <h3 data-en="⭐ The golden rule" data-id="⭐ Aturan emas">⭐ The golden rule</h3>
+      <p data-en="The number further to the <b>right</b> on the number line is always the <b>bigger</b> number." data-id="Bilangan yang berada lebih ke <b>kanan</b> pada garis bilangan selalu lebih <b>besar</b>.">The number further to the <b>right</b> on the number line is always the <b>bigger</b> number.</p>
+    </div>
+    <div class="card">
+      <h3 data-en="📏 Order of power" data-id="📏 Urutan kekuatan">📏 Order of power</h3>
+      <p data-en="Positives beat zero, and zero beats negatives: &nbsp;<b>5 &gt; 0 &gt; −5</b>. Every negative is smaller than every positive." data-id="Positif mengalahkan nol, dan nol mengalahkan negatif: &nbsp;<b>5 &gt; 0 &gt; −5</b>. Setiap bilangan negatif lebih kecil daripada setiap bilangan positif.">Positives beat zero, and zero beats negatives: &nbsp;<b>5 &gt; 0 &gt; −5</b>. Every negative is smaller than every positive.</p>
+    </div>
+    <div class="card" style="background:var(--red-lt);border-color:#fca5a5">
+      <h3 data-en="⚠️ Careful with negatives!" data-id="⚠️ Hati-hati dengan bilangan negatif!">⚠️ Careful with negatives!</h3>
+      <p data-en="<b>−8 is smaller than −2</b>, because −8 sits further left. Think of debts: owing 8 feels worse than owing 2!" data-id="<b>−8 lebih kecil daripada −2</b>, karena −8 berada lebih ke kiri. Bayangkan utang: berutang 8 terasa lebih berat daripada berutang 2!"><b>−8 is smaller than −2</b>, because −8 sits further left. Think of debts: owing 8 feels worse than owing 2!</p>
+    </div>
+    <div class="card">
+      <h3 data-en="🐊 The hungry crocodile" data-id="🐊 Buaya yang lapar">🐊 The hungry crocodile</h3>
+      <p data-en="The open mouth of &lt; and &gt; always <b>eats the bigger number</b>: 3 &gt; −4, and −1 &lt; 6. Equal numbers use <b>=</b>." data-id="Mulut terbuka pada tanda &lt; dan &gt; selalu <b>melahap bilangan yang lebih besar</b>: 3 &gt; −4, dan −1 &lt; 6. Bilangan yang sama menggunakan tanda <b>=</b>.">The open mouth of &lt; and &gt; always <b>eats the bigger number</b>: 3 &gt; −4, and −1 &lt; 6. Equal numbers use <b>=</b>.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;background:#fff">
+    <h3 data-en="🎮 Compare Machine — pick the correct sign!" data-id="🎮 Mesin Pembanding — pilih tanda yang benar!">🎮 Compare Machine — pick the correct sign!</h3>
+    <div class="cmp-row">
+      <div class="cmp-card" id="cmpA">−3</div>
+      <div class="cmp-slot" id="cmpSlot">?</div>
+      <div class="cmp-card" id="cmpB">5</div>
+    </div>
+    <div class="cmp-btns">
+      <button data-s="&lt;">&lt;</button>
+      <button data-s="&gt;">&gt;</button>
+      <button data-s="=">=</button>
+    </div>
+    <div class="cmp-foot">
+      <span id="cmpMsg" class="cmp-msg"></span>
+      <span id="cmpStreak"></span>
+      <button id="cmpNew" class="mini-btn ghost" data-en="New pair 🎲" data-id="Pasangan baru 🎲">New pair 🎲</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 9 : ORDERING ============ -->
+<section class="slide" data-title-en="Ordering Integers" data-title-id="Mengurutkan Bilangan Bulat">
+  <div class="kicker" data-en="Material 6 • Ordering" data-id="Materi 6 • Mengurutkan">Material 6 • Ordering</div>
+  <h2 class="slide-title" data-en="Ordering Integers 📊" data-id="Mengurutkan Bilangan Bulat 📊">Ordering Integers 📊</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 data-en="🪜 3 easy steps" data-id="🪜 3 langkah mudah">🪜 3 easy steps</h3>
+      <p><b data-en="1. Picture the number line." data-id="1. Bayangkan garis bilangan.">1. Picture the number line.</b><br>
+      <b data-en="2. Place every number on it." data-id="2. Tempatkan setiap bilangan di atasnya.">2. Place every number on it.</b><br>
+      <b data-en="3. Read the numbers in order." data-id="3. Bacalah bilangan secara berurutan.">3. Read the numbers in order.</b>
+      <span data-en="Left → right gives ascending; right → left gives descending." data-id="Kiri → kanan menghasilkan urutan naik; kanan → kiri menghasilkan urutan turun.">Left → right gives ascending; right → left gives descending.</span></p>
+    </div>
+    <div class="card">
+      <h3 data-en="📚 Two important words" data-id="📚 Dua kata penting">📚 Two important words</h3>
+      <p><b data-en="Ascending ↑" data-id="Naik ↑">Ascending ↑</b> <span data-en="(smallest → largest), like climbing stairs." data-id="(terkecil → terbesar), seperti menaiki tangga.">(smallest → largest), like climbing stairs.</span><br>
+      <b data-en="Descending ↓" data-id="Turun ↓">Descending ↓</b> <span data-en="(largest → smallest), like sliding down." data-id="(terbesar → terkecil), seperti menuruni seluncuran.">(largest → smallest), like sliding down.</span></p>
+    </div>
+  </div>
+  <div class="card tip" style="margin-top:14px">
+    <h3 data-en="✏️ Worked example — order ascending: −3, +4, 0, −1, +2" data-id="✏️ Contoh pengerjaan — urut naik: −3, +4, 0, −1, +2">✏️ Worked example — order ascending: −3, +4, 0, −1, +2</h3>
+    <p data-en="Place them on the line: −3 and −1 on the left of 0; then 0; then +2 and +4. Reading left to right gives:" data-id="Tempatkan di garis: −3 dan −1 di kiri 0; lalu 0; kemudian +2 dan +4. Membaca dari kiri ke kanan menghasilkan:">Place them on the line: −3 and −1 on the left of 0; then 0; then +2 and +4. Reading left to right gives:</p>
+    <div class="numstrip">
+      <span class="numchip neg">−3</span><span class="numchip neg">−1</span><span class="numchip zero">0</span><span class="numchip pos">+2</span><span class="numchip pos">+4</span>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;background:#fff">
+    <h3 data-en="🎮 Sorting game: click the numbers from SMALLEST to BIGGEST!" data-id="🎮 Permainan mengurutkan: klik bilangan dari TERKECIL ke TERBESAR!">🎮 Sorting game: click the numbers from SMALLEST to BIGGEST!</h3>
+    <div id="ordTiles" class="ord-tiles"></div>
+    <div id="ordLine" class="ord-line"></div>
+    <div class="ord-foot">
+      <span id="ordMsg" class="ord-msg"></span>
+      <button id="ordNew" class="mini-btn ghost" data-en="New set 🎲" data-id="Set baru 🎲">New set 🎲</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 10 : PRACTICE DASHBOARD ============ -->
+<section class="slide" data-title-en="Practice: 30 Challenges" data-title-id="Latihan: 30 Soal">
+  <div class="kicker" data-en="Practice time" data-id="Waktu latihan">Practice time</div>
+  <h2 class="slide-title" data-en="Your Turn: 30 Story Challenges! 💪" data-id="Giliranmu: 30 Tantangan Cerita! 💪">Your Turn: 30 Story Challenges! 💪</h2>
+  <p class="lead" data-en="Read each short story, write your answer (or pick a sign), then press <b>Check Answer</b>. Every question comes with instant feedback and a full explanation (<b>pembahasan</b>)." data-id="Baca setiap cerita pendek, tulis jawabanmu (atau pilih tanda), lalu tekan <b>Cek Jawaban</b>. Setiap soal dilengkapi umpan balik langsung dan <b>pembahasan</b> lengkap.">Read each short story, write your answer (or pick a sign), then press <b>Check Answer</b>. Every question comes with instant feedback and a full explanation (<b>pembahasan</b>).</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0">
+    <span class="chip" data-en="✏️ Q1–Q10: write the integer from the story" data-id="✏️ Soal 1–10: menulis nilai bilangan bulat dari cerita">✏️ Q1–Q10: write the integer from the story</span>
+    <span class="chip" style="background:var(--purple-lt);border-color:#ddd6fe;color:var(--purple)" data-en="⚖️ Q11–Q20: compare two numbers with &lt;, &gt;, =" data-id="⚖️ Soal 11–20: membandingkan dua bilangan dengan &lt;, &gt;, =">⚖️ Q11–Q20: compare two numbers with &lt;, &gt;, =</span>
+    <span class="chip" style="background:var(--green-lt);border-color:#86efac;color:var(--green)" data-en="📊 Q21–Q30: order numbers smallest↔largest" data-id="📊 Soal 21–30: mengurutkan bilangan terkecil↔terbesar">📊 Q21–Q30: order numbers smallest↔largest</span>
+  </div>
+  <div class="dash-top">
+    <span id="dashScore"></span>
+    <button id="dashReset" class="mini-btn ghost" data-en="Reset all answers 🔄" data-id="Reset semua jawaban 🔄">Reset all answers 🔄</button>
+  </div>
+  <div id="dashGrid" class="dash"></div>
+  <p class="tiny-note" data-en="Green = correct on your last check, red = still not right. Tap any number to jump to that question. You can also open questions from the ☰ Slides menu." data-id="Hijau = benar pada pemeriksaan terakhirmu, merah = belum tepat. Ketuk nomornya untuk melompat ke soal tersebut. Kamu juga bisa membuka soal dari menu ☰ Slide.">Green = correct on your last check, red = still not right. Tap any number to jump to that question. You can also open questions from the ☰ Slides menu.</p>
+</section>
+
+<!--QUIZ_SLIDES-->
+
+<!-- ============ SLIDE 41 : CONCLUSION ============ -->
+<section class="slide" id="endSlide" data-title-en="Conclusion" data-title-id="Kesimpulan">
+  <div class="kicker" data-en="Wrap-up" data-id="Penutup">Wrap-up</div>
+  <h2 class="slide-title" data-en="Conclusion 🌟" data-id="Kesimpulan 🌟">Conclusion 🌟</h2>
+  <p class="lead" data-en="Today you became an <b>Integer Explorer</b>! Let's remember the big ideas of our adventure:" data-id="Hari ini kamu menjadi <b>Penjelajah Bilangan Bulat</b>! Mari kita ingat hal-hal penting dari petualangan kita:">Today you became an <b>Integer Explorer</b>! Let's remember the big ideas of our adventure:</p>
+  <ol class="custom">
+    <li data-en="<b>Integers are whole numbers</b>: negative, zero, and positive. Fractions and decimals are not part of the family." data-id="<b>Bilangan bulat adalah bilangan utuh</b>: negatif, nol, dan positif. Pecahan dan desimal bukan anggota keluarga ini."><b>Integers are whole numbers</b>: negative, zero, and positive. Fractions and decimals are not part of the family.</li>
+    <li data-en="On the <b>number line</b>, numbers grow bigger to the right and smaller to the left — zero sits in the middle." data-id="Pada <b>garis bilangan</b>, bilangan makin besar ke arah kanan dan makin kecil ke arah kiri — nol berada di tengah.">On the <b>number line</b>, numbers grow bigger to the right and smaller to the left — zero sits in the middle.</li>
+    <li data-en="Things <b>below</b> a level — below zero, below sea level, underground, or in debt — are written with a <b>minus sign (−)</b>." data-id="Hal-hal yang berada <b>di bawah</b> sebuah acuan — di bawah nol, di bawah permukaan laut, di bawah tanah, atau berutang — ditulis dengan <b>tanda negatif (−)</b>.">Things <b>below</b> a level — below zero, below sea level, underground, or in debt — are written with a <b>minus sign (−)</b>.</li>
+    <li data-en="To <b>compare</b>, use &lt;, &gt; or =. Remember: −8 &lt; −2 because −8 is further left on the line." data-id="Untuk <b>membandingkan</b>, gunakan tanda &lt;, &gt;, atau =. Ingat: −8 &lt; −2 karena −8 lebih ke kiri pada garis bilangan.">To <b>compare</b>, use &lt;, &gt; or =. Remember: −8 &lt; −2 because −8 is further left on the line.</li>
+    <li data-en="To <b>order</b>, place all numbers on the line, then read left→right for ascending or right→left for descending." data-id="Untuk <b>mengurutkan</b>, tempatkan semua bilangan pada garis, lalu baca kiri→kanan untuk urutan naik atau kanan→kiri untuk urutan turun.">To <b>order</b>, place all numbers on the line, then read left→right for ascending or right→left for descending.</li>
+    <li data-en="Integers are everywhere: temperatures, elevators, money, sea level, games and time zones. <b>Practice makes perfect</b> — you solved 30 story problems today!" data-id="Bilangan bulat ada di mana saja: suhu, lift, uang, permukaan laut, permainan, dan zona waktu. <b>Latihan membuat mahir</b> — hari ini kamu telah menyelesaikan 30 soal cerita!">Integers are everywhere: temperatures, elevators, money, sea level, games and time zones. <b>Practice makes perfect</b> — you solved 30 story problems today!</li>
+  </ol>
+</section>
+
+<!-- ============ SLIDE 42 : REFLECTION ============ -->
+<section class="slide" data-title-en="Reflection" data-title-id="Refleksi">
+  <div class="kicker" data-en="Look back" data-id="Melihat ke belakang">Look back</div>
+  <h2 class="slide-title" data-en="Reflection 🪞" data-id="Refleksi 🪞">Reflection 🪞</h2>
+  <p class="lead" data-en="Great explorers always look back at their journey. Use the <b>3 – 2 – 1</b> routine (you can answer aloud or in your notebook):" data-id="Penjelajah hebat selalu melihat kembali perjalanannya. Gunakan rutinitas <b>3 – 2 – 1</b> (jawab dengan bersuara atau di buku catatanmu):">Great explorers always look back at their journey. Use the <b>3 – 2 – 1</b> routine (you can answer aloud or in your notebook):</p>
+  <div class="grid3">
+    <div class="card">
+      <span class="emo">3️⃣</span>
+      <h3 data-en="Three things I learned today…" data-id="Tiga hal yang saya pelajari hari ini…">Three things I learned today…</h3>
+      <div class="write-line"></div><div class="write-line"></div><div class="write-line"></div>
+    </div>
+    <div class="card">
+      <span class="emo">2️⃣</span>
+      <h3 data-en="Two integers I can find at home or school…" data-id="Dua bilangan bulat yang saya temukan di rumah atau sekolah…">Two integers I can find at home or school…</h3>
+      <div class="write-line"></div><div class="write-line"></div>
+    </div>
+    <div class="card">
+      <span class="emo">1️⃣</span>
+      <h3 data-en="One question I still have…" data-id="Satu pertanyaan yang masih saya miliki…">One question I still have…</h3>
+      <div class="write-line"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;background:#fff">
+    <h3 data-en="😎 Confidence check: how do you feel about integers now?" data-id="😎 Cek rasa percaya diri: bagaimana perasaanmu tentang bilangan bulat sekarang?">😎 Confidence check: how do you feel about integers now?</h3>
+    <div class="conf-row">
+      <button class="conf-btn" data-conf="1" data-en="😅 Still learning" data-id="😅 Masih belajar">😅 Still learning</button>
+      <button class="conf-btn" data-conf="2" data-en="🙂 Getting there" data-id="🙂 Mulai paham">🙂 Getting there</button>
+      <button class="conf-btn" data-conf="3" data-en="🤩 Integer expert!" data-id="🤩 Ahli bilangan bulat!">🤩 Integer expert!</button>
+    </div>
+    <div id="confMsg" class="reveal-box hidden"></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 43 : THANK YOU ============ -->
+<section class="slide cover" data-title-en="Thank You" data-title-id="Terima Kasih">
+  <div class="floaties"><span>🎉</span><span>⭐</span><span>🥳</span><span>🌟</span><span>🎈</span></div>
+  <div class="kicker" data-en="Mission complete" data-id="Misi selesai">Mission complete</div>
+  <h1 class="cover-title" data-en="Thank You for Today! 🎉" data-id="Terima Kasih untuk Hari Ini! 🎉">Thank You for Today! 🎉</h1>
+  <p class="cover-sub" data-en="You explored positive and negative numbers, hopped along the number line, compared and ordered integers, and solved 30 story challenges. You are now an official <b>Integer Explorer</b>! Keep spotting integers everywhere — in elevators, freezers, and even your pocket money. See you on our next maths adventure! 👋" data-id="Kamu telah menjelajah bilangan positif dan negatif, melompat di garis bilangan, membandingkan dan mengurutkan bilangan bulat, serta menyelesaikan 30 tantangan cerita. Kamu kini resmi menjadi <b>Penjelajah Bilangan Bulat</b>! Teruslah mencari bilangan bulat di mana saja — di lift, freezer, bahkan di uang jajananmu. Sampai jumpa di petualangan matematika berikutnya! 👋">You explored positive and negative numbers, hopped along the number line, compared and ordered integers, and solved 30 story challenges. You are now an official <b>Integer Explorer</b>! Keep spotting integers everywhere — in elevators, freezers, and even your pocket money. See you on our next maths adventure! 👋</p>
+  <div class="cover-chips">
+    <span class="chip" data-en="⭐ Great job, explorer!" data-id="⭐ Kerja bagus, penjelajah!">⭐ Great job, explorer!</span>
+    <span class="chip" data-en="📚 Cambridge Primary Mathematics • Stage 5" data-id="📚 Matematika Cambridge Primary • Kelas 5 SD">📚 Cambridge Primary Mathematics • Stage 5</span>
+  </div>
+  <button class="start-btn" id="backStartBtn" data-en="🔁 Back to the start" data-id="🔁 Kembali ke awal">🔁 Back to the start</button>
+</section>
+
+</main>
+
+<footer class="nav">
+  <button id="prevBtn" class="nav-btn">⬅ <span data-en="Back" data-id="Mundur">Back</span></button>
+  <div class="counter" id="counter">1 / 43</div>
+  <button id="nextBtn" class="nav-btn"><span data-en="Next" data-id="Lanjut">Next</span> ➡</button>
+</footer>
+<script>
+"use strict";
+/* =====================================================
+   Integers — Interactive Lesson (Grade 5, Cambridge)
+   Single-file presentation: EN ⇄ ID, games, 30 quizzes
+   ===================================================== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+let lang = "en";
+try { const saved = localStorage.getItem("integers-lang"); if (saved === "id" || saved === "en") lang = saved; } catch (e) {}
+
+/* ---------- dynamic strings (widgets & quiz engine) ---------- */
+const T = {
+  frogAt:      { en: "The frog is at position <b>{v}</b>.",            id: "Kodok ada di posisi <b>{v}</b>." },
+  mission:     { en: "🎯 Mission: move the frog to <b>{v}</b>!",        id: "🎯 Misi: pindahkan kodok ke <b>{v}</b>!" },
+  mDone:       { en: "🎉 Amazing! Mission complete — the frog is at {v}!", id: "🎉 Luar biasa! Misi selesai — kodok berada di {v}!" },
+  mNot:        { en: "🤔 Not there yet! Count the hops from 0, then try again.", id: "🤔 Belum sampai! Hitung lompatannya dari 0, lalu coba lagi." },
+  clPick:      { en: "Tap a number chip first — then choose a basket.", id: "Ketuk bilangan terlebih dahulu — lalu pilih keranjang." },
+  clOkInt:     { en: "✅ Correct! {v} IS an integer.",                  id: "✅ Benar! {v} ADALAH bilangan bulat." },
+  clOkNot:     { en: "✅ Correct! {v} is NOT an integer.",              id: "✅ Benar! {v} BUKAN bilangan bulat." },
+  clNo:        { en: "❌ Oops! {v} is NOT an integer. Look again!",     id: "❌ Ups! {v} BUKAN bilangan bulat. Perhatikan lagi!" },
+  clDone:      { en: "🏆 All sorted! You really know the integer family!", id: "🏆 Semua terpilah! Kamu benar-benar mengenal keluarga bilangan bulat!" },
+  clScore:     { en: "Score: {a}/8",                                    id: "Skor: {a}/8" },
+  cmpOk:       { en: "🎉 Correct! {a} {s} {b}",                         id: "🎉 Benar! {a} {s} {b}" },
+  cmpNo:       { en: "❌ Not quite. Picture where {a} and {b} sit on the number line!", id: "❌ Belum tepat. Bayangkan posisi {a} dan {b} pada garis bilangan!" },
+  cmpStreak:   { en: "Streak: {n} 🔥",                                  id: "Beruntun: {n} 🔥" },
+  ordOk:       { en: "🎉 Perfectly sorted — smallest to biggest!",      id: "🎉 Urutan sempurna — dari terkecil ke terbesar!" },
+  ordNo:       { en: "👀 Hmm, is {v} really the next smallest? Try another number!", id: "👀 Hmm, apakah {v} benar-benar bilangan terkecil berikutnya? Coba bilangan lain!" },
+  ordStart:    { en: "Your line: ",                                     id: "Urutanmu: " },
+  thBelow:     { en: "🥶 {v}°C — below zero, so it is NEGATIVE!",       id: "🥶 {v}°C — di bawah nol, jadi NEGATIF!" },
+  thZero:      { en: "😐 Exactly 0°C — the freezing point of water!",   id: "😐 Tepat 0°C — titik beku air!" },
+  thAbove:     { en: "🔥 {v}°C — above zero, so it is POSITIVE.",       id: "🔥 {v}°C — di atas nol, jadi POSITIF." },
+  conf1:       { en: "It's okay! Scroll back to the material slides, replay the games, and try the practice questions again. You've got this! 💪", id: "Tidak apa-apa! Kembali ke slide materi, mainkan lagi permainannya, dan coba lagi soal-soal latihannya. Kamu pasti bisa! 💪" },
+  conf2:       { en: "Nice! Review the number line rules and try more of the 30 challenges to become even stronger.", id: "Bagus! Pelajari kembali aturan garis bilangan dan kerjakan lebih banyak dari 30 tantangan agar semakin mahir." },
+  conf3:       { en: "Fantastic! You are a true Integer Explorer — ready for negative numbers in every grade ahead! 🌟", id: "Luar biasa! Kamu adalah Penjelajah Bilangan Bulat sejati — siap menghadapi bilangan negatif di kelas berikutnya! 🌟" },
+  challenge:   { en: "Challenge {n} of 30",                             id: "Soal {n} dari 30" },
+  menuChallenge: { en: "Challenge {n}",                                 id: "Soal {n}" },
+  tA:          { en: "✏️ Write the integer",                            id: "✏️ Menulis nilai bilangan bulat" },
+  tB:          { en: "⚖️ Compare",                                      id: "⚖️ Membandingkan" },
+  tC:          { en: "📊 Order",                                        id: "📊 Mengurutkan" },
+  check:       { en: "✅ Check Answer",                                 id: "✅ Cek Jawaban" },
+  ok:          { en: "🎉 Correct! Well done!",                          id: "🎉 Benar! Kerja bagus!" },
+  no:          { en: "❌ Not quite. Read the pembahasan below!",        id: "❌ Belum tepat. Baca pembahasannya di bawah!" },
+  your:        { en: "Your answer: {v}",                                id: "Jawabanmu: {v}" },
+  right:       { en: "Correct answer: {v}",                             id: "Jawaban benar: {v}" },
+  pbTitle:     { en: "📖 How to solve it (pembahasan)",                 id: "📖 Cara mengerjakan (pembahasan)" },
+  phA:         { en: "Type a number, e.g. -5",                          id: "Ketik bilangan, mis. -5" },
+  phC:         { en: "e.g. -5, -2, 0, 3",                               id: "mis. -5, -2, 0, 3" },
+  pickSign:    { en: "Tap the correct sign:",                           id: "Ketuk tanda yang benar:" },
+  scoreLine:   { en: "Answered: {a}/30 • Correct: {c}",                 id: "Terjawab: {a}/30 • Benar: {c}" },
+  invalidC:    { en: "🤔 Hmm, I could not read that. Type the numbers separated by commas, like: -3, 0, 5", id: "🤔 Hmm, jawaban belum terbaca. Ketik bilangan dipisah tanda koma, misalnya: -3, 0, 5" },
+  invalidA:    { en: "🤔 Hmm, I could not read that. Type one whole number (you may start with a minus sign, like -5).", id: "🤔 Hmm, jawaban belum terbaca. Ketik satu bilangan bulat (boleh diawali tanda negatif, mis. -5)." },
+  docTitle:    { en: "Integers — Interactive Lesson (Grade 5)",         id: "Bilangan Bulat — Pelajaran Interaktif (Kelas 5 SD)" }
+};
+function t(key, vars) {
+  let s = (T[key] && T[key][lang]) || T[key].en || "";
+  if (vars) for (const k in vars) s = s.split("{" + k + "}").join(vars[k]);
+  return s;
+}
+
+/* ---------- number formatting & parsing ---------- */
+function group(n) { // thousands separator per language
+  try { return Math.abs(n).toLocaleString(lang === "id" ? "id-ID" : "en-US"); }
+  catch (e) { return String(Math.abs(n)); }
+}
+function sfmt(n, plus) { // pretty signed display: −5 / +9,000
+  if (n < 0) return "\u2212" + group(n);
+  if (n > 0 && plus) return "+" + group(n);
+  return group(n);
+}
+function parseNumInput(s) {
+  if (!s) return NaN;
+  s = String(s).trim().replace(/[\u2212\u2013\u2014]/g, "-");
+  s = s.replace(/^minus\s*/i, "-").replace(/^negatif\s*/i, "-").replace(/^\+/, "");
+  s = s.replace(/[^\d-]/g, "");
+  if (!/^-?\d+$/.test(s)) return NaN;
+  return parseInt(s, 10);
+}
+function parseListInput(s) {
+  if (!s || !s.trim()) return null;
+  s = String(s).replace(/[\u2212\u2013\u2014]/g, "-");
+  // strip thousands separators like 2,500 or 2.500 (run twice for 1,200,500)
+  let prev = null;
+  while (prev !== s) {
+    prev = s;
+    s = s.replace(/(\d)[.,](\d{3})(?=[^\d]|$)/g, "$1$2");
+  }
+  const parts = s.split(/[,;\s]+/).filter(x => x.length);
+  if (!parts.length) return null;
+  const out = [];
+  for (const p of parts) {
+    const tok = p.replace(/^\+/, "").replace(/[^\d-]/g, "");
+    if (!/^-?\d+$/.test(tok)) return null;
+    out.push(parseInt(tok, 10));
+  }
+  return out;
+}
+
+/* =====================================================
+   THE 30 STORY PROBLEMS (bilingual: en / id)
+   type A = write the integer, B = compare, C = order
+   ===================================================== */
+const QUESTIONS = [
+/* ---- TYPE A : WRITE THE INTEGER (Q1–Q10) ---- */
+{ type:"A", emoji:"🌡️",
+  en:{story:"This morning, the weather report said the temperature in Moscow was <b>5 degrees below zero</b> (0°C).",
+      q:"Write this temperature as an integer."},
+  id:{story:"Pagi ini, laporan cuaca menyebutkan suhu di Moskow adalah <b>5 derajat di bawah nol</b> (0°C).",
+      q:"Tuliskan suhu tersebut sebagai bilangan bulat."},
+  answer:-5,
+  ex:{en:"<b>Below zero means negative.</b> So 5 degrees below 0 is written <b>−5</b>. The minus sign (−) shows that it is colder than zero.",
+      id:"<b>Di bawah nol berarti negatif.</b> Jadi, 5 derajat di bawah 0 ditulis <b>−5</b>. Tanda negatif (−) menunjukkan suhunya lebih dingin dari nol."} },
+{ type:"A", emoji:"🛗",
+  en:{story:"An elevator in a shopping mall goes <b>DOWN 3 floors</b> from the ground floor (floor 0).",
+      q:"Write the elevator's movement as an integer."},
+  id:{story:"Sebuah lift di mal turun <b>3 lantai</b> dari lantai dasar (lantai 0).",
+      q:"Tuliskan pergerakan lift tersebut sebagai bilangan bulat."},
+  answer:-3,
+  ex:{en:"Going <b>down</b> is the opposite of going up. Down 3 floors from 0 is <b>−3</b>. (Going up 3 floors would be +3.)",
+      id:"Bergerak <b>turun</b> adalah kebalikan dari naik. Turun 3 lantai dari 0 adalah <b>−3</b>. (Jika naik 3 lantai, nilainya +3.)"} },
+{ type:"A", emoji:"🚢",
+  en:{story:"A submarine is diving. Right now it is <b>120 metres BELOW sea level</b>.",
+      q:"Write the submarine's position as an integer."},
+  id:{story:"Sebuah kapal selam sedang menyelam. Sekarang kapal selam berada <b>120 meter DI BAWAH permukaan laut</b>.",
+      q:"Tuliskan posisi kapal selam tersebut sebagai bilangan bulat."},
+  answer:-120,
+  ex:{en:"Sea level counts as 0. <b>Below</b> sea level = negative, so the submarine is at <b>−120</b>. A position 120 m above the sea would be +120.",
+      id:"Permukaan laut dianggap 0. <b>Di bawah</b> permukaan laut = negatif, jadi kapal selam berada di <b>−120</b>. Posisi 120 m di atas permukaan laut ditulis +120."} },
+{ type:"A", emoji:"💰",
+  en:{story:"Last month, Bu Rina's small shop spent more money than it earned, so the shop made a <b>loss of Rp15,000</b>.",
+      q:"Write the shop's profit as an integer."},
+  id:{story:"Bulan lalu, toko kecil Bu Rina mengeluarkan uang lebih banyak daripada uang yang masuk, sehingga toko <b>rugi Rp15.000</b>.",
+      q:"Tuliskan laba toko tersebut sebagai bilangan bulat."},
+  answer:-15000,
+  ex:{en:"A <b>loss</b> is the opposite of a profit, so it is negative: the profit is <b>−15,000</b>. A profit of Rp15,000 would be written +15,000.",
+      id:"<b>Rugi</b> adalah kebalikan dari laba, jadi nilainya negatif: labanya adalah <b>−15.000</b>. Jika toko laba Rp15.000, ditulis +15.000."} },
+{ type:"A", emoji:"✈️",
+  en:{story:"A passenger plane cruises at <b>9,000 metres ABOVE sea level</b>.",
+      q:"Write the plane's altitude as an integer."},
+  id:{story:"Sebuah pesawat penumpang terbang pada ketinggian <b>9.000 meter DI ATAS permukaan laut</b>.",
+      q:"Tuliskan ketinggian pesawat tersebut sebagai bilangan bulat."},
+  answer:9000,
+  ex:{en:"<b>Above</b> sea level = positive, so the altitude is <b>+9,000</b> (or simply 9,000). The + sign on positive numbers is optional.",
+      id:"<b>Di atas</b> permukaan laut = positif, jadi ketinggiannya <b>+9.000</b> (atau cukup 9.000). Tanda + pada bilangan positif boleh ditulis atau tidak."} },
+{ type:"A", emoji:"🎮",
+  en:{story:"In a puzzle game, Raka's score went <b>UP by 250 points</b>.",
+      q:"Write the change in Raka's score as an integer."},
+  id:{story:"Dalam sebuah game puzzle, skor Raka <b>NAIK 250 poin</b>.",
+      q:"Tuliskan perubahan skor Raka tersebut sebagai bilangan bulat."},
+  answer:250,
+  ex:{en:"The score went <b>up</b>, so the change is positive: <b>+250</b> (or 250). If the score had dropped 250 points, the change would be −250.",
+      id:"Skor <b>naik</b>, jadi perubahannya positif: <b>+250</b> (atau 250). Jika skor turun 250 poin, perubahannya −250."} },
+{ type:"A", emoji:"🏦",
+  en:{story:"Dewi spends <b>Rp25,000 more</b> than the money in her bank account. Now her balance is Rp25,000 <b>in debt</b>.",
+      q:"Write Dewi's account balance as an integer."},
+  id:{story:"Dewi membelanjakan uang <b>Rp25.000 lebih</b> daripada uang yang ada di rekeningnya. Sekarang saldo rekeningnya <b>berutang Rp25.000</b>.",
+      q:"Tuliskan saldo rekening Dewi tersebut sebagai bilangan bulat."},
+  answer:-25000,
+  ex:{en:"Being <b>in debt</b> means the balance is below 0, so it is negative: <b>−25,000</b>. Money you owe is less than zero!",
+      id:"<b>Berutang</b> berarti saldonya berada di bawah 0, jadi nilainya negatif: <b>−25.000</b>. Uang yang diutangkan kurang dari nol!"} },
+{ type:"A", emoji:"🧊",
+  en:{story:"In the frozen-food storage room, the thermometer shows <b>18 degrees below zero</b>.",
+      q:"Write this temperature as an integer."},
+  id:{story:"Di ruang penyimpanan makanan beku, termometer menunjukkan suhu <b>18 derajat di bawah nol</b>.",
+      q:"Tuliskan suhu tersebut sebagai bilangan bulat."},
+  answer:-18,
+  ex:{en:"<b>Below zero → negative.</b> The temperature is <b>−18</b>°C. Brrr! That is exactly the temperature inside a home freezer.",
+      id:"<b>Di bawah nol → negatif.</b> Suhunya adalah <b>−18</b>°C. Brrr! Itulah suhu di dalam freezer rumah."} },
+{ type:"A", emoji:"🕐",
+  en:{story:"Jakarta uses time zone UTC+7. New York uses <b>UTC−5</b>, which is 5 hours <b>BEHIND</b> UTC time.",
+      q:"Write New York's time-zone offset as an integer."},
+  id:{story:"Jakarta memakai zona waktu UTC+7. New York memakai <b>UTC−5</b>, artinya 5 jam <b>DI BELAKANG</b> waktu UTC.",
+      q:"Tuliskan selisih waktu New York tersebut sebagai bilangan bulat."},
+  answer:-5,
+  ex:{en:"<b>Behind</b> UTC = negative, so the offset is <b>−5</b>. Jakarta's offset +7 is positive because Jakarta is 7 hours ahead.",
+      id:"<b>Di belakang</b> UTC = negatif, jadi selisihnya <b>−5</b>. Selisih Jakarta +7 bernilai positif karena Jakarta 7 jam di depan."} },
+{ type:"A", emoji:"⛳",
+  en:{story:"In golf, <i>par</i> is the expected number of strokes (think of it as a target worth 0). Ayu finished a hole in <b>2 strokes fewer than par</b> — golfers call it <i>2 under par</i>.",
+      q:"Write Ayu's score for the hole as an integer."},
+  id:{story:"Dalam golf, <i>par</i> adalah jumlah pukulan yang diharapkan (anggap saja target bernilai 0). Ayu menyelesaikan sebuah hole dengan <b>2 pukulan lebih sedikit dari par</b> — pemain golf menyebutnya <i>2 under par</i>.",
+      q:"Tuliskan skor Ayu untuk hole tersebut sebagai bilangan bulat."},
+  answer:-2,
+  ex:{en:"<b>Fewer than par (below the target) = negative</b>, so her score is <b>−2</b>. Fun fact: in golf, a negative score is excellent!",
+      id:"<b>Lebih sedikit dari par (di bawah target) = negatif</b>, jadi skornya <b>−2</b>. Fakta menarik: dalam golf, skor negatif itu luar biasa bagus!"} },
+/* ---- TYPE B : COMPARE (Q11–Q20) ---- */
+{ type:"B", emoji:"🌡️", a:-2, b:-7,
+  en:{story:"At 6 a.m. the temperature on a mountain was <b>−2°C</b>. At 10 p.m. it dropped to <b>−7°C</b>.",
+      q:"Choose the correct sign to compare the two temperatures."},
+  id:{story:"Pukul 06.00 suhu di sebuah gunung <b>−2°C</b>. Pukul 22.00 suhunya turun menjadi <b>−7°C</b>.",
+      q:"Pilih tanda yang benar untuk membandingkan kedua suhu tersebut."},
+  answer:">",
+  ex:{en:"On the number line, −2 is to the <b>right</b> of −7, so <b>−2 &gt; −7</b>. That is why the evening temperature (−7°C) is colder.",
+      id:"Pada garis bilangan, −2 berada di <b>kanan</b> −7, jadi <b>−2 &gt; −7</b>. Itulah sebabnya suhu malam (−7°C) lebih dingin."} },
+{ type:"B", emoji:"🛗", a:-2, b:-1,
+  en:{story:"An elevator stops at floor <b>−2</b> (basement 2). Then it moves up to floor <b>−1</b>.",
+      q:"Choose the correct sign: −2 __ −1."},
+  id:{story:"Sebuah lift berhenti di lantai <b>−2</b> (basement 2). Lalu lift naik ke lantai <b>−1</b>.",
+      q:"Pilih tanda yang benar: −2 __ −1."},
+  answer:"<",
+  ex:{en:"−2 is one step to the <b>left</b> of −1 on the number line, so <b>−2 &lt; −1</b>. That is why the lift moved UP.",
+      id:"−2 berada satu langkah di <b>kiri</b> −1 pada garis bilangan, jadi <b>−2 &lt; −1</b>. Itulah mengapa lift bergerak NAIK."} },
+{ type:"B", emoji:"🐷", a:-5000, b:3000,
+  en:{story:"Dina owes her sister Rp5,000, so her money situation is <b>−5,000</b>. Rara keeps Rp3,000 in her piggy bank, so her situation is <b>+3,000</b>.",
+      q:"Choose the correct sign to compare their money situations."},
+  id:{story:"Dina berutang Rp5.000 kepada kakaknya, jadi kondisi uangnya <b>−5.000</b>. Rara menyimpan Rp3.000 di celengannya, jadi kondisinya <b>+3.000</b>.",
+      q:"Pilih tanda yang benar untuk membandingkan kondisi uang keduanya."},
+  answer:"<",
+  ex:{en:"<b>Any negative number is smaller than any positive number</b>: −5,000 &lt; 3,000. Having money always beats owing money!",
+      id:"<b>Bilangan negatif selalu lebih kecil daripada bilangan positif</b>: −5.000 &lt; 3.000. Punya uang selalu lebih baik daripada berutang!"} },
+{ type:"B", emoji:"🚢", a:-80, b:-45,
+  en:{story:"Two submarines are diving. Sub <b>Blue</b> is at <b>−80 m</b> and Sub <b>Yellow</b> is at <b>−45 m</b>.",
+      q:"Choose the correct sign to compare their depths."},
+  id:{story:"Dua kapal selam sedang menyelam. Kapal selam <b>Biru</b> berada di <b>−80 m</b> dan kapal selam <b>Kuning</b> di <b>−45 m</b>.",
+      q:"Pilih tanda yang benar untuk membandingkan kedalaman keduanya."},
+  answer:"<",
+  ex:{en:"Careful, don't be tricked! −80 is further <b>left</b>, so <b>−80 &lt; −45</b>. Sub Blue is deeper — and deeper always means the number is smaller.",
+      id:"Hati-hati, jangan tertipu! −80 berada lebih ke <b>kiri</b>, jadi <b>−80 &lt; −45</b>. Kapal selam Biru lebih dalam — dan semakin dalam, nilainya semakin kecil."} },
+{ type:"B", emoji:"🎯", a:15, b:-15,
+  en:{story:"In an online quiz, Ayu's team scored <b>15 points</b>. Bima's team scored <b>−15 points</b> (they lost points).",
+      q:"Choose the correct sign to compare the two scores."},
+  id:{story:"Dalam kuis online, tim Ayu mendapat <b>15 poin</b>. Tim Bima mendapat <b>−15 poin</b> (poin mereka berkurang).",
+      q:"Pilih tanda yang benar untuk membandingkan kedua skor itu."},
+  answer:">",
+  ex:{en:"<b>Positive beats negative every time</b>: 15 &gt; −15. Gaining points is always bigger than losing points.",
+      id:"<b>Bilangan positif selalu mengalahkan bilangan negatif</b>: 15 &gt; −15. Mendapat poin selalu lebih besar daripada kehilangan poin."} },
+{ type:"B", emoji:"❄️", a:-1, b:-10,
+  en:{story:"City A's temperature is <b>−1°C</b>. City B's temperature is <b>−10°C</b>.",
+      q:"Choose the correct sign to compare the two temperatures."},
+  id:{story:"Suhu Kota A adalah <b>−1°C</b>. Suhu Kota B adalah <b>−10°C</b>.",
+      q:"Pilih tanda yang benar untuk membandingkan kedua suhu itu."},
+  answer:">",
+  ex:{en:"Don't be tricked — 10 looks big, but <b>−10 is far to the left</b> of the number line! So <b>−1 &gt; −10</b>, and City B is colder.",
+      id:"Jangan tertipu — 10 memang terlihat besar, tetapi <b>−10 berada jauh di kiri</b> garis bilangan! Jadi <b>−1 &gt; −10</b>, dan Kota B lebih dingin."} },
+{ type:"B", emoji:"⚽", a:3, b:-1,
+  en:{story:"After one match, Team Garuda's goal difference is <b>+3</b>. Team Rajawali's goal difference is <b>−1</b>.",
+      q:"Choose the correct sign to compare the two goal differences."},
+  id:{story:"Setelah satu pertandingan, selisih gol Tim Garuda <b>+3</b>. Selisih gol Tim Rajawali <b>−1</b>.",
+      q:"Pilih tanda yang benar untuk membandingkan kedua selisih gol itu."},
+  answer:">",
+  ex:{en:"+3 is to the <b>right</b> of 0, while −1 is to the <b>left</b> of 0. So <b>+3 &gt; −1</b> — Garuda's goal difference is better.",
+      id:"+3 berada di <b>kanan</b> 0, sedangkan −1 di <b>kiri</b> 0. Jadi <b>+3 &gt; −1</b> — selisih gol Garuda lebih baik."} },
+{ type:"B", emoji:"🎈", a:350, b:-2,
+  en:{story:"A hot-air balloon floats <b>+350 m</b> above the ground. A rabbit burrow goes down to <b>−2 m</b> below the ground.",
+      q:"Choose the correct sign to compare the two positions."},
+  id:{story:"Sebuah balon udara melayang <b>+350 m</b> di atas tanah. Lubang kelinci turun sampai <b>−2 m</b> di bawah tanah.",
+      q:"Pilih tanda yang benar untuk membandingkan kedua posisi itu."},
+  answer:">",
+  ex:{en:"Anything <b>above</b> 0 is bigger than anything <b>below</b> 0: <b>+350 &gt; −2</b>. High in the sky always beats deep underground!",
+      id:"Bilangan <b>di atas</b> 0 selalu lebih besar daripada bilangan <b>di bawah</b> 0: <b>+350 &gt; −2</b>. Tinggi di langit selalu lebih besar daripada jauh di bawah tanah!"} },
+{ type:"B", emoji:"🧊", a:-15, b:-15,
+  en:{story:"Two freezers in a shop both show a temperature of <b>−15°C</b>.",
+      q:"Choose the correct sign to compare the two temperatures."},
+  id:{story:"Dua freezer di sebuah toko sama-sama menunjukkan suhu <b>−15°C</b>.",
+      q:"Pilih tanda yang benar untuk membandingkan kedua suhu itu."},
+  answer:"=",
+  ex:{en:"The two numbers are exactly the same, so <b>−15 = −15</b>. When values are equal, we use the <b>=</b> sign.",
+      id:"Kedua bilangan sama persis, jadi <b>−15 = −15</b>. Jika nilainya sama, kita menggunakan tanda <b>=</b>."} },
+{ type:"B", emoji:"💳", a:-2000, b:-7000,
+  en:{story:"Sinta's account balance is <b>−2,000</b> (she owes Rp2,000). Tono's balance is <b>−7,000</b> (he owes Rp7,000).",
+      q:"Choose the correct sign to compare the two balances."},
+  id:{story:"Saldo Sinta <b>−2.000</b> (ia berutang Rp2.000). Saldo Tono <b>−7.000</b> (ia berutang Rp7.000).",
+      q:"Pilih tanda yang benar untuk membandingkan kedua saldo itu."},
+  answer:">",
+  ex:{en:"Owing <b>less</b> money means the balance is <b>bigger</b>: <b>−2,000 &gt; −7,000</b>. On the number line, −2,000 sits to the right of −7,000.",
+      id:"Berutang <b>lebih sedikit</b> berarti saldonya <b>lebih besar</b>: <b>−2.000 &gt; −7.000</b>. Pada garis bilangan, −2.000 berada di kanan −7.000."} },
+/* ---- TYPE C : ORDER (Q21–Q30) ---- */
+{ type:"C", emoji:"🌡️", mode:"asc", vals:[-5,-1,0,3],
+  en:{story:"A weather app shows the 7 p.m. temperature of four cities: Moscow <b>−5°C</b>, Tokyo <b>−1°C</b>, London <b>0°C</b>, Bandung <b>3°C</b>.",
+      q:"Write the four temperatures in order from the COLDEST to the WARMEST (ascending). Separate them with commas."},
+  id:{story:"Aplikasi cuaca menunjukkan suhu pukul 19.00 di empat kota: Moskow <b>−5°C</b>, Tokyo <b>−1°C</b>, London <b>0°C</b>, Bandung <b>3°C</b>.",
+      q:"Tuliskan keempat suhu itu secara urut dari yang PALING DINGIN ke PALING PANAS (naik). Pisahkan dengan tanda koma."},
+  answer:[-5,-1,0,3],
+  ex:{en:"Picture the number line and read <b>left → right</b>: <b>−5, −1, 0, 3</b>. Moscow is the coldest and Bandung the warmest.",
+      id:"Bayangkan garis bilangan, lalu baca dari <b>kiri → kanan</b>: <b>−5, −1, 0, 3</b>. Moskow paling dingin dan Bandung paling panas."} },
+{ type:"C", emoji:"🛗", mode:"asc", vals:[4,-2,0,-5,1],
+  en:{story:"During one trip, an elevator in a tall building stops at these floors: <b>+4, −2, 0, −5, +1</b>.",
+      q:"Order the floors from the LOWEST to the HIGHEST (ascending). Separate them with commas."},
+  id:{story:"Dalam satu perjalanan, sebuah lift di gedung tinggi berhenti di lantai-lantai berikut: <b>+4, −2, 0, −5, +1</b>.",
+      q:"Urutkan lantai-lantai itu dari yang PALING BAWAH ke PALING ATAS (naik). Pisahkan dengan tanda koma."},
+  answer:[-5,-2,0,1,4],
+  ex:{en:"The lowest floor is the <b>smallest</b> number. Read the line left → right: <b>−5, −2, 0, +1, +4</b>. Floor −5 is the basement!",
+      id:"Lantai paling bawah adalah bilangan <b>terkecil</b>. Baca garis bilangan dari kiri → kanan: <b>−5, −2, 0, +1, +4</b>. Lantai −5 adalah basement!"} },
+{ type:"C", emoji:"🤿", mode:"desc", vals:[-30,-70,-10,-50],
+  en:{story:"Four divers are diving: Dina at <b>−30 m</b>, Raka at <b>−70 m</b>, Sari at <b>−10 m</b>, Budi at <b>−50 m</b>.",
+      q:"Write the depths in order from CLOSEST TO THE SURFACE to the DEEPEST. Separate them with commas."},
+  id:{story:"Empat penyelam sedang menyelam: Dina di <b>−30 m</b>, Raka di <b>−70 m</b>, Sari di <b>−10 m</b>, Budi di <b>−50 m</b>.",
+      q:"Tuliskan kedalaman itu secara urut dari yang PALING DEKAT PERMUKAAN ke yang PALING DALAM. Pisahkan dengan tanda koma."},
+  answer:[-10,-30,-50,-70],
+  ex:{en:"Closest to the surface means the <b>biggest</b> number (the least negative). From surface to the deepest: <b>−10, −30, −50, −70</b> — that is descending order of the values!",
+      id:"Paling dekat permukaan berarti bilangan <b>terbesar</b> (paling sedikit negatifnya). Dari permukaan ke yang terdalam: <b>−10, −30, −50, −70</b> — ini adalah urutan menurun (descending)!"} },
+{ type:"C", emoji:"🐷", mode:"asc", vals:[8000,-3000,0],
+  en:{story:"Three friends compare their money: Lina has saved <b>+8,000</b>, Tomi owes Rp3,000 so he is at <b>−3,000</b>, and Sari has exactly <b>0</b>.",
+      q:"Order their money values from SMALLEST to LARGEST (ascending). Separate them with commas."},
+  id:{story:"Tiga sahabat membandingkan uang mereka: Lina sudah menabung <b>+8.000</b>, Tomi berutang Rp3.000 sehingga nilainya <b>−3.000</b>, dan Sari punya tepat <b>0</b>.",
+      q:"Urutkan nilai uang mereka dari TERKECIL ke TERBESAR (naik). Pisahkan dengan tanda koma."},
+  answer:[-3000,0,8000],
+  ex:{en:"Owing money is <b>below zero</b>, so −3,000 comes first, then 0, then the savings +8,000: <b>−3,000, 0, 8,000</b>.",
+      id:"Berutang berarti berada <b>di bawah nol</b>, jadi −3.000 lebih dulu, lalu 0, lalu tabungan +8.000: <b>−3.000, 0, 8.000</b>."} },
+{ type:"C", emoji:"⛳", mode:"asc", vals:[-3,2,0,-1,4],
+  en:{story:"Five golfers finish a round: Chika <b>−3</b>, Dewi <b>+2</b>, Eko <b>0</b>, Fajar <b>−1</b>, Gilang <b>+4</b> (relative to par).",
+      q:"Order the scores from SMALLEST to LARGEST (ascending). Separate them with commas."},
+  id:{story:"Lima pemain golf menyelesaikan ronde: Chika <b>−3</b>, Dewi <b>+2</b>, Eko <b>0</b>, Fajar <b>−1</b>, Gilang <b>+4</b> (terhadap par).",
+      q:"Urutkan skor itu dari TERKECIL ke TERBESAR (naik). Pisahkan dengan tanda koma."},
+  answer:[-3,-1,0,2,4],
+  ex:{en:"Line them up on the number line: <b>−3, −1, 0, +2, +4</b>. Fun fact: in golf the smallest score is the best — so Chika played brilliantly!",
+      id:"Susun di garis bilangan: <b>−3, −1, 0, +2, +4</b>. Fakta menarik: dalam golf, skor terkecil justru yang terbaik — artinya Chika bermain sangat hebat!"} },
+{ type:"C", emoji:"❄️", mode:"asc", vals:[-8,2,-3,1],
+  en:{story:"A weather station records four days: Monday <b>−8°C</b>, Tuesday <b>2°C</b>, Wednesday <b>−3°C</b>, Thursday <b>1°C</b>.",
+      q:"Order the temperatures from COLDEST to WARMEST (ascending). Separate them with commas."},
+  id:{story:"Sebuah stasiun cuaca mencatat empat hari: Senin <b>−8°C</b>, Selasa <b>2°C</b>, Rabu <b>−3°C</b>, Kamis <b>1°C</b>.",
+      q:"Urutkan suhu itu dari PALING DINGIN ke PALING PANAS (naik). Pisahkan dengan tanda koma."},
+  answer:[-8,-3,1,2],
+  ex:{en:"Read the line <b>left → right</b>: <b>−8, −3, 1, 2</b>. Monday (−8°C) was the coldest day of the four.",
+      id:"Baca garis bilangan dari <b>kiri → kanan</b>: <b>−8, −3, 1, 2</b>. Hari Senin (−8°C) adalah hari yang paling dingin."} },
+{ type:"C", emoji:"🏔️", mode:"asc", vals:[2500,1200,0,-200,-500],
+  en:{story:"An adventure club visits places with these elevations: a mountain top <b>+2,500 m</b>, a hill <b>+1,200 m</b>, the shore <b>0 m</b>, a cave entrance <b>−200 m</b>, and a deep valley <b>−500 m</b>.",
+      q:"Order the elevations from LOWEST to HIGHEST (ascending). Separate them with commas."},
+  id:{story:"Klub petualangan mengunjungi tempat-tempat dengan ketinggian berikut: puncak gunung <b>+2.500 m</b>, sebuah bukit <b>+1.200 m</b>, tepi pantai <b>0 m</b>, mulut gua <b>−200 m</b>, dan lembah dalam <b>−500 m</b>.",
+      q:"Urutkan ketinggian itu dari PALING RENDAH ke PALING TINGGI (naik). Pisahkan dengan tanda koma."},
+  answer:[-500,-200,0,1200,2500],
+  ex:{en:"Every negative place is <b>below the shore</b>, and −500 is lower than −200. So: <b>−500, −200, 0, +1,200, +2,500</b>.",
+      id:"Semua tempat bernilai negatif berada <b>di bawah tepi pantai</b>, dan −500 lebih rendah daripada −200. Jadi: <b>−500, −200, 0, +1.200, +2.500</b>."} },
+{ type:"C", emoji:"🎮", mode:"desc", vals:[45,-20,10,-35,0],
+  en:{story:"Five players finish a video game with these scores: Andi <b>45</b>, Beta <b>−20</b>, Cici <b>10</b>, Dodi <b>−35</b>, Eka <b>0</b>.",
+      q:"Order the scores from HIGHEST to LOWEST (descending). Separate them with commas."},
+  id:{story:"Lima pemain menyelesaikan sebuah video game dengan skor: Andi <b>45</b>, Beta <b>−20</b>, Cici <b>10</b>, Dodi <b>−35</b>, Eka <b>0</b>.",
+      q:"Urutkan skor itu dari TERBESAR ke TERKECIL (turun). Pisahkan dengan tanda koma."},
+  answer:[45,10,0,-20,-35],
+  ex:{en:"Descending means <b>biggest first</b>. Read the number line <b>right → left</b>: <b>45, 10, 0, −20, −35</b>.",
+      id:"Urutan menurun berarti <b>dimulai dari yang terbesar</b>. Baca garis bilangan dari <b>kanan → kiri</b>: <b>45, 10, 0, −20, −35</b>."} },
+{ type:"C", emoji:"🕐", mode:"asc", vals:[9,-5,0,2,-10],
+  en:{story:"A world-clock poster shows the time-zone offsets of five cities: Tokyo <b>UTC+9</b>, New York <b>UTC−5</b>, London <b>UTC 0</b>, Athens <b>UTC+2</b>, Honolulu <b>UTC−10</b>.",
+      q:"Order the offsets from SMALLEST to LARGEST (ascending). Separate them with commas."},
+  id:{story:"Poster jam dunia menampilkan selisih waktu lima kota: Tokyo <b>UTC+9</b>, New York <b>UTC−5</b>, London <b>UTC 0</b>, Athena <b>UTC+2</b>, Honolulu <b>UTC−10</b>.",
+      q:"Urutkan selisih waktu itu dari TERKECIL ke TERBESAR (naik). Pisahkan dengan tanda koma."},
+  answer:[-10,-5,0,2,9],
+  ex:{en:"The most negative offset is the furthest <b>behind</b> UTC. So: <b>−10, −5, 0, +2, +9</b>. Honolulu is 10 hours behind, Tokyo 9 hours ahead!",
+      id:"Selisih paling negatif berada paling jauh <b>di belakang</b> UTC. Jadi: <b>−10, −5, 0, +2, +9</b>. Honolulu 10 jam di belakang, Tokyo 9 jam di depan!"} },
+{ type:"C", emoji:"🧊", mode:"desc", vals:[-18,24,-2,4],
+  en:{story:"The school science lab records four temperatures: the freezer <b>−18°C</b>, the classroom <b>24°C</b>, the yard at dawn <b>−2°C</b>, and the refrigerator <b>+4°C</b>.",
+      q:"Order the temperatures from WARMEST to COLDEST (descending). Separate them with commas."},
+  id:{story:"Laboratorium sekolah mencatat empat suhu: freezer <b>−18°C</b>, ruang kelas <b>24°C</b>, halaman sekolah saat pagi buta <b>−2°C</b>, dan kulkas <b>+4°C</b>.",
+      q:"Urutkan suhu itu dari PALING PANAS ke PALING DINGIN (turun). Pisahkan dengan tanda koma."},
+  answer:[24,4,-2,-18],
+  ex:{en:"Warmest first means <b>biggest first</b>: <b>24, +4, −2, −18</b>. The freezer (−18°C) is the coldest spot in the school!",
+      id:"Paling panas dulu berarti <b>dimulai dari yang terbesar</b>: <b>24, +4, −2, −18</b>. Freezer (−18°C) adalah tempat paling dingin di sekolah!"} }
+];
+
+/* =====================================================
+   i18n: swap every static data-en/data-id text
+   ===================================================== */
+function applyI18n() {
+  $$("[data-en]").forEach(el => {
+    const v = lang === "en" ? el.getAttribute("data-en") : el.getAttribute("data-id");
+    if (v !== null) el.innerHTML = v;
+  });
+  document.documentElement.lang = lang;
+  document.title = t("docTitle");
+  $$("#langPill button").forEach(b => b.classList.toggle("on", b.dataset.lang === lang));
+  try { localStorage.setItem("integers-lang", lang); } catch (e) {}
+}
+
+/* =====================================================
+   Slide engine
+   ===================================================== */
+let slides = [], cur = 0;
+const deck = $("#deck");
+function refreshSlideList() { slides = $$("#deck > section.slide"); }
+function go(i) {
+  if (i < 0 || i >= slides.length) return;
+  cur = i;
+  slides.forEach((s, k) => s.classList.toggle("active", k === i));
+  $("#counter").textContent = (i + 1) + " / " + slides.length;
+  $("#progFill").style.width = ((i + 1) / slides.length * 100) + "%";
+  $("#prevBtn").disabled = (i === 0);
+  $("#nextBtn").disabled = (i === slides.length - 1);
+  if (slides[i].classList.contains("quiz-slide")) renderQuestion(i);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  buildMenu();
+}
+
+/* ---------- menu overlay ---------- */
+function buildMenu() {
+  const grid = $("#menuGrid");
+  grid.innerHTML = "";
+  slides.forEach((s, k) => {
+    const b = document.createElement("button");
+    if (k === cur) b.classList.add("cur");
+    const num = document.createElement("span");
+    num.className = "mn"; num.textContent = k + 1;
+    const label = document.createElement("span");
+    label.textContent = (lang === "en" ? s.getAttribute("data-title-en") : s.getAttribute("data-title-id")) || ("Slide " + (k + 1));
+    b.appendChild(num); b.appendChild(label);
+    b.addEventListener("click", () => { closeMenu(); go(k); });
+    grid.appendChild(b);
+  });
+}
+function openMenu() { buildMenu(); $("#menuOv").classList.remove("hidden"); }
+function closeMenu() { $("#menuOv").classList.add("hidden"); }
+
+/* =====================================================
+   Widget 1 — interactive number line (frog)
+   ===================================================== */
+let frogVal = 0, missionTarget = null;
+function buildNumberLine() {
+  const track = $("#nlTrack");
+  track.querySelectorAll(".tick").forEach(x => x.remove());
+  for (let v = -10; v <= 10; v++) {
+    const b = document.createElement("button");
+    b.className = "tick" + (v === 0 ? " zero" : "");
+    b.style.left = ((v + 10) / 20 * 100) + "%";
+    b.dataset.v = v;
+    b.setAttribute("aria-label", String(v));
+    b.innerHTML = '<span class="tick-line"></span><span class="tick-num">' + sfmt(v) + "</span>";
+    b.addEventListener("click", () => { frogVal = v; updateFrog(); });
+    track.appendChild(b);
+  }
+  updateFrog();
+}
+function updateFrog() {
+  $("#nlFrog").style.left = ((frogVal + 10) / 20 * 100) + "%";
+  $("#nlReadout").innerHTML = t("frogAt", { v: sfmt(frogVal) });
+  if (missionTarget !== null) $("#nlMission").innerHTML = t("mission", { v: sfmt(missionTarget) });
+}
+function newMission() {
+  do { missionTarget = Math.floor(Math.random() * 21) - 10; } while (missionTarget === frogVal);
+  updateFrog();
+}
+function checkMission() {
+  const m = $("#nlMission");
+  if (frogVal === missionTarget) {
+    m.innerHTML = t("mDone", { v: sfmt(missionTarget) });
+    const f = $("#nlFrog");
+    f.classList.remove("bounce"); void f.offsetWidth; f.classList.add("bounce");
+  } else {
+    m.innerHTML = t("mNot");
+  }
+}
+
+/* =====================================================
+   Widget 2 — classify chips (integer or not)
+   ===================================================== */
+const CL_ITEMS = [
+  { label: "8",   isInt: true },  { label: "−5",  isInt: true },
+  { label: "0.5", isInt: false }, { label: "0",   isInt: true },
+  { label: "½",   isInt: false }, { label: "−12", isInt: true },
+  { label: "+7",  isInt: true },  { label: "2.4", isInt: false }
+];
+let clSel = null, clPlaced = 0, clScoreN = 0;
+function buildClassify() {
+  const box = $("#clChips");
+  box.innerHTML = "";
+  clSel = null; clPlaced = 0; clScoreN = 0;
+  $("#clScore").textContent = t("clScore", { a: 0, b: 8 });
+  $("#clPrompt").textContent = t("clPick");
+  CL_ITEMS.forEach((it, idx) => {
+    const c = document.createElement("button");
+    c.className = "cl-chip"; c.textContent = it.label; c.dataset.i = idx;
+    c.addEventListener("click", () => {
+      if (c.classList.contains("good")) return;
+      box.querySelectorAll(".cl-chip.sel").forEach(x => x.classList.remove("sel"));
+      c.classList.add("sel");
+      clSel = idx;
+      $("#clPrompt").textContent = t("clPick");
+    });
+    box.appendChild(c);
+  });
+}
+function classifyWith(isInt) {
+  const prompt = $("#clPrompt");
+  if (clSel === null) { prompt.textContent = t("clPick"); return; }
+  const chip = $("#clChips .cl-chip[data-i='" + clSel + "']");
+  const item = CL_ITEMS[clSel];
+  if (item.isInt === isInt) {
+    chip.classList.remove("sel"); chip.classList.add("good");
+    clPlaced++; clScoreN++;
+    prompt.textContent = (clPlaced === CL_ITEMS.length) ? t("clDone") : t(isInt ? "clOkInt" : "clOkNot", { v: item.label });
+    prompt.classList.add("cl-msg");
+  } else {
+    chip.classList.remove("sel"); chip.classList.add("bad");
+    setTimeout(() => chip.classList.remove("bad"), 600);
+    prompt.textContent = t("clNo", { v: item.label });
+  }
+  clSel = null;
+  $("#clScore").textContent = t("clScore", { a: clScoreN, b: 8 });
+}
+
+/* =====================================================
+   Widget 3 — thermometer
+   ===================================================== */
+function updateThermo() {
+  const v = parseInt($("#thSlider").value, 10);
+  const read = $("#thRead"), fill = $("#thFill");
+  fill.style.height = ((v + 20) / 60 * 100) + "%";
+  if (v < 0) fill.style.background = "linear-gradient(180deg,#60a5fa,#1d4ed8)";
+  else if (v === 0) fill.style.background = "linear-gradient(180deg,#fbbf24,#d97706)";
+  else fill.style.background = "linear-gradient(180deg,#f97316,#ef4444)";
+  if (v < 0) { read.style.color = "#1d4ed8"; read.textContent = t("thBelow", { v: sfmt(v) }); }
+  else if (v === 0) { read.style.color = "#d97706"; read.textContent = t("thZero"); }
+  else { read.style.color = "#dc2626"; read.textContent = t("thAbove", { v: sfmt(v) }); }
+}
+
+/* =====================================================
+   Widget 4 — compare machine
+   ===================================================== */
+let cmpA = -3, cmpB = 5, cmpStreakN = 0, cmpLock = false;
+function newCompare() {
+  const equalPair = Math.random() < 0.15;
+  if (equalPair) { cmpA = Math.floor(Math.random() * 21) - 10; cmpB = cmpA; }
+  else {
+    do { cmpA = Math.floor(Math.random() * 21) - 10; cmpB = Math.floor(Math.random() * 21) - 10; } while (cmpA === cmpB);
+    if (Math.random() < 0.5) { const tmp = cmpA; cmpA = cmpB; cmpB = tmp; }
+  }
+  cmpLock = false;
+  $("#cmpA").textContent = sfmt(cmpA);
+  $("#cmpB").textContent = sfmt(cmpB);
+  $("#cmpA").style.borderColor = "var(--line)"; $("#cmpB").style.borderColor = "var(--line)";
+  $("#cmpSlot").textContent = "?";
+  $("#cmpMsg").textContent = ""; $("#cmpMsg").className = "cmp-msg";
+}
+function answerCompare(s) {
+  if (cmpLock) return;
+  const truth = cmpA < cmpB ? "<" : cmpA > cmpB ? ">" : "=";
+  const msg = $("#cmpMsg");
+  if (s === truth) {
+    cmpLock = true; cmpStreakN++;
+    $("#cmpSlot").textContent = s === ">" ? ">" : s === "<" ? "<" : "=";
+    $("#cmpA").style.borderColor = "#22c55e"; $("#cmpB").style.borderColor = "#22c55e";
+    msg.textContent = t("cmpOk", { a: sfmt(cmpA), s: s, b: sfmt(cmpB) });
+    msg.className = "cmp-msg ok";
+  } else {
+    cmpStreakN = 0;
+    $("#cmpSlot").textContent = "❌";
+    msg.textContent = t("cmpNo", { a: sfmt(cmpA), b: sfmt(cmpB) });
+    msg.className = "cmp-msg no";
+  }
+  $("#cmpStreak").textContent = t("cmpStreak", { n: cmpStreakN });
+}
+
+/* =====================================================
+   Widget 5 — ordering game
+   ===================================================== */
+let ordVals = [], ordNext = 0;
+function newOrderSet() {
+  const set = new Set();
+  while (set.size < 5) set.add(Math.floor(Math.random() * 21) - 10);
+  ordVals = Array.from(set);
+  if (!ordVals.some(v => v < 0)) ordVals[0] = -Math.abs(ordVals[0]) - 1;
+  if (ordVals.filter(v => v < 0).length < 2) ordVals[ordVals.length - 1] = -Math.abs(ordVals[ordVals.length - 1]) - 1;
+  ordNext = 0;
+  const box = $("#ordTiles");
+  box.innerHTML = "";
+  ordVals.slice().sort(() => Math.random() - 0.5).forEach(v => {
+    const b = document.createElement("button");
+    b.className = "ord-tile"; b.textContent = sfmt(v); b.dataset.v = v;
+    b.addEventListener("click", () => clickTile(b, v));
+    box.appendChild(b);
+  });
+  $("#ordLine").innerHTML = '<span class="ph">' + t("ordStart") + "</span>";
+  const msg = $("#ordMsg"); msg.textContent = ""; msg.className = "ord-msg";
+}
+function clickTile(btn, v) {
+  if (btn.classList.contains("locked")) return;
+  const sorted = ordVals.slice().sort((a, b) => a - b);
+  const msg = $("#ordMsg");
+  if (v === sorted[ordNext]) {
+    btn.classList.add("locked");
+    const chip = document.createElement("span");
+    chip.className = "numchip " + (v < 0 ? "neg" : v > 0 ? "pos" : "zero");
+    chip.textContent = sfmt(v);
+    const line = $("#ordLine");
+    if (ordNext === 0) line.innerHTML = "";
+    line.appendChild(chip);
+    ordNext++;
+    if (ordNext === sorted.length) { msg.textContent = t("ordOk"); msg.className = "ord-msg ok"; }
+  } else {
+    btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake");
+    msg.textContent = t("ordNo", { v: sfmt(v) });
+    msg.className = "ord-msg no";
+  }
+}
+
+/* =====================================================
+   Quiz engine — 30 story problems
+   ===================================================== */
+const answers = new Array(QUESTIONS.length).fill(null); // raw input
+const results = new Array(QUESTIONS.length).fill(null);  // {ok, given, correct}
+function buildQuizSlides() {
+  const end = $("#endSlide");
+  QUESTIONS.forEach((q, i) => {
+    const sec = document.createElement("section");
+    sec.className = "slide quiz-slide";
+    sec.dataset.qi = i;
+    sec.dataset.titleEn = "Challenge " + (i + 1);
+    sec.dataset.titleId = "Soal " + (i + 1);
+    end.parentNode.insertBefore(sec, end);
+  });
+}
+function quizStartIndex() {
+  for (let k = 0; k < slides.length; k++) if (slides[k].classList.contains("quiz-slide")) return k;
+  return slides.length - QUESTIONS.length;
+}
+function qTypeLabel(q) { return t(q.type === "A" ? "tA" : q.type === "B" ? "tB" : "tC"); }
+function renderQuestion(i) {
+  const sec = slides[i];
+  const qi = parseInt(sec.dataset.qi, 10);
+  const q = QUESTIONS[qi];
+  const n = qi + 1;
+  sec.innerHTML = "";
+  // header
+  const head = document.createElement("div");
+  head.className = "q-head";
+  const c1 = document.createElement("span"); c1.className = "chip q-num";
+  c1.textContent = t("challenge", { n: n });
+  const c2 = document.createElement("span"); c2.className = "chip q-type";
+  c2.textContent = qTypeLabel(q);
+  head.appendChild(c1); head.appendChild(c2);
+  sec.appendChild(head);
+  // story
+  const story = document.createElement("div");
+  story.className = "story";
+  const emo = document.createElement("span"); emo.className = "story-emoji"; emo.textContent = q.emoji;
+  const st = document.createElement("div"); st.innerHTML = q[lang].story;
+  story.appendChild(emo); story.appendChild(st);
+  sec.appendChild(story);
+  // question
+  const qt = document.createElement("div");
+  qt.className = "q-text"; qt.innerHTML = q[lang].q;
+  sec.appendChild(qt);
+  // answer area
+  const area = document.createElement("div");
+  area.className = "ans-row";
+  if (q.type === "B") {
+    const row = document.createElement("div");
+    row.className = "q-val-cards";
+    row.innerHTML = '<div class="cmp-card">' + sfmt(q.a) + '</div><div class="cmp-slot">' + (results[qi] ? results[qi].given : "?") + '</div><div class="cmp-card">' + sfmt(q.b) + "</div>";
+    area.appendChild(row);
+    const signs = document.createElement("div");
+    signs.className = "sign-btns";
+    signs.innerHTML = "<span style='font-weight:800'>" + t("pickSign") + "</span>";
+    ["<", ">", "="].forEach(sg => {
+      const b = document.createElement("button");
+      b.textContent = sg; b.dataset.s = sg;
+      if (answers[qi] === sg) b.classList.add("sel");
+      b.addEventListener("click", () => {
+        answers[qi] = sg;
+        signs.querySelectorAll("button").forEach(x => x.classList.toggle("sel", x.dataset.s === sg));
+      });
+      signs.appendChild(b);
+    });
+    area.appendChild(signs);
+  } else {
+    const inp = document.createElement("input");
+    inp.type = "text"; inp.className = "ans-input";
+    inp.placeholder = t(q.type === "A" ? "phA" : "phC");
+    inp.value = answers[qi] || "";
+    inp.setAttribute("aria-label", "answer");
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(i); });
+    area.appendChild(inp);
+    const btn = document.createElement("button");
+    btn.className = "check-btn"; btn.textContent = t("check");
+    btn.addEventListener("click", () => checkAnswer(i));
+    area.appendChild(btn);
+  }
+  if (q.type === "B") {
+    const btn = document.createElement("button");
+    btn.className = "check-btn"; btn.textContent = t("check");
+    btn.addEventListener("click", () => checkAnswer(i));
+    area.appendChild(btn);
+  }
+  sec.appendChild(area);
+  // feedback + pembahasan (restored if already checked)
+  const fb = document.createElement("div");
+  fb.className = "q-feedback";
+  sec.appendChild(fb);
+  if (results[qi]) fillFeedback(fb, qi, false);
+}
+function fillFeedback(fb, qi, fresh) {
+  const q = QUESTIONS[qi];
+  const r = results[qi];
+  fb.innerHTML = "";
+  const line = document.createElement("div");
+  line.className = "fb " + (r.ok ? "ok" : "no");
+  line.textContent = r.ok ? t("ok") : t("no");
+  fb.appendChild(line);
+  const mine = document.createElement("div");
+  mine.className = "fb info";
+  mine.textContent = t("your", { v: r.given });
+  fb.appendChild(mine);
+  if (!r.ok) {
+    const ca = document.createElement("div");
+    ca.className = "fb ok";
+    ca.textContent = t("right", { v: r.correct });
+    fb.appendChild(ca);
+  }
+  const pb = document.createElement("div");
+  pb.className = "pembahasan";
+  pb.innerHTML = '<div class="pb-title">' + t("pbTitle") + "</div><div>" + q.ex[lang] + "</div>";
+  fb.appendChild(pb);
+}
+function checkAnswer(i) {
+  const qi = parseInt(slides[i].dataset.qi, 10);
+  const q = QUESTIONS[qi];
+  const sec = slides[i];
+  let ok = false, given = "", correct = "", invalid = null;
+  if (q.type === "A") {
+    const raw = sec.querySelector(".ans-input").value;
+    const val = parseNumInput(raw);
+    if (isNaN(val)) { invalid = t("invalidA"); answers[qi] = raw; }
+    else { ok = (val === q.answer); given = sfmt(val); correct = sfmt(q.answer); answers[qi] = raw; }
+  } else if (q.type === "B") {
+    const chosen = answers[qi];
+    if (!chosen) { invalid = t("pickSign"); }
+    else { ok = (chosen === q.answer); given = chosen; correct = q.answer; }
+  } else {
+    const raw = sec.querySelector(".ans-input").value;
+    answers[qi] = raw;
+    const list = parseListInput(raw);
+    if (!list) { invalid = t("invalidC"); }
+    else {
+      ok = (list.length === q.answer.length && list.every((v, k) => v === q.answer[k]));
+      given = list.map(v => sfmt(v)).join(", ");
+      correct = q.answer.map(v => sfmt(v)).join(", ");
+    }
+  }
+  const fb = sec.querySelector(".q-feedback");
+  if (invalid) {
+    fb.innerHTML = "";
+    const line = document.createElement("div");
+    line.className = "fb no"; line.textContent = invalid;
+    fb.appendChild(line);
+    results[qi] = null;
+    updateDashboard();
+    return;
+  }
+  results[qi] = { ok: ok, given: given, correct: correct };
+  fillFeedback(fb, qi, true);
+  if (q.type === "B") {
+    const slot = sec.querySelector(".cmp-slot");
+    if (slot) slot.textContent = given;
+  }
+  updateDashboard();
+  buildMenu();
+}
+function updateDashboard() {
+  const grid = $("#dashGrid");
+  const qs = quizStartIndex();
+  if (grid.children.length !== QUESTIONS.length) {
+    grid.innerHTML = "";
+    QUESTIONS.forEach((q, i) => {
+      const b = document.createElement("button");
+      b.textContent = i + 1;
+      b.addEventListener("click", () => go(qs + i));
+      grid.appendChild(b);
+    });
+  }
+  Array.from(grid.children).forEach((b, i) => {
+    b.classList.toggle("ok", !!(results[i] && results[i].ok));
+    b.classList.toggle("no", !!(results[i] && !results[i].ok));
+    b.classList.toggle("cur", cur === qs + i);
+  });
+  const done = results.filter(Boolean).length;
+  const good = results.filter(Boolean).filter(r => r.ok).length;
+  $("#dashScore").textContent = t("scoreLine", { a: done, c: good });
+}
+function resetQuiz() {
+  answers.fill(null); results.fill(null);
+  updateDashboard();
+  if (slides[cur].classList.contains("quiz-slide")) renderQuestion(cur);
+}
+
+/* =====================================================
+   Wiring & init
+   ===================================================== */
+function refreshDynamic() {
+  updateFrog(); updateThermo();
+  $("#clScore").textContent = t("clScore", { a: clScoreN, b: 8 });
+  $("#cmpStreak").textContent = cmpStreakN > 0 ? t("cmpStreak", { n: cmpStreakN }) : "";
+  updateDashboard();
+  if (slides[cur] && slides[cur].classList.contains("quiz-slide")) renderQuestion(cur);
+  buildMenu();
+}
+function setLang(l) {
+  lang = l;
+  applyI18n();
+  refreshDynamic();
+}
+function init() {
+  buildQuizSlides();
+  refreshSlideList();
+  buildNumberLine();
+  buildClassify();
+  newCompare();
+  newOrderSet();
+  updateThermo();
+  applyI18n();
+  updateDashboard();
+  buildMenu();
+  go(0);
+
+  $("#startBtn").addEventListener("click", () => go(1));
+  $("#backStartBtn").addEventListener("click", () => go(0));
+  $("#prevBtn").addEventListener("click", () => go(cur - 1));
+  $("#nextBtn").addEventListener("click", () => go(cur + 1));
+  $("#menuBtn").addEventListener("click", openMenu);
+  $("#menuClose").addEventListener("click", closeMenu);
+  $("#menuOv").addEventListener("click", e => { if (e.target === $("#menuOv")) closeMenu(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeMenu();
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === "ArrowRight") go(cur + 1);
+    if (e.key === "ArrowLeft") go(cur - 1);
+  });
+  $$("#langPill button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+  $("#fsBtn").addEventListener("click", () => {
+    if (!document.fullscreenElement) { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  });
+  $("#warmBtn").addEventListener("click", () => $("#warmAns").classList.toggle("hidden"));
+  $("#nlLeft").addEventListener("click", () => { if (frogVal > -10) { frogVal--; updateFrog(); } });
+  $("#nlRight").addEventListener("click", () => { if (frogVal < 10) { frogVal++; updateFrog(); } });
+  $("#nlCheck").addEventListener("click", checkMission);
+  $("#nlNew").addEventListener("click", newMission);
+  $("#binInt").addEventListener("click", () => classifyWith(true));
+  $("#binNot").addEventListener("click", () => classifyWith(false));
+  $("#clReset").addEventListener("click", buildClassify);
+  $("#thSlider").addEventListener("input", updateThermo);
+  $("#cmpNew").addEventListener("click", newCompare);
+  $$(".cmp-btns button").forEach(b => b.addEventListener("click", () => answerCompare(b.dataset.s)));
+  $("#ordNew").addEventListener("click", newOrderSet);
+  $("#dashReset").addEventListener("click", resetQuiz);
+  $$(".conf-btn").forEach(b => b.addEventListener("click", () => {
+    $$(".conf-btn").forEach(x => x.classList.remove("sel"));
+    b.classList.add("sel");
+    const box = $("#confMsg");
+    box.classList.remove("hidden");
+    box.textContent = t("conf" + b.dataset.conf);
+  }));
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
